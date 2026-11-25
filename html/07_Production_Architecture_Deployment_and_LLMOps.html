@@ -1,0 +1,1708 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>07: Production Architecture &amp; LLMOps | Agentic AI Study Suite</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- Prism Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border: #334155;
+            --code-bg: #090d16;
+            --callout-warn-bg: rgba(245, 158, 11, 0.12);
+            --callout-warn-border: #f59e0b;
+            --callout-tip-bg: rgba(16, 185, 129, 0.12);
+            --callout-tip-border: #10b981;
+            --callout-imp-bg: rgba(168, 85, 247, 0.12);
+            --callout-imp-border: #a855f7;
+            --callout-note-bg: rgba(56, 189, 248, 0.12);
+            --callout-note-border: #38bdf8;
+            --sidebar-width: 290px;
+            --toc-width: 250px;
+        }
+
+        body.light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --callout-warn-bg: #fffbeb;
+            --callout-tip-bg: #ecfdf5;
+            --callout-imp-bg: #faf5ff;
+            --callout-note-bg: #f0f9ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.68;
+            font-size: 15px;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        aside.sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-header {
+            padding: 20px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.3px;
+        }
+        .sidebar-header p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .sidebar-search {
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-search input {
+            width: 100%;
+            padding: 7px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+        }
+        .sidebar-search input:focus {
+            border-color: var(--accent);
+        }
+        nav.nav-container {
+            padding: 12px 8px;
+            flex: 1;
+        }
+        .nav-links { list-style: none; }
+        .nav-links li { margin-bottom: 3px; }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .nav-links a:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .nav-links li.active a {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .sidebar-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Main Content Layout */
+        main.main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 40px 48px 80px 48px;
+            max-width: 1500px;
+        }
+        article.content-area {
+            flex: 1;
+            max-width: 860px;
+            min-width: 0;
+        }
+
+        /* In-Page TOC (Right rail) */
+        aside.toc-rail {
+            width: var(--toc-width);
+            margin-left: 40px;
+            position: sticky;
+            top: 40px;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            font-size: 12px;
+            border-left: 1px solid var(--border);
+            padding-left: 16px;
+            display: none;
+        }
+        @media (min-width: 1240px) {
+            aside.toc-rail { display: block; }
+        }
+        .toc-header {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+        .toc-list { list-style: none; }
+        .toc-list li { margin-bottom: 6px; }
+        .toc-list a {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: block;
+            line-height: 1.4;
+            transition: color 0.15s;
+        }
+        .toc-list a:hover { color: var(--accent); }
+        .toc-level-1 { font-weight: 600; color: var(--text-secondary); }
+        .toc-level-2 { padding-left: 10px; }
+        .toc-level-3 { padding-left: 20px; font-size: 11px; }
+
+        /* Typography */
+        h1.doc-title {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -0.7px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        .doc-subtitle {
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .doc-heading {
+            color: var(--text-primary);
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            position: relative;
+        }
+        .doc-h1 { font-size: 24px; margin-top: 48px; margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .doc-h2 { font-size: 19px; margin-top: 36px; margin-bottom: 14px; color: var(--accent); }
+        .doc-h3 { font-size: 16px; margin-top: 26px; margin-bottom: 10px; }
+        .doc-h4 { font-size: 14px; margin-top: 20px; margin-bottom: 8px; color: var(--text-secondary); }
+        .heading-anchor {
+            position: absolute;
+            left: -18px;
+            color: var(--text-muted);
+            opacity: 0;
+            text-decoration: none;
+            font-weight: 400;
+        }
+        .doc-heading:hover .heading-anchor { opacity: 0.8; }
+        p.doc-paragraph { margin-bottom: 16px; color: var(--text-secondary); }
+        strong { color: var(--text-primary); font-weight: 600; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        hr.doc-divider { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+
+        /* Lists */
+        ul.doc-list, ol.doc-list-ordered {
+            margin-bottom: 18px;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+        ul.doc-list li, ol.doc-list-ordered li { margin-bottom: 6px; }
+
+        /* Code Blocks */
+        .code-container {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .code-header {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            padding: 6px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-family: 'Fira Code', monospace;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            padding: 2px 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .copy-btn:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        pre {
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        code {
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 13px;
+        }
+        p code, li code, td code {
+            background-color: var(--bg-tertiary);
+            color: #f43f5e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12.5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Callouts */
+        .callout {
+            border-left: 4px solid;
+            border-radius: 6px;
+            padding: 16px 18px;
+            margin: 22px 0;
+            font-size: 14px;
+        }
+        .callout-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+        .callout-warning { background-color: var(--callout-warn-bg); border-color: var(--callout-warn-border); }
+        .callout-warning .callout-title { color: var(--callout-warn-border); }
+        .callout-tip { background-color: var(--callout-tip-bg); border-color: var(--callout-tip-border); }
+        .callout-tip .callout-title { color: var(--callout-tip-border); }
+        .callout-important { background-color: var(--callout-imp-bg); border-color: var(--callout-imp-border); }
+        .callout-important .callout-title { color: var(--callout-imp-border); }
+        .callout-note { background-color: var(--callout-note-bg); border-color: var(--callout-note-border); }
+        .callout-note .callout-title { color: var(--callout-note-border); }
+        .callout-content p { margin-bottom: 6px; color: var(--text-secondary); }
+        .callout-content p:last-child { margin-bottom: 0; }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 24px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        table.doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            text-align: left;
+        }
+        table.doc-table th {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        table.doc-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        table.doc-table tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.015); }
+        table.doc-table tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+        /* Math Styling */
+        .math-block {
+            overflow-x: auto;
+            padding: 14px 18px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .math-display {
+            display: block;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        /* Footer */
+        .doc-footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../index.html" style="text-decoration:none; color:inherit;">
+                <h2>⚡ Agentic AI Suite</h2>
+                <p>Senior · Staff · Lead Mastery &larr; Home</p>
+            </a>
+        </div>
+        <div class="sidebar-search">
+            <input type="text" id="searchInput" placeholder="Filter volumes..." onkeyup="filterNav()">
+        </div>
+        <nav class="nav-container">
+            <ul class="nav-links">
+                <li><a href="../index.html"><span class="nav-icon">🏠</span> <span class="nav-title">Home Portal</span></a></li>
+            </ul>
+            <ul class="nav-links">
+<li class=""><a href="00_Agentic_AI_Job_Market_Analysis_and_Master_Syllabus.html"><span class="nav-icon">📊</span> <span class="nav-title">00. Market Analysis & Syllabus</span></a></li>
+<li class=""><a href="01_Agent_Foundations_and_Cognitive_Architectures.html"><span class="nav-icon">🧠</span> <span class="nav-title">01. Foundations & Architectures</span></a></li>
+<li class=""><a href="02_Tool_Use_Function_Calling_and_Protocols.html"><span class="nav-icon">🔌</span> <span class="nav-title">02. Tool Use, MCP & Protocols</span></a></li>
+<li class=""><a href="03_Memory_Context_Engineering_and_Agentic_RAG.html"><span class="nav-icon">💾</span> <span class="nav-title">03. Memory & Agentic RAG</span></a></li>
+<li class=""><a href="04_Multi_Agent_Systems_and_Orchestration.html"><span class="nav-icon">🤖</span> <span class="nav-title">04. Multi-Agent Orchestration</span></a></li>
+<li class=""><a href="05_Evaluation_Observability_and_Reliability.html"><span class="nav-icon">📈</span> <span class="nav-title">05. Evals & Observability</span></a></li>
+<li class=""><a href="06_Security_Guardrails_and_Enterprise_Governance.html"><span class="nav-icon">🛡️</span> <span class="nav-title">06. Security & Governance</span></a></li>
+<li class="active"><a href="07_Production_Architecture_Deployment_and_LLMOps.html"><span class="nav-icon">⚙️</span> <span class="nav-title">07. Production & LLMOps</span></a></li>
+<li class=""><a href="08_System_Design_Blueprints_and_Case_Studies.html"><span class="nav-icon">📐</span> <span class="nav-title">08. System Design Case Studies</span></a></li>
+<li class=""><a href="09_Agentic_AI_Hard_Question_Bank_and_Solutions.html"><span class="nav-icon">🎯</span> <span class="nav-title">09. Hard Question Bank (120 Qs)</span></a></li>
+</ul>
+
+        </nav>
+        <div class="sidebar-footer">
+            <span>Suite v2.5</span>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+        <article class="content-area">
+            <div class="doc-header">
+                <div class="doc-subtitle">Senior / Staff / Lead Agentic AI Engineer Study Suite</div>
+                <h1 class="doc-title">07: Production Architecture &amp; LLMOps</h1>
+            </div>
+
+            <h1 id="reference-agent-platform-architecture-2" class="doc-heading doc-h1"><a href="#reference-agent-platform-architecture-2" class="heading-anchor">#</a> Reference Agent Platform Architecture</h1>
+<h2 id="why-agents-need-a-platform-not-a-script-4" class="doc-heading doc-h2"><a href="#why-agents-need-a-platform-not-a-script-4" class="heading-anchor">#</a> Why Agents Need a Platform, Not a Script</h2>
+<p class="doc-paragraph">A prototype agent is a loop: call a model, parse tool calls, execute tools, append results, repeat until the model stops. That loop fits in sixty lines of Python and works beautifully on a laptop. In production the same loop must survive provider outages, enforce per-tenant budgets, resume after a pod is evicted mid-run, stream partial output to a browser, keep secrets away from the model, emit traces an on-call engineer can read at 3 a.m., and be upgraded without breaking in-flight sessions. None of those concerns live in the loop itself. They live in the platform around it.</p>
+<p class="doc-paragraph">The mental model that scales is to treat the <strong>agent loop as a stateful, non-deterministic, long-running workflow whose steps are expensive remote calls</strong>. Every property of that sentence drives an architectural decision:</p>
+<ul class="doc-list">
+<li><strong>Stateful</strong> means you need durable state (conversation, scratchpad, tool results) that outlives any single process.</li>
+<li><strong>Non-deterministic</strong> means you cannot rely on replaying a run to reproduce a bug; you must record what happened.</li>
+<li><strong>Long-running</strong> means HTTP request/response is the wrong default transport for anything beyond a few seconds.</li>
+<li><strong>Expensive remote calls</strong> means caching, routing, batching and budgeting have first-order cost and latency impact.</li>
+</ul>
+<h2 id="the-layered-reference-architecture-15" class="doc-heading doc-h2"><a href="#the-layered-reference-architecture-15" class="heading-anchor">#</a> The Layered Reference Architecture</h2>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                 +---------------------------------------------------+
+ Clients  ----&gt;  |  Edge / API Gateway (authn, WAF, rate limit, SSE) |
+ (web, mobile,   +-------------------------+-------------------------+
+  Slack, A2A)                              |
+                                           v
+                 +---------------------------------------------------+
+                 |  Session / Conversation Service                   |
+                 |  (session ids, tenancy, idempotency keys)         |
+                 +-------------------------+-------------------------+
+                                           |
+                    sync (short)           |     async (long)
+                 +-------------+           |   +--------------------+
+                 | Inline      |&lt;----------+--&gt;| Durable Orchestrator|
+                 | Agent Runner|               | (Temporal / queue + |
+                 +------+------+               |  workers / LangGraph|
+                        |                      |  checkpointer)      |
+                        |                      +---------+----------+
+                        v                                v
+          +-----------------------------------------------------------+
+          |                 Agent Runtime (the loop)                   |
+          |  planner / policy  |  context builder  |  guardrails       |
+          +-----+-------------------+-------------------+-------------+
+                |                   |                   |
+                v                   v                   v
+     +-----------------+  +------------------+  +--------------------+
+     | LLM Gateway /   |  | Tool Layer       |  | Memory &amp; State     |
+     | Model Router    |  | (MCP servers,    |  | - session store    |
+     | - quotas        |  |  internal APIs,  |  | - vector / hybrid  |
+     | - fallbacks     |  |  sandboxes,      |  | - KV / Redis       |
+     | - caching       |  |  computer use)   |  | - object store     |
+     +--------+--------+  +--------+---------+  +---------+----------+
+              |                    |                      |
+              v                    v                      v
+   Providers (OpenAI, Anthropic,  Downstream systems     Postgres, pgvector,
+   Google, Bedrock, self-hosted   (CRM, DBs, SaaS)       Redis, S3/GCS
+   vLLM/SGLang)
+                                           |
+          +--------------------------------v--------------------------+
+          | Observability: OTel traces (GenAI semconv), metrics, logs, |
+          | eval pipelines, cost ledger, trajectory warehouse          |
+          +-----------------------------------------------------------+</code></pre></div>
+<p class="doc-paragraph">Each box has a clear contract.</p>
+<h3 id="edge-api-gateway-63" class="doc-heading doc-h3"><a href="#edge-api-gateway-63" class="heading-anchor">#</a> Edge / API Gateway</h3>
+<p class="doc-paragraph">Terminates TLS, authenticates the caller (OIDC/JWT, API keys, mTLS for service-to-service and A2A peers), applies coarse rate limits, and holds long-lived connections for Server-Sent Events or WebSockets. It must be configured for long idle timeouts — many default load balancers kill connections at 60 seconds, which silently truncates streaming responses from reasoning models that think for 90 seconds before emitting the first visible token.</p>
+<h3 id="session-service-67" class="doc-heading doc-h3"><a href="#session-service-67" class="heading-anchor">#</a> Session Service</h3>
+<p class="doc-paragraph">Owns the mapping from user/tenant to session, issues <strong>idempotency keys</strong> for every user turn, and is the source of truth for &quot;which run is currently active for this conversation.&quot; It prevents the classic double-submit bug where a user hits Enter twice and two agent runs race to write to the same conversation.</p>
+<h3 id="orchestrator-71" class="doc-heading doc-h3"><a href="#orchestrator-71" class="heading-anchor">#</a> Orchestrator</h3>
+<p class="doc-paragraph">Decides how a run executes. Short interactive turns may run inline in the request-handling process. Anything that can exceed a few tens of seconds, needs human approval, or has side effects that must not be duplicated goes to a <strong>durable orchestrator</strong>: Temporal, a queue-plus-worker system, or a graph runtime with a persistent checkpointer (LangGraph with a Postgres checkpointer, Google ADK with a persistent session service, OpenAI Agents SDK sessions backed by a database, etc.).</p>
+<h3 id="agent-runtime-75" class="doc-heading doc-h3"><a href="#agent-runtime-75" class="heading-anchor">#</a> Agent Runtime</h3>
+<p class="doc-paragraph">The loop itself, plus a context builder (assembles system prompt, memory, retrieved docs, tool schemas in a cache-friendly order), a policy layer (which tools are allowed for this tenant/user/step), and guardrails (input/output classifiers, PII redaction, tool-call validation). Frameworks — OpenAI Agents SDK, Claude Agent SDK, Google ADK, LangGraph, CrewAI, AG2 — live here. The platform should treat the framework as a replaceable component behind a stable internal interface.</p>
+<h3 id="llm-gateway-and-model-router-79" class="doc-heading doc-h3"><a href="#llm-gateway-and-model-router-79" class="heading-anchor">#</a> LLM Gateway and Model Router</h3>
+<p class="doc-paragraph">A single egress point for all model traffic. It normalises provider APIs, enforces quotas, does cross-provider fallback, routes by task difficulty, attaches cost accounting, and is the natural place for semantic/exact caching and prompt-cache-aware request shaping. Covered in depth later.</p>
+<h3 id="tool-layer-83" class="doc-heading doc-h3"><a href="#tool-layer-83" class="heading-anchor">#</a> Tool Layer</h3>
+<p class="doc-paragraph">Tools are exposed increasingly via <strong>MCP (Model Context Protocol)</strong> servers — a JSON-RPC protocol where servers advertise tools, resources and prompts, and clients (the agent runtime) invoke them over stdio or Streamable HTTP. Remote MCP servers use OAuth 2.1-based authorization. Inter-agent delegation across organisational boundaries increasingly uses <strong>A2A (Agent2Agent)</strong>, where agents publish an Agent Card describing skills and endpoints and exchange tasks with lifecycle states. The platform's tool layer adds what protocols alone do not: per-tenant credential injection, egress allow-lists, sandboxing for code execution and computer use, timeouts, and audit logs.</p>
+<h3 id="memory-and-state-87" class="doc-heading doc-h3"><a href="#memory-and-state-87" class="heading-anchor">#</a> Memory and State</h3>
+<p class="doc-paragraph">Distinguish carefully:</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Store</th>
+<th>Holds</th>
+<th>Typical tech</th>
+<th>Consistency need</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Session/run state</td>
+<td>Messages, checkpoints, pending tool calls</td>
+<td>Postgres, Temporal history, DynamoDB</td>
+<td>Strong, transactional</td>
+</tr>
+<tr>
+<td>Hot cache</td>
+<td>Rate-limit counters, locks, stream buffers</td>
+<td>Redis/Valkey</td>
+<td>Low latency, best-effort durable</td>
+</tr>
+<tr>
+<td>Long-term memory</td>
+<td>User facts, episodic summaries</td>
+<td>Postgres + pgvector, dedicated vector DB</td>
+<td>Eventual OK</td>
+</tr>
+<tr>
+<td>Knowledge/RAG</td>
+<td>Document chunks, embeddings</td>
+<td>Vector/hybrid search, OpenSearch</td>
+<td>Eventual, versioned indexes</td>
+</tr>
+<tr>
+<td>Artifacts</td>
+<td>Files, screenshots, generated reports</td>
+<td>S3/GCS</td>
+<td>Durable, immutable</td>
+</tr>
+<tr>
+<td>Trajectory warehouse</td>
+<td>Full traces for eval and training</td>
+<td>Parquet on object store, ClickHouse, BigQuery</td>
+<td>Append-only</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Storing agent run state only in process memory is the most common production failure for teams moving from prototype. A rolling deploy or OOM kill silently drops every in-flight run; users see a spinner forever. Any run longer than your p99 deploy-drain window must be checkpointed externally.</p>
+</div>
+</div>
+<h3 id="queues-103" class="doc-heading doc-h3"><a href="#queues-103" class="heading-anchor">#</a> Queues</h3>
+<p class="doc-paragraph">Queues decouple request acceptance from execution, absorb bursts, and provide retry semantics. Use them for long runs, batch jobs (evals, backfills, nightly report agents), and fan-out sub-agent work. Common choices: SQS, Pub/Sub, Kafka (when you also want the event log), Redis Streams, NATS JetStream, or Temporal task queues (which give you queue plus durable state together).</p>
+<h3 id="observability-107" class="doc-heading doc-h3"><a href="#observability-107" class="heading-anchor">#</a> Observability</h3>
+<p class="doc-paragraph">Every model call, tool call and agent step should be a span. The OpenTelemetry GenAI semantic conventions define attributes such as model name, token usage, and operation type; most agent frameworks and gateways now emit OTel or integrate with Langfuse, LangSmith, Arize Phoenix, Braintrust, Datadog LLM Observability, and similar. Beyond traces you need a <strong>cost ledger</strong> (per tenant, per feature, per model), and a <strong>trajectory warehouse</strong> that feeds evaluation and post-training.</p>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Staff-level framing: the platform's job is to make the <em>agent author's</em> code boring. If every team re-implements retries, fallbacks, budget checks and tracing inside their agent, you have a framework zoo, not a platform. Push cross-cutting concerns down into the gateway, orchestrator and tool layer so that agent code is mostly prompts, tool definitions and policies.</p>
+</div>
+</div>
+<h2 id="request-lifecycle-walkthrough-114" class="doc-heading doc-h2"><a href="#request-lifecycle-walkthrough-114" class="heading-anchor">#</a> Request Lifecycle Walkthrough</h2>
+<p class="doc-paragraph">Consider a user asking a support agent: &quot;Refund my last order and email me the receipt.&quot;</p>
+<ol class="doc-list-ordered">
+<li>The gateway authenticates the JWT, resolves tenant <code>acme</code>, checks the tenant's request-rate bucket, and upgrades to SSE.</li>
+<li>The session service creates turn <code>t_812</code> with idempotency key derived from client message id; if the key exists it returns the existing run's stream.</li>
+<li>The orchestrator classifies the turn as potentially side-effecting (refund tool is tagged <code>side_effect=true, requires_approval_over=100 USD</code>) and starts a durable workflow.</li>
+<li>The runtime builds context: static system prompt and tool schemas first (cacheable prefix), then tenant policy, then user memory, then conversation history, then the new message.</li>
+<li>The router picks a mid-tier model for planning. The gateway checks the tenant token budget, applies the provider prompt-cache key, and calls the provider; tokens stream back through the orchestrator to the SSE channel.</li>
+<li>The model emits <code>lookup_order</code> then <code>issue_refund(amount=42.00)</code>. Tool calls go via the tool layer, which injects the tenant's service credential (never visible to the model), enforces a 10-second timeout, and records the call with its idempotency key so a retry cannot double-refund.</li>
+<li>The model emits <code>send_email</code>. The final answer streams to the user. The workflow completes; usage is written to the cost ledger; the trace is sampled into the trajectory warehouse with an outcome label later attached from CSAT data.</li>
+</ol>
+<h2 id="control-plane-vs-data-plane-126" class="doc-heading doc-h2"><a href="#control-plane-vs-data-plane-126" class="heading-anchor">#</a> Control Plane vs Data Plane</h2>
+<p class="doc-paragraph">Mature platforms split:</p>
+<ul class="doc-list">
+<li><strong>Control plane</strong>: agent definitions, prompt versions, tool registry, model catalogue, routing policies, tenant config, budgets, feature flags, eval results. Low QPS, strongly consistent, audited, changes go through review.</li>
+<li><strong>Data plane</strong>: the runtime, gateway, tool executors. High QPS, horizontally scaled, reads control-plane config via cached snapshots so that a control-plane outage does not stop serving.</li>
+</ul>
+<div class="callout callout-important">
+<div class="callout-header"><span class="callout-icon">📌</span> <span class="callout-title">KEY INSIGHT</span></div>
+<div class="callout-content">
+<p>Data-plane components must keep working with the last known-good configuration when the control plane is unavailable. Design config distribution as versioned immutable snapshots (e.g., <code>agent_config@v417</code>) pushed or polled with local caching, never as a synchronous lookup on every request.</p>
+</div>
+</div>
+<h1 id="execution-models-sync-async-and-event-driven-136" class="doc-heading doc-h1"><a href="#execution-models-sync-async-and-event-driven-136" class="heading-anchor">#</a> Execution Models: Sync, Async, and Event-Driven</h1>
+<h2 id="the-spectrum-138" class="doc-heading doc-h2"><a href="#the-spectrum-138" class="heading-anchor">#</a> The Spectrum</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Mode</th>
+<th>Latency budget</th>
+<th>Transport</th>
+<th>State</th>
+<th>Example</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Synchronous inline</td>
+<td>under ~30 s</td>
+<td>HTTP + streaming</td>
+<td>Request-scoped, checkpoint optional</td>
+<td>Chat answer with 1-3 tool calls</td>
+</tr>
+<tr>
+<td>Async job</td>
+<td>seconds to hours</td>
+<td>Submit + poll/webhook/stream</td>
+<td>Durable</td>
+<td>Research report, code migration</td>
+</tr>
+<tr>
+<td>Event-driven reactive</td>
+<td>triggered by events</td>
+<td>Queue/bus</td>
+<td>Durable per entity</td>
+<td>Triage every new ticket, react to alert</td>
+</tr>
+<tr>
+<td>Scheduled / batch</td>
+<td>minutes to hours</td>
+<td>Cron + queue</td>
+<td>Durable</td>
+<td>Nightly reconciliation, eval runs</td>
+</tr>
+<tr>
+<td>Human-in-the-loop</td>
+<td>hours to days</td>
+<td>Async + notification</td>
+<td>Durable with signals</td>
+<td>Approvals, escalations</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph">The deciding question is not &quot;how long does it usually take&quot; but &quot;<strong>what is the p99 duration and what happens if the executing process dies halfway?</strong>&quot; If the answer involves side effects or more than one user-visible minute of lost work, use durable async execution.</p>
+<h2 id="synchronous-inline-150" class="doc-heading doc-h2"><a href="#synchronous-inline-150" class="heading-anchor">#</a> Synchronous Inline</h2>
+<p class="doc-paragraph">Best for chat-like interactions. The runner holds the request open and streams tokens. Keep the loop bounded: maximum steps (e.g., 8–15), maximum wall-clock (e.g., 60 s), maximum tokens. If a run exceeds limits, hand off to async mode rather than failing — &quot;This is taking longer; I'll notify you when it's done.&quot;</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Framework-agnostic pseudocode for a bounded inline loop
+async def run_inline(ctx, messages, tools, limits):
+    for step in range(limits.max_steps):
+        if ctx.elapsed() &gt; limits.max_seconds or ctx.tokens_used &gt; limits.max_tokens:
+            return await ctx.escalate_to_async(messages)
+        resp = await ctx.llm.stream(messages=messages, tools=tools.schemas())
+        async for delta in resp:
+            await ctx.emit(delta)          # forward to SSE
+        msg = resp.final_message()
+        messages.append(msg)
+        if not msg.tool_calls:
+            return msg
+        results = await asyncio.gather(*[
+            tools.execute(tc, ctx) for tc in msg.tool_calls
+        ], return_exceptions=True)
+        messages.extend(to_tool_messages(msg.tool_calls, results))
+    return await ctx.escalate_to_async(messages)</code></pre></div>
+<h2 id="async-job-pattern-174" class="doc-heading doc-h2"><a href="#async-job-pattern-174" class="heading-anchor">#</a> Async Job Pattern</h2>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Client --POST /runs--&gt; API --enqueue--&gt; Queue --&gt; Worker pool
+   ^                     |                           |
+   |                     +--201 {run_id}             +--&gt; checkpoints to DB
+   |                                                 +--&gt; events to stream bus
+   +-------- GET /runs/{id}/events (SSE) &lt;-----------+</code></pre></div>
+<p class="doc-paragraph">The API returns a run id immediately. The client subscribes to an event stream keyed by run id. Workers publish events to a bus (Redis Streams, Kafka, NATS) and the streaming endpoint tails the bus. This decouples which pod runs the agent from which pod holds the client connection — essential once you have more than one replica.</p>
+<h2 id="event-driven-agents-186" class="doc-heading doc-h2"><a href="#event-driven-agents-186" class="heading-anchor">#</a> Event-Driven Agents</h2>
+<p class="doc-paragraph">Here agents are consumers of business events: <code>ticket.created</code>, <code>pr.opened</code>, <code>alert.fired</code>. Key design rules:</p>
+<ul class="doc-list">
+<li><strong>Partition by entity</strong> (ticket id, repo) so events for one entity are processed in order by one consumer at a time; otherwise two agent runs may act on the same ticket concurrently.</li>
+<li><strong>Make handlers idempotent</strong>; at-least-once delivery is the norm.</li>
+<li><strong>Emit outcomes as events</strong> (<code>ticket.triaged</code>) so other agents or systems chain off them — this is choreography. Contrast with orchestration where a central workflow calls each agent.</li>
+</ul>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Choreography</th>
+<th>Orchestration</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Loose coupling, easy to add consumers</td>
+<td>Central visibility of the whole process</td>
+</tr>
+<tr>
+<td>Hard to see end-to-end flow</td>
+<td>Single place for retries, compensation, timeouts</td>
+</tr>
+<tr>
+<td>Failure handling distributed</td>
+<td>Orchestrator is a dependency and potential bottleneck</td>
+</tr>
+<tr>
+<td>Good for independent reactive agents</td>
+<td>Good for multi-step business processes with SLAs</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Use choreography between bounded contexts (the triage agent and the billing agent are owned by different teams) and orchestration within one (the steps of a single refund process). Mixing both is normal; the anti-pattern is an implicit orchestration hidden inside chains of events nobody can trace.</p>
+</div>
+</div>
+<h1 id="long-running-agents-with-queues-workers-and-durable-execution-204" class="doc-heading doc-h1"><a href="#long-running-agents-with-queues-workers-and-durable-execution-204" class="heading-anchor">#</a> Long-Running Agents with Queues, Workers, and Durable Execution</h1>
+<h2 id="the-core-problem-206" class="doc-heading doc-h2"><a href="#the-core-problem-206" class="heading-anchor">#</a> The Core Problem</h2>
+<p class="doc-paragraph">An agent that researches for 40 minutes, calling 200 tools, will encounter: provider 529/overloaded errors, rate limits, pod restarts, network partitions, and tool timeouts. Each failure must resume from the last good step, not from scratch, and must never repeat a non-idempotent side effect.</p>
+<h2 id="three-implementation-approaches-210" class="doc-heading doc-h2"><a href="#three-implementation-approaches-210" class="heading-anchor">#</a> Three Implementation Approaches</h2>
+<h3 id="approach-a-queue-workers-checkpoints-diy-212" class="doc-heading doc-h3"><a href="#approach-a-queue-workers-checkpoints-diy-212" class="heading-anchor">#</a> Approach A: Queue + Workers + Checkpoints (DIY)</h3>
+<p class="doc-paragraph">Each agent step is a message. A worker pulls a message, loads the checkpoint, performs one step (one model call plus its tool calls), writes the new checkpoint transactionally with the next step message (outbox pattern), and acks.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Pseudocode: one step per message with transactional outbox
+def handle_step(msg):
+    run = db.load_run(msg.run_id, for_update=True)
+    if run.step_seq &gt;= msg.step_seq:      # duplicate delivery
+        return ack(msg)
+    result = agent_step(run.state)        # model + tools (tools idempotent by key)
+    with db.transaction():
+        db.save_state(run.id, result.state, step_seq=msg.step_seq)
+        if not result.done:
+            db.outbox_insert(topic=&quot;agent.steps&quot;,
+                             payload={&quot;run_id&quot;: run.id, &quot;step_seq&quot;: msg.step_seq + 1})
+        else:
+            db.outbox_insert(topic=&quot;agent.completed&quot;, payload={&quot;run_id&quot;: run.id})
+    ack(msg)</code></pre></div>
+<p class="doc-paragraph">Pros: simple infra, full control. Cons: you re-invent timers, signals, versioning, visibility, and heartbeat handling.</p>
+<h3 id="approach-b-durable-execution-temporal-and-peers-235" class="doc-heading doc-h3"><a href="#approach-b-durable-execution-temporal-and-peers-235" class="heading-anchor">#</a> Approach B: Durable Execution (Temporal and peers)</h3>
+<p class="doc-paragraph">Temporal models a run as a <strong>workflow</strong> (deterministic code whose execution history is persisted as events) that calls <strong>activities</strong> (non-deterministic work: LLM calls, tool calls) with retry policies. If a worker dies, another replays the workflow history, skipping completed activities by reading their recorded results. This maps almost perfectly onto agent loops: the loop is workflow code, each LLM call and tool call is an activity. Temporal has published integrations for the OpenAI Agents SDK, and similar durable engines (Restate, DBOS, Inngest, AWS Step Functions, Azure Durable Functions) offer comparable semantics.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Temporal Python SDK style (structure is real; activity bodies elided)
+from datetime import timedelta
+from temporalio import workflow, activity
+from temporalio.common import RetryPolicy
+
+@activity.defn
+async def call_llm(req: dict) -&gt; dict:
+    ...  # call gateway; raise on retryable errors
+
+@activity.defn
+async def run_tool(call: dict) -&gt; dict:
+    ...  # execute with idempotency key = call[&quot;id&quot;]
+
+@workflow.defn
+class AgentWorkflow:
+    def __init__(self):
+        self.approved: dict[str, bool] = {}
+
+    @workflow.signal
+    def approve(self, tool_call_id: str, ok: bool):
+        self.approved[tool_call_id] = ok
+
+    @workflow.run
+    async def run(self, task: dict) -&gt; dict:
+        messages = task[&quot;messages&quot;]
+        for _ in range(50):
+            resp = await workflow.execute_activity(
+                call_llm, {&quot;messages&quot;: messages},
+                start_to_close_timeout=timedelta(minutes=5),
+                retry_policy=RetryPolicy(maximum_attempts=5,
+                                         backoff_coefficient=2.0))
+            messages.append(resp[&quot;message&quot;])
+            calls = resp[&quot;message&quot;].get(&quot;tool_calls&quot;, [])
+            if not calls:
+                return resp
+            for c in calls:
+                if c.get(&quot;requires_approval&quot;):
+                    await workflow.wait_condition(lambda: c[&quot;id&quot;] in self.approved,
+                                                  timeout=timedelta(days=2))
+                    if not self.approved[c[&quot;id&quot;]]:
+                        messages.append(tool_msg(c, &quot;Denied by human&quot;))
+                        continue
+                out = await workflow.execute_activity(
+                    run_tool, c, start_to_close_timeout=timedelta(minutes=2))
+                messages.append(tool_msg(c, out))
+        return {&quot;status&quot;: &quot;step_limit&quot;}</code></pre></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Workflow code must be deterministic: no direct LLM calls, <code>random</code>, wall-clock time, or network I/O inside the workflow function — use activities and the SDK's deterministic time APIs. A subtle trap: message histories can grow to megabytes and Temporal enforces history and payload size limits. Store large tool outputs in object storage and pass references, and use continue-as-new for very long loops.</p>
+</div>
+</div>
+<h3 id="approach-c-graph-runtime-with-checkpointer-291" class="doc-heading doc-h3"><a href="#approach-c-graph-runtime-with-checkpointer-291" class="heading-anchor">#</a> Approach C: Graph Runtime with Checkpointer</h3>
+<p class="doc-paragraph">LangGraph persists graph state after every super-step through a checkpointer (Postgres, SQLite, Redis); <code>interrupt</code> pauses for human input and the run resumes from the thread id. Google ADK sessions and OpenAI Agents SDK sessions provide conversation persistence. These give resumability of <em>state</em> but generally not the full retry/timer/worker-lease semantics of a durable execution engine; LangGraph Platform adds a task queue and workers for that.</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Criterion</th>
+<th>DIY queue</th>
+<th>Temporal-class engine</th>
+<th>Graph runtime + checkpointer</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Resume after crash</td>
+<td>Yes if careful</td>
+<td>Yes, built in</td>
+<td>Yes from last super-step</td>
+</tr>
+<tr>
+<td>Human waits of days</td>
+<td>Manual timers</td>
+<td>Native signals + timers</td>
+<td>interrupt + external resume</td>
+</tr>
+<tr>
+<td>Exactly-once side effects</td>
+<td>Your idempotency</td>
+<td>Your idempotency (activities are at-least-once)</td>
+<td>Your idempotency</td>
+</tr>
+<tr>
+<td>Workflow versioning</td>
+<td>Manual</td>
+<td>Patching/worker versioning</td>
+<td>Graph schema migrations, manual</td>
+</tr>
+<tr>
+<td>Ops burden</td>
+<td>Low infra, high code</td>
+<td>Cluster or cloud service</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Simple pipelines</td>
+<td>Business-critical, multi-day, multi-agent</td>
+<td>Agent-centric apps, fast iteration</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-important">
+<div class="callout-header"><span class="callout-icon">📌</span> <span class="callout-title">KEY INSIGHT</span></div>
+<div class="callout-content">
+<p>No engine gives exactly-once execution of external side effects. Activities are retried, so the <em>tool</em> must be idempotent: pass an idempotency key (e.g., <code>run_id:step:tool_call_id</code>) to downstream APIs that support it (Stripe-style), or record a &quot;started&quot; marker and check-before-act for those that do not.</p>
+</div>
+</div>
+<h2 id="worker-design-307" class="doc-heading doc-h2"><a href="#worker-design-307" class="heading-anchor">#</a> Worker Design</h2>
+<ul class="doc-list">
+<li><strong>Separate worker pools by resource profile</strong>: LLM-call-heavy workers are I/O bound (high concurrency per process, async); code-execution or browser/computer-use workers are CPU/memory bound and need sandboxed isolation (gVisor, Firecracker microVMs, Kata).</li>
+<li><strong>Heartbeats and leases</strong>: a worker holding a 10-minute activity must heartbeat so the orchestrator can detect death quickly rather than waiting the full timeout.</li>
+<li><strong>Graceful drain</strong>: on SIGTERM, stop pulling new tasks, finish or checkpoint current step, then exit; set Kubernetes <code>terminationGracePeriodSeconds</code> longer than the p99 step duration.</li>
+<li><strong>Backpressure</strong>: workers should pull, not be pushed. Concurrency limits per worker should reflect the downstream LLM quota, not CPU.</li>
+</ul>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Size async worker concurrency against your <em>token-per-minute quota</em>, not your pod count. Fifty idle-waiting workers that all fire at once will slam into a 429 wall; a gateway-side token bucket plus queue-depth-based autoscaling keeps throughput at the quota ceiling without thrashing.</p>
+</div>
+</div>
+<h1 id="streaming-sse-websockets-and-event-protocols-317" class="doc-heading doc-h1"><a href="#streaming-sse-websockets-and-event-protocols-317" class="heading-anchor">#</a> Streaming: SSE, WebSockets, and Event Protocols</h1>
+<h2 id="why-stream-319" class="doc-heading doc-h2"><a href="#why-stream-319" class="heading-anchor">#</a> Why Stream</h2>
+<p class="doc-paragraph">Perceived latency is dominated by time-to-first-visible-output. A 12-second answer that starts rendering at 700 ms feels faster than a 6-second answer delivered all at once. For agents, streaming also conveys <em>progress</em>: &quot;Searching orders…&quot;, &quot;Calling refund API…&quot;, which drastically reduces abandonment during multi-step runs.</p>
+<h2 id="transport-choices-323" class="doc-heading doc-h2"><a href="#transport-choices-323" class="heading-anchor">#</a> Transport Choices</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Transport</th>
+<th>Direction</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Use when</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>SSE</td>
+<td>Server to client</td>
+<td>Plain HTTP, proxies friendly, auto-reconnect with Last-Event-ID</td>
+<td>One-way; HTTP/1.1 connection limits per domain</td>
+<td>Chat output, run progress</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>Bidirectional</td>
+<td>Low overhead, client can interrupt/steer mid-run</td>
+<td>Stateful connections, harder LB, no built-in resume</td>
+<td>Voice, collaborative editing, interruptible agents</td>
+</tr>
+<tr>
+<td>HTTP streaming (chunked/NDJSON)</td>
+<td>Server to client</td>
+<td>Simplest</td>
+<td>No reconnect semantics</td>
+<td>Internal service-to-service</td>
+</tr>
+<tr>
+<td>WebRTC</td>
+<td>Bidirectional media</td>
+<td>Lowest latency audio</td>
+<td>Complex</td>
+<td>Realtime voice agents</td>
+</tr>
+<tr>
+<td>gRPC streaming</td>
+<td>Bidirectional</td>
+<td>Typed, efficient</td>
+<td>Browser support via proxies</td>
+<td>Internal services</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph">Provider APIs themselves stream via SSE (OpenAI Responses API, Anthropic Messages API, Gemini), and realtime voice APIs use WebSocket or WebRTC. MCP's Streamable HTTP transport can upgrade responses to SSE for server-to-client messages. A2A supports SSE streaming of task updates.</p>
+<h2 id="designing-an-agent-event-schema-335" class="doc-heading doc-h2"><a href="#designing-an-agent-event-schema-335" class="heading-anchor">#</a> Designing an Agent Event Schema</h2>
+<p class="doc-paragraph">Do not forward raw provider deltas to the browser. Define your own typed event stream, so you can switch providers and add agent-level events:</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-json">{&quot;id&quot;:&quot;412&quot;,&quot;event&quot;:&quot;run.started&quot;,&quot;data&quot;:{&quot;run_id&quot;:&quot;r_9&quot;,&quot;agent&quot;:&quot;support@v31&quot;}}
+{&quot;id&quot;:&quot;413&quot;,&quot;event&quot;:&quot;step.started&quot;,&quot;data&quot;:{&quot;step&quot;:1,&quot;kind&quot;:&quot;model&quot;}}
+{&quot;id&quot;:&quot;414&quot;,&quot;event&quot;:&quot;message.delta&quot;,&quot;data&quot;:{&quot;text&quot;:&quot;Let me look up&quot;}}
+{&quot;id&quot;:&quot;418&quot;,&quot;event&quot;:&quot;tool.call&quot;,&quot;data&quot;:{&quot;name&quot;:&quot;lookup_order&quot;,&quot;args_preview&quot;:{&quot;order&quot;:&quot;last&quot;}}}
+{&quot;id&quot;:&quot;421&quot;,&quot;event&quot;:&quot;tool.result&quot;,&quot;data&quot;:{&quot;name&quot;:&quot;lookup_order&quot;,&quot;status&quot;:&quot;ok&quot;,&quot;ms&quot;:312}}
+{&quot;id&quot;:&quot;430&quot;,&quot;event&quot;:&quot;approval.required&quot;,&quot;data&quot;:{&quot;tool_call_id&quot;:&quot;tc_3&quot;,&quot;summary&quot;:&quot;Refund 42.00 USD&quot;}}
+{&quot;id&quot;:&quot;455&quot;,&quot;event&quot;:&quot;message.completed&quot;,&quot;data&quot;:{&quot;usage&quot;:{&quot;in&quot;:5120,&quot;out&quot;:210}}}
+{&quot;id&quot;:&quot;456&quot;,&quot;event&quot;:&quot;run.completed&quot;,&quot;data&quot;:{&quot;status&quot;:&quot;success&quot;}}</code></pre></div>
+<p class="doc-paragraph">Open protocols such as AG-UI standardise this agent-to-frontend event layer; adopting one (or mirroring its shape) eases frontend reuse.</p>
+<h2 id="resumable-streams-352" class="doc-heading doc-h2"><a href="#resumable-streams-352" class="heading-anchor">#</a> Resumable Streams</h2>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Worker --XADD run:r_9--&gt; Redis Stream &lt;--XREAD from last id-- SSE endpoint (any pod)
+                                                     ^
+                     Browser reconnects with Last-Event-ID: 421</code></pre></div>
+<p class="doc-paragraph">Workers append events to a per-run stream with monotonically increasing ids. The SSE endpoint, on any replica, reads from <code>Last-Event-ID</code> onward. This survives client reconnects (mobile network switches) and load-balancer re-routing. Set a TTL on the stream after completion.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># FastAPI SSE endpoint tailing Redis Streams (illustrative)
+from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
+import redis.asyncio as redis, json
+
+app = FastAPI(); r = redis.Redis()
+
+@app.get(&quot;/runs/{run_id}/events&quot;)
+async def events(run_id: str, request: Request):
+    last = request.headers.get(&quot;last-event-id&quot;, &quot;0-0&quot;)
+    async def gen():
+        nonlocal last
+        while True:
+            if await request.is_disconnected():
+                break
+            resp = await r.xread({f&quot;run:{run_id}&quot;: last}, block=15000, count=100)
+            if not resp:
+                yield &quot;: keepalive\n\n&quot;           # defeat idle timeouts
+                continue
+            for _, entries in resp:
+                for eid, fields in entries:
+                    last = eid.decode()
+                    evt = fields[b&quot;event&quot;].decode()
+                    yield f&quot;id: {last}\nevent: {evt}\ndata: {fields[b'data'].decode()}\n\n&quot;
+                    if evt == &quot;run.completed&quot;:
+                        return
+    return StreamingResponse(gen(), media_type=&quot;text/event-stream&quot;,
+                             headers={&quot;Cache-Control&quot;: &quot;no-cache&quot;,
+                                      &quot;X-Accel-Buffering&quot;: &quot;no&quot;})</code></pre></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Proxy buffering silently destroys streaming. Nginx buffers by default (disable via <code>X-Accel-Buffering: no</code> or <code>proxy_buffering off</code>), some CDNs buffer until the response completes, and compression middleware can hold bytes. Symptom: the stream &quot;works&quot; locally but arrives as one blob in production. Always test streaming through the full production edge path.</p>
+</div>
+</div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Streaming and output guardrails conflict. If you stream tokens as they arrive, a moderation classifier that flags the full response runs too late — the user already saw it. Options: stream with a lagging buffer (moderate every N tokens/sentence before release), stream only for low-risk surfaces, or retract-and-replace in the UI. Pick explicitly per surface.</p>
+</div>
+</div>
+<h2 id="interruption-and-steering-400" class="doc-heading doc-h2"><a href="#interruption-and-steering-400" class="heading-anchor">#</a> Interruption and Steering</h2>
+<p class="doc-paragraph">Users want to stop or redirect an agent mid-run. With WebSockets, the client sends <code>{&quot;type&quot;:&quot;cancel&quot;}</code> or <code>{&quot;type&quot;:&quot;steer&quot;,&quot;text&quot;:&quot;use EU region&quot;}</code>; with SSE, use a separate POST endpoint that sends a signal to the run (e.g., Temporal signal or a Redis key the loop checks between steps). Cancellation must propagate: abort the in-flight provider stream (saving tokens), cancel pending tool calls if safe, and record the partial state.</p>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Check for cancellation between every step <em>and</em> abort the provider HTTP stream on cancel. Reasoning models can burn thousands of hidden reasoning tokens after a user has already navigated away; at scale, unabandoned streams are a measurable percentage of spend.</p>
+</div>
+</div>
+<h1 id="model-routing-and-cascading-408" class="doc-heading doc-h1"><a href="#model-routing-and-cascading-408" class="heading-anchor">#</a> Model Routing and Cascading</h1>
+<h2 id="the-economic-premise-410" class="doc-heading doc-h2"><a href="#the-economic-premise-410" class="heading-anchor">#</a> The Economic Premise</h2>
+<p class="doc-paragraph">Model prices span roughly two orders of magnitude between small and frontier models, and latency spans one order. Yet in most agent workloads a large majority of calls — classification, extraction, routing decisions, simple tool-argument filling, summarisation of tool output — are well within the ability of small models. Routing sends each request to the cheapest model that meets its quality bar; cascading tries cheap first and escalates on low confidence.</p>
+<h2 id="routing-strategies-414" class="doc-heading doc-h2"><a href="#routing-strategies-414" class="heading-anchor">#</a> Routing Strategies</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Strategy</th>
+<th>How it decides</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Static by step type</td>
+<td>Config: planner uses model A, extractor uses model B</td>
+<td>Predictable, easy to eval</td>
+<td>Leaves savings on table</td>
+</tr>
+<tr>
+<td>Rule-based</td>
+<td>Features: input length, tenant tier, tool count, language</td>
+<td>Cheap, explainable</td>
+<td>Brittle, manual</td>
+</tr>
+<tr>
+<td>Learned router</td>
+<td>Classifier predicts whether small model will succeed</td>
+<td>Adapts to distribution</td>
+<td>Needs labelled data, drift</td>
+</tr>
+<tr>
+<td>Cascade</td>
+<td>Try small, verify, escalate if fail</td>
+<td>Pays big-model cost only when needed</td>
+<td>Latency of failed attempt; needs reliable verifier</td>
+</tr>
+<tr>
+<td>Ensemble / best-of-n</td>
+<td>Multiple models, pick via judge or vote</td>
+<td>Highest quality</td>
+<td>Most expensive</td>
+</tr>
+<tr>
+<td>Reasoning-effort routing</td>
+<td>Same model, vary reasoning effort/thinking budget</td>
+<td>One model to eval</td>
+<td>Effort knobs differ by provider</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph">Most current frontier APIs expose a reasoning effort or thinking-budget parameter. Routing therefore has two axes: <em>which model</em> and <em>how much thinking</em>. A common production pattern is a fast non-reasoning model for conversational turns and a reasoning model (or high effort) only for planning, code generation, or when the cheap path fails verification.</p>
+<h2 id="cascade-mechanics-427" class="doc-heading doc-h2"><a href="#cascade-mechanics-427" class="heading-anchor">#</a> Cascade Mechanics</h2>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">request --&gt; small model --&gt; verifier --&gt; pass? --yes--&gt; return
+                                |
+                                no
+                                v
+                          large model --&gt; verifier --&gt; return (or human)</code></pre></div>
+<p class="doc-paragraph">The economics depend on the verifier. Good verifiers in agent systems are often <em>programmatic</em>: JSON schema validation, tool-argument validation against the API, unit tests passing, SQL that parses and returns rows, citations that exist in retrieved documents. LLM-as-judge verifiers work but add cost and their own error rate.</p>
+<h3 id="worked-cascade-math-439" class="doc-heading doc-h3"><a href="#worked-cascade-math-439" class="heading-anchor">#</a> Worked Cascade Math</h3>
+<p class="doc-paragraph">Let the small model cost <code>c_s</code> = 0.3 units per request, the large model <code>c_l</code> = 5 units, the verifier <code>c_v</code> = 0.05 units, and the small model passes verification with probability <code>p</code> = 0.75.</p>
+<p class="doc-paragraph">Expected cost per request with cascade:</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">E[cost] = c_s + c_v + (1 - p) * (c_l + c_v)
+        = 0.3 + 0.05 + 0.25 * 5.05
+        = 0.35 + 1.2625 = 1.61 units</code></pre></div>
+<p class="doc-paragraph">Versus always-large: 5 units. Savings: 68%. The cascade breaks even when <code>c_s + c_v + (1-p)(c_l + c_v) = c_l</code>, i.e. when <code>p = (c_s + c_v) / (c_l + c_v)</code> ≈ 0.069. So even a small model that passes only 10% of the time saves money in pure cost terms — but latency is the real constraint: failed attempts add the small model's latency to escalated requests. If small takes 1.2 s and large 6 s, p95 latency of escalated requests goes to 7.2 s+.</p>
+<p class="doc-paragraph">Also account for <strong>verifier false positives</strong>: if the verifier passes 3% of small-model answers that are actually wrong, quality degrades silently. Measure the router on an eval set with both cost and quality, not cost alone.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Cascade with programmatic verification (framework-agnostic)
+async def cascade(req, tiers, verify):
+    last_err = None
+    for tier in tiers:                     # e.g. [&quot;small&quot;, &quot;medium&quot;, &quot;frontier&quot;]
+        resp = await gateway.complete(model=tier, **req)
+        ok, reason = verify(resp)
+        metrics.incr(&quot;cascade.attempt&quot;, tags={&quot;tier&quot;: tier, &quot;ok&quot;: ok})
+        if ok:
+            return resp
+        last_err = reason
+        req = add_feedback(req, resp, reason)  # optional: tell next tier what failed
+    raise CascadeExhausted(last_err)</code></pre></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Router drift: a learned router trained on last quarter's traffic misroutes when product changes introduce new task types. Symptoms are a slow quality decline with <em>falling</em> costs — which looks like a win on the FinOps dashboard. Track per-route quality metrics and alert on divergence, not just on spend.</p>
+</div>
+</div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Before building a learned router, measure the ceiling: run your eval set through every candidate model and compute the &quot;oracle routing&quot; cost (cheapest model that got each item right). If oracle savings are under 30%, a static per-step assignment probably captures most of the value with zero operational risk.</p>
+</div>
+</div>
+<h2 id="routing-in-multi-agent-systems-476" class="doc-heading doc-h2"><a href="#routing-in-multi-agent-systems-476" class="heading-anchor">#</a> Routing in Multi-Agent Systems</h2>
+<p class="doc-paragraph">In orchestrator-worker architectures (an orchestrator plans and spawns sub-agents), the orchestrator is usually a frontier reasoning model and sub-agents can be smaller. Anthropic's published experience with multi-agent research systems noted token usage is the dominant driver of both performance and cost, with multi-agent runs consuming many times the tokens of single-agent chats. Routing sub-agents to cheaper models is often the single largest lever.</p>
+<h1 id="llm-gateways-480" class="doc-heading doc-h1"><a href="#llm-gateways-480" class="heading-anchor">#</a> LLM Gateways</h1>
+<h2 id="responsibilities-482" class="doc-heading doc-h2"><a href="#responsibilities-482" class="heading-anchor">#</a> Responsibilities</h2>
+<p class="doc-paragraph">An LLM gateway is a reverse proxy specialised for model APIs. Open-source and commercial options include LiteLLM, Portkey, Kong AI Gateway, Envoy AI Gateway, Cloudflare AI Gateway, Azure API Management AI policies, and in-house builds. Core responsibilities:</p>
+<ol class="doc-list-ordered">
+<li><strong>Unified API</strong>: one schema (often OpenAI-compatible) mapped to many providers.</li>
+<li><strong>Authentication and key management</strong>: virtual keys per team/tenant; provider keys never leave the gateway.</li>
+<li><strong>Quotas and rate limits</strong>: requests/min, tokens/min, spend/day by tenant, team, and feature.</li>
+<li><strong>Fallbacks and retries</strong>: cross-region, cross-provider, cross-model.</li>
+<li><strong>Load balancing</strong>: across deployments (e.g., several Azure OpenAI regions, Bedrock regions, provisioned vs on-demand).</li>
+<li><strong>Caching</strong>: exact-match response cache, semantic cache, and prompt-cache-aware routing.</li>
+<li><strong>Cost accounting</strong>: tokens times price per model, including cached-token discounts and reasoning tokens.</li>
+<li><strong>Policy and safety</strong>: PII redaction, prompt-injection classifiers, data residency routing.</li>
+<li><strong>Observability</strong>: OTel spans, request logs (with configurable redaction).</li>
+</ol>
+<h2 id="rate-limiting-with-token-buckets-496" class="doc-heading doc-h2"><a href="#rate-limiting-with-token-buckets-496" class="heading-anchor">#</a> Rate Limiting with Token Buckets</h2>
+<p class="doc-paragraph">Providers limit both requests per minute (RPM) and tokens per minute (TPM), sometimes separately for input and output. The gateway must enforce your <em>internal</em> allocation of those limits so one tenant cannot starve others.</p>
+<p class="doc-paragraph">A token-bucket limiter per (tenant, model) key, with capacity <code>B</code> and refill rate <code>r</code> tokens/s, admits a request costing <code>k</code> tokens if bucket ≥ <code>k</code>. The difficulty: output tokens are unknown up front. Common approach — reserve <code>input_tokens + max_tokens</code> estimate at admission, then refund the unused portion after completion.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Redis Lua-backed token bucket with reservation and refund (sketch)
+LUA = &quot;&quot;&quot;
+local key, cap, rate, now, cost = KEYS[1], tonumber(ARGV[1]), tonumber(ARGV[2]),
+                                  tonumber(ARGV[3]), tonumber(ARGV[4])
+local b = redis.call('HMGET', key, 'tokens', 'ts')
+local tokens = tonumber(b[1]) or cap
+local ts = tonumber(b[2]) or now
+tokens = math.min(cap, tokens + (now - ts) * rate)
+if tokens &lt; cost then
+  redis.call('HMSET', key, 'tokens', tokens, 'ts', now)
+  return {0, math.ceil((cost - tokens) / rate * 1000)}
+end
+redis.call('HMSET', key, 'tokens', tokens - cost, 'ts', now)
+redis.call('EXPIRE', key, 3600)
+return {1, 0}
+&quot;&quot;&quot;
+
+async def admit(tenant, model, est_in, max_out):
+    reserve = est_in + max_out
+    ok, retry_ms = await r.eval(LUA, 1, f&quot;tpm:{tenant}:{model}&quot;,
+                                CAP[tenant], RATE[tenant], time.time(), reserve)
+    if not ok:
+        raise RateLimited(retry_after_ms=retry_ms)
+    return reserve
+
+async def settle(tenant, model, reserved, actual_in, actual_out):
+    refund = reserved - (actual_in + actual_out)
+    if refund &gt; 0:
+        await r.hincrbyfloat(f&quot;tpm:{tenant}:{model}&quot;, &quot;tokens&quot;, refund)</code></pre></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Reserving <code>max_tokens</code> for reasoning models is a trap: reasoning tokens count as output and can be tens of thousands. If you reserve the max you under-admit massively; if you reserve too little you overshoot provider TPM and get 429 storms. Use a per-route rolling p95 of actual output tokens as the reservation and refund/charge the difference.</p>
+</div>
+</div>
+<h2 id="fallback-design-537" class="doc-heading doc-h2"><a href="#fallback-design-537" class="heading-anchor">#</a> Fallback Design</h2>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">primary: provider A, model X, region us-east
+  on 429/5xx/timeout --&gt; provider A, model X, region us-west
+  on failure         --&gt; provider B, model Y (equivalent tier)
+  on failure         --&gt; degraded mode: smaller model + banner, or queue for later</code></pre></div>
+<p class="doc-paragraph">Rules for sane fallbacks:</p>
+<ul class="doc-list">
+<li><strong>Classify errors</strong>: 429 (retry after backoff or fail over), 5xx/529 overloaded (fail over quickly), 400 context-length (do not retry the same; trim or route to a longer-context model), content-policy refusal (do not blindly fail over — another provider may accept content that violates your own policy).</li>
+<li><strong>Retry budgets</strong>: cap total retries as a fraction of traffic (e.g., retries ≤ 10% of requests) to avoid retry storms amplifying an outage.</li>
+<li><strong>Circuit breakers</strong>: after N failures in a window, stop sending to that deployment for a cool-down period and probe with a trickle.</li>
+<li><strong>Hedged requests</strong>: for latency-critical calls, send a second request to another deployment if the first has not produced a first token within the p95 TTFT; cancel the loser. Costs extra tokens only on the slow tail.</li>
+<li><strong>Prompt equivalence</strong>: each fallback model needs its own tested prompt variant. Tool-calling formats, system-prompt adherence and JSON reliability differ.</li>
+</ul>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Fallback type</th>
+<th>Quality risk</th>
+<th>Cost impact</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Same model, other region</td>
+<td>None</td>
+<td>None</td>
+<td>Watch data residency</td>
+</tr>
+<tr>
+<td>Same model, other provider (e.g., via cloud marketplace)</td>
+<td>Very low</td>
+<td>Pricing may differ</td>
+<td>Feature parity gaps (caching, batch)</td>
+</tr>
+<tr>
+<td>Different model, same tier</td>
+<td>Medium</td>
+<td>Similar</td>
+<td>Requires per-model prompts and evals</td>
+</tr>
+<tr>
+<td>Smaller model</td>
+<td>High</td>
+<td>Lower</td>
+<td>Communicate degraded mode</td>
+</tr>
+<tr>
+<td>Queue for later</td>
+<td>None</td>
+<td>None</td>
+<td>Only for async workloads</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Treat cross-provider fallback as a feature that must be <em>continuously exercised</em>. Route 1–5% of production traffic to the secondary provider permanently. Fallback paths that are only used during outages are always broken during outages — expired keys, untested prompts, missing quota.</p>
+</div>
+</div>
+<h2 id="quotas-budgets-and-hierarchies-565" class="doc-heading doc-h2"><a href="#quotas-budgets-and-hierarchies-565" class="heading-anchor">#</a> Quotas, Budgets, and Hierarchies</h2>
+<p class="doc-paragraph">Quotas should be hierarchical: organisation → tenant → team/feature → user, each with soft (alert) and hard (block or degrade) limits on spend and tokens. Hard limits for end users should degrade gracefully (switch to cheaper model, reduce max steps) rather than error.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">yaml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-yaml"># Example gateway budget policy (illustrative schema)
+budgets:
+  - scope: tenant:acme
+    period: month
+    soft_limit_usd: 8000
+    hard_limit_usd: 10000
+    on_hard_limit: degrade        # route to tier &quot;small&quot;, max_steps=4
+  - scope: tenant:acme/feature:research_agent
+    period: day
+    hard_limit_usd: 400
+    on_hard_limit: queue
+  - scope: user:*
+    period: day
+    hard_limit_tokens: 2_000_000
+    on_hard_limit: block_with_message</code></pre></div>
+<h2 id="caching-at-the-gateway-587" class="doc-heading doc-h2"><a href="#caching-at-the-gateway-587" class="heading-anchor">#</a> Caching at the Gateway</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Cache type</th>
+<th>Hit condition</th>
+<th>Savings</th>
+<th>Risk</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Provider prompt cache</td>
+<td>Identical prefix to a recent request</td>
+<td>Large input-cost discount, lower TTFT</td>
+<td>None for correctness</td>
+</tr>
+<tr>
+<td>Exact response cache</td>
+<td>Identical full request incl. params</td>
+<td>Entire call</td>
+<td>Stale answers; only for deterministic tasks</td>
+</tr>
+<tr>
+<td>Semantic cache</td>
+<td>Embedding similarity above threshold</td>
+<td>Entire call</td>
+<td>Wrong answer for subtly different query; tenant leakage</td>
+</tr>
+<tr>
+<td>Tool result cache</td>
+<td>Same tool + args within TTL</td>
+<td>Tool latency/cost</td>
+<td>Staleness</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Semantic caches are dangerous in agents. &quot;Cancel my order 1234&quot; and &quot;Cancel my order 1243&quot; are near-identical embeddings. Never semantic-cache anything that is user-specific, has side effects, or depends on fresh state. Scope all caches by tenant to avoid cross-tenant data leakage.</p>
+</div>
+</div>
+<h1 id="latency-engineering-599" class="doc-heading doc-h1"><a href="#latency-engineering-599" class="heading-anchor">#</a> Latency Engineering</h1>
+<h2 id="decomposing-agent-latency-601" class="doc-heading doc-h2"><a href="#decomposing-agent-latency-601" class="heading-anchor">#</a> Decomposing Agent Latency</h2>
+<p class="doc-paragraph">For a single model call:</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">latency = network RTT + queueing + prefill(input_tokens) + [reasoning tokens decode] + visible output tokens decode
+TTFT  ≈ RTT + queue + prefill (+ reasoning time for reasoning models)
+TPOT  = time per output token (inverse of per-stream decode speed)
+total ≈ TTFT + output_tokens * TPOT</code></pre></div>
+<p class="doc-paragraph">For an agent run:</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">run latency = sum over sequential steps of (model latency + tool latency) + orchestration overhead</code></pre></div>
+<p class="doc-paragraph">Key insight: <strong>output tokens and sequential steps dominate</strong>. Prefill is highly parallel on GPUs (thousands of tokens per second per request), decode is sequential (tens to low hundreds of tokens per second per stream). A 2,000-token output at 60 tokens/s is 33 seconds no matter how small the prompt.</p>
+<h2 id="the-latency-levers-620" class="doc-heading doc-h2"><a href="#the-latency-levers-620" class="heading-anchor">#</a> The Latency Levers</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Lever</th>
+<th>Mechanism</th>
+<th>Typical gain</th>
+<th>Cost</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Fewer sequential steps</td>
+<td>Better planning, parallel tool calls, combine steps</td>
+<td>Large</td>
+<td>Prompt/eval work</td>
+</tr>
+<tr>
+<td>Shorter outputs</td>
+<td>Concise formats, structured outputs, no preamble</td>
+<td>Large</td>
+<td>Prompt work</td>
+</tr>
+<tr>
+<td>Prompt caching</td>
+<td>Skip prefill for cached prefix</td>
+<td>TTFT down significantly on long prompts</td>
+<td>Ordering discipline</td>
+</tr>
+<tr>
+<td>Smaller/faster model</td>
+<td>Faster decode</td>
+<td>2–5x</td>
+<td>Quality risk</td>
+</tr>
+<tr>
+<td>Lower reasoning effort</td>
+<td>Fewer hidden tokens</td>
+<td>Large for reasoning models</td>
+<td>Quality risk</td>
+</tr>
+<tr>
+<td>Parallel tool calls</td>
+<td>Run independent tools concurrently</td>
+<td>Sum to max</td>
+<td>Need independence</td>
+</tr>
+<tr>
+<td>Speculative execution</td>
+<td>Start likely next step early</td>
+<td>Hides latency</td>
+<td>Wasted work</td>
+</tr>
+<tr>
+<td>Streaming</td>
+<td>Perceived latency</td>
+<td>UX</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Regional proximity</td>
+<td>Lower RTT</td>
+<td>Tens to hundreds of ms</td>
+<td>Residency</td>
+</tr>
+<tr>
+<td>Provisioned throughput / priority tiers</td>
+<td>Lower queueing variance</td>
+<td>p99 improvement</td>
+<td>Committed spend</td>
+</tr>
+</tbody></table></div>
+<h2 id="parallelism-635" class="doc-heading doc-h2"><a href="#parallelism-635" class="heading-anchor">#</a> Parallelism</h2>
+<p class="doc-paragraph">Modern models emit multiple tool calls in one turn (parallel tool calling). Execute them concurrently with per-tool timeouts. At the architecture level, orchestrator-worker patterns fan out sub-agents in parallel — research agents commonly parallelise searches across sub-agents, trading tokens for wall-clock.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">async def exec_parallel(calls, timeout_s=15):
+    async def one(c):
+        try:
+            return await asyncio.wait_for(tools.execute(c), timeout_s)
+        except asyncio.TimeoutError:
+            return ToolError(c.id, &quot;timeout: tool did not respond in 15s&quot;)
+    return await asyncio.gather(*(one(c) for c in calls))</code></pre></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Parallel tool calls with hidden dependencies cause race conditions: <code>create_folder</code> and <code>upload_file_to_folder</code> emitted in the same turn will fail nondeterministically. Mark tools with dependency or side-effect metadata and serialise side-effecting calls targeting the same resource, or instruct the model (and validate) that dependent calls must be in separate turns.</p>
+</div>
+</div>
+<h2 id="speculative-execution-at-the-agent-level-652" class="doc-heading doc-h2"><a href="#speculative-execution-at-the-agent-level-652" class="heading-anchor">#</a> Speculative Execution at the Agent Level</h2>
+<p class="doc-paragraph">Distinct from speculative <em>decoding</em> (an inference-engine technique covered later), agent-level speculation means starting work before you know you need it:</p>
+<ul class="doc-list">
+<li><strong>Speculative retrieval</strong>: kick off RAG retrieval on the user message in parallel with the router/planner call; most turns need it anyway.</li>
+<li><strong>Speculative tool prefetch</strong>: when the user opens an order page, prefetch order details so the first tool call is a cache hit.</li>
+<li><strong>Speculative model calls</strong>: run the cheap model and the expensive model concurrently, return the cheap one if it verifies, cancel the expensive one — trades cost for cascade latency.</li>
+<li><strong>Predicted outputs</strong>: some APIs accept a predicted output (e.g., when editing a file where most content is unchanged), letting the server verify spans instead of generating them.</li>
+</ul>
+<h2 id="prompt-caching-661" class="doc-heading doc-h2"><a href="#prompt-caching-661" class="heading-anchor">#</a> Prompt Caching</h2>
+<p class="doc-paragraph">Providers cache the KV state of prompt prefixes. Mechanics differ:</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Aspect</th>
+<th>OpenAI</th>
+<th>Anthropic</th>
+<th>Google Gemini</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Activation</td>
+<td>Automatic for prompts above a minimum length (around 1,024 tokens)</td>
+<td>Explicit <code>cache_control</code> breakpoints on content blocks (also automatic options in newer setups)</td>
+<td>Implicit caching on recent models plus explicit cached content objects</td>
+</tr>
+<tr>
+<td>Discount on cached input</td>
+<td>Substantial (model-dependent, commonly 50–90%)</td>
+<td>Cache reads around 10% of base input price</td>
+<td>Discounted cached-token rate</td>
+</tr>
+<tr>
+<td>Write cost</td>
+<td>None extra</td>
+<td>Cache writes priced above base input (about 1.25x for 5-min TTL, higher for 1-hour TTL)</td>
+<td>Storage cost for explicit caches</td>
+</tr>
+<tr>
+<td>TTL</td>
+<td>Minutes, best-effort, extended retention options</td>
+<td>5 minutes default, 1-hour option</td>
+<td>Configurable for explicit caches</td>
+</tr>
+<tr>
+<td>Routing hint</td>
+<td><code>prompt_cache_key</code> parameter to improve hit rate</td>
+<td>Breakpoint placement</td>
+<td>Cache object reference</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph">Exact percentages change; verify current pricing pages. The structural rule is universal: <strong>caching matches on exact prefix</strong>. Order context from most static to most dynamic:</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">[1] system prompt (static, versioned)         &lt;- cache breakpoint
+[2] tool definitions (static per agent version)
+[3] few-shot examples / long reference docs   &lt;- cache breakpoint
+[4] tenant / user memory (changes rarely)     &lt;- cache breakpoint
+[5] conversation history (append-only)        &lt;- cache breakpoint at last turn
+[6] new user message / latest tool results</code></pre></div>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Anthropic Messages API with cache breakpoints (Python SDK shape)
+resp = client.messages.create(
+    model=MODEL,
+    max_tokens=1024,
+    system=[
+        {&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: SYSTEM_PROMPT_V31},
+        {&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: POLICY_HANDBOOK,          # ~20k tokens
+         &quot;cache_control&quot;: {&quot;type&quot;: &quot;ephemeral&quot;}},
+    ],
+    tools=TOOLS_V31,
+    messages=history + [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_msg}],
+)
+u = resp.usage
+log(cache_read=u.cache_read_input_tokens, cache_write=u.cache_creation_input_tokens,
+    uncached=u.input_tokens, out=u.output_tokens)</code></pre></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Cache killers: a timestamp or request id in the system prompt; non-deterministic JSON key ordering when serialising tool schemas; dynamically reordering tools per request; injecting retrieved documents <em>before</em> the static instructions; editing earlier conversation turns (e.g., rolling summarisation that rewrites history each turn). Any byte change invalidates everything after it. Monitor <code>cached_tokens / input_tokens</code> per route as a first-class SLI.</p>
+</div>
+</div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>For agent loops, the conversation grows by appending tool results, so each step re-sends the previous prefix. With good caching, a 20-step agent with a 30k-token context pays full price for roughly one prefix and discounted price for the rest. Without caching, input cost grows quadratically with steps. Caching is not an optimisation for agents; it is what makes long loops economically viable.</p>
+</div>
+</div>
+<h2 id="latency-slos-for-agents-708" class="doc-heading doc-h2"><a href="#latency-slos-for-agents-708" class="heading-anchor">#</a> Latency SLOs for Agents</h2>
+<p class="doc-paragraph">Define SLOs per interaction class, not one global number:</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Class</th>
+<th>TTFT/first-event SLO (p95)</th>
+<th>Completion SLO (p95)</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Conversational answer</td>
+<td>under 1.5 s first event</td>
+<td>under 8 s</td>
+</tr>
+<tr>
+<td>Tool-using turn (1–3 tools)</td>
+<td>under 1.5 s first progress event</td>
+<td>under 20 s</td>
+</tr>
+<tr>
+<td>Research/async task</td>
+<td>under 2 s acknowledgment</td>
+<td>Minutes; progress events every 10 s</td>
+</tr>
+<tr>
+<td>Voice agent</td>
+<td>under 500–800 ms response onset</td>
+<td>Turn-based</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph">Measure first <em>meaningful</em> event (a status or first token), not HTTP 200.</p>
+<h1 id="cost-engineering-and-token-budgets-721" class="doc-heading doc-h1"><a href="#cost-engineering-and-token-budgets-721" class="heading-anchor">#</a> Cost Engineering and Token Budgets</h1>
+<h2 id="anatomy-of-agent-cost-723" class="doc-heading doc-h2"><a href="#anatomy-of-agent-cost-723" class="heading-anchor">#</a> Anatomy of Agent Cost</h2>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">cost_per_task = sum over model calls of [
+     uncached_in * p_in + cached_in * p_cached + cache_write * p_write
+   + (reasoning_out + visible_out) * p_out ]
+ + tool costs (search API, sandboxes, browsers)
+ + embedding / retrieval costs
+ + infra (orchestrator, storage, observability)
+ + human review costs (often the largest, often ignored)</code></pre></div>
+<p class="doc-paragraph">Unit economics should be expressed <strong>per successful task</strong>, not per token or per request: <code>cost_per_success = total_cost / successful_tasks</code>. An agent with a 60% success rate at 0.10 USD per attempt costs 0.167 USD per success, plus the cost of the failures handled by humans.</p>
+<h2 id="worked-finops-example-737" class="doc-heading doc-h2"><a href="#worked-finops-example-737" class="heading-anchor">#</a> Worked FinOps Example</h2>
+<p class="doc-paragraph">Scenario: customer-support agent, 1.2 million conversations/month, average 3 user turns per conversation, average 4 model calls per turn (planner + tool loops), hence 14.4 million model calls/month.</p>
+<p class="doc-paragraph">Per-call token profile (averages):</p>
+<ul class="doc-list">
+<li>Static prefix (system + tools + policy): 12,000 tokens</li>
+<li>Dynamic context (memory + history + tool results): 4,000 tokens</li>
+<li>Output: 250 visible tokens, 0 reasoning (non-reasoning model for most calls)</li>
+</ul>
+<p class="doc-paragraph">Illustrative prices for a mid-tier model (use your own contracted prices): input 2.50 USD per million tokens, cached input 0.25 USD per million, output 10 USD per million.</p>
+<p class="doc-paragraph"><strong>Scenario A — no caching:</strong></p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">input  = 16,000 tok * 14.4M calls = 230.4B tokens * 2.50/M  = 576,000 USD
+output = 250 tok * 14.4M = 3.6B tokens * 10/M               =  36,000 USD
+total                                                        = 612,000 USD/month</code></pre></div>
+<p class="doc-paragraph"><strong>Scenario B — prompt caching with 85% hit rate on the 12k static prefix, plus half of dynamic context cached (history prefix):</strong></p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">cached tokens per call   = 0.85*12,000 + 0.5*4,000 = 10,200 + 2,000 = 12,200
+uncached tokens per call = 16,000 - 12,200 = 3,800
+cached  = 12,200 * 14.4M = 175.7B * 0.25/M = 43,920 USD
+uncached= 3,800  * 14.4M =  54.7B * 2.50/M = 136,800 USD
+output  =                                       36,000 USD
+total                                         ≈ 216,700 USD/month   (-65%)</code></pre></div>
+<p class="doc-paragraph"><strong>Scenario C — B plus routing:</strong> 70% of calls (extraction, classification, simple replies) move to a small model at one-tenth the price.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">large share (30%): 216,700 * 0.30          = 65,010 USD
+small share (70%): 216,700 * 0.70 * 0.10   = 15,169 USD
+router overhead (tiny classifier ~ 1% of B) ≈  2,000 USD
+total                                       ≈ 82,200 USD/month   (-87% vs A)</code></pre></div>
+<p class="doc-paragraph"><strong>Scenario D — C plus step reduction:</strong> better planning and parallel tool calls drop average model calls per turn from 4 to 3 (−25%) → about 61,600 USD/month.</p>
+<p class="doc-paragraph">The lesson: <strong>caching, routing and step count are multiplicative</strong>, and step count also reduces latency. Prompt micro-trimming of a few hundred tokens barely registers by comparison.</p>
+<p class="doc-paragraph">Now compare to the value side: if each conversation deflected from a human agent saves 4 USD and the agent fully resolves 55% of conversations, value is 1.2M × 0.55 × 4 = 2.64M USD/month. Even Scenario A is profitable; but Scenario A at 3x traffic with reasoning models might not be. Always present both sides.</p>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Reasoning tokens are invisible output tokens billed at output rates. Switching a route from a non-reasoning model to a reasoning model at &quot;the same price per token&quot; can multiply cost 5–20x because each call emits thousands of hidden reasoning tokens. Track <code>reasoning_tokens</code> separately in your cost ledger and set reasoning effort explicitly per route.</p>
+</div>
+</div>
+<h2 id="token-budgets-in-the-agent-loop-786" class="doc-heading doc-h2"><a href="#token-budgets-in-the-agent-loop-786" class="heading-anchor">#</a> Token Budgets in the Agent Loop</h2>
+<p class="doc-paragraph">Budgets should exist at several levels:</p>
+<ul class="doc-list">
+<li><strong>Per call</strong>: <code>max_output_tokens</code>, reasoning effort/budget.</li>
+<li><strong>Per run</strong>: total tokens and dollars; checked before each step.</li>
+<li><strong>Per context window</strong>: cap on context size, triggering compaction (summarise older turns, drop stale tool outputs, offload to files/memory).</li>
+<li><strong>Per tenant/period</strong>: enforced by the gateway.</li>
+</ul>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">class RunBudget:
+    def __init__(self, usd_limit, token_limit):
+        self.usd_limit, self.token_limit = usd_limit, token_limit
+        self.usd = 0.0; self.tokens = 0
+
+    def charge(self, usage, price):
+        self.tokens += usage.input + usage.output
+        self.usd += (usage.uncached_in * price.inp + usage.cached_in * price.cached
+                     + usage.output * price.out) / 1e6
+
+    def check(self, projected_usd=0.0):
+        if self.usd + projected_usd &gt; self.usd_limit:
+            raise BudgetExceeded(&quot;usd&quot;, self.usd)
+        if self.tokens &gt; self.token_limit:
+            raise BudgetExceeded(&quot;tokens&quot;, self.tokens)</code></pre></div>
+<p class="doc-paragraph">On <code>BudgetExceeded</code>, do not just crash: ask the model to produce a best-effort final answer with what it has (one bounded call), or hand off to a human.</p>
+<h2 id="context-compaction-economics-815" class="doc-heading doc-h2"><a href="#context-compaction-economics-815" class="heading-anchor">#</a> Context Compaction Economics</h2>
+<p class="doc-paragraph">Long agent runs accumulate tool outputs. Strategies:</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Strategy</th>
+<th>Effect on cost</th>
+<th>Effect on cache</th>
+<th>Risk</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Truncate old tool outputs</td>
+<td>Lower input</td>
+<td>Breaks cache at truncation point</td>
+<td>Lose detail</td>
+</tr>
+<tr>
+<td>Periodic summarisation (compaction)</td>
+<td>Much lower input</td>
+<td>Breaks cache once per compaction</td>
+<td>Summary loses facts</td>
+</tr>
+<tr>
+<td>Offload to files/memory, keep pointers</td>
+<td>Lower input</td>
+<td>Stable if done append-only</td>
+<td>Model must re-fetch</td>
+</tr>
+<tr>
+<td>Sub-agents with isolated contexts</td>
+<td>Lower per-context size</td>
+<td>Each sub-agent has own cache</td>
+<td>More total tokens possible</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Compact in discrete epochs (e.g., when context passes 70% of the window), not every turn. Every compaction invalidates the cache for the suffix; compacting once per 20 turns costs one cache write, compacting every turn defeats caching entirely. The Claude Agent SDK and several frameworks provide built-in compaction for exactly this reason.</p>
+</div>
+</div>
+<h2 id="batch-and-flex-tiers-829" class="doc-heading doc-h2"><a href="#batch-and-flex-tiers-829" class="heading-anchor">#</a> Batch and Flex Tiers</h2>
+<p class="doc-paragraph">Major providers offer batch APIs (asynchronous, typically within 24 hours) at around a 50% discount, and some offer flex/priority tiers trading latency for price. Route offline workloads — evals, backfills, nightly summarisation, synthetic data generation, trajectory labelling — to batch. A platform should make &quot;batch-eligible&quot; a property of the job, with the gateway choosing the API.</p>
+<h2 id="finops-operating-model-833" class="doc-heading doc-h2"><a href="#finops-operating-model-833" class="heading-anchor">#</a> FinOps Operating Model</h2>
+<ul class="doc-list">
+<li><strong>Showback/chargeback</strong> by tenant, team, feature via gateway tags.</li>
+<li><strong>Unit metrics dashboards</strong>: cost per successful task, cost per active user, cached-token ratio, reasoning-token share, retries share.</li>
+<li><strong>Anomaly detection</strong>: an agent stuck in a loop can spend thousands of dollars in an hour; alert on per-run spend over threshold and per-tenant spend velocity.</li>
+<li><strong>Commitment management</strong>: provisioned throughput or committed-use discounts once baseline traffic is predictable; keep bursts on on-demand.</li>
+</ul>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Runaway loops are the costliest agent failure mode: a tool returns an error the model cannot fix, the model retries forever. Hard step limits, repeated-identical-call detection (same tool + same args three times → abort), and per-run spend caps are mandatory, not optional.</p>
+</div>
+</div>
+
+
+            <div class="doc-footer">
+                <span>Agentic AI Study Material · Production Engineering</span>
+                <a href="#top">↑ Back to top</a>
+            </div>
+        </article>
+
+        <!-- Right In-Page TOC Rail -->
+        <aside class="toc-rail">
+            <nav class="toc-nav"><div class="toc-header">On This Page</div><ul class="toc-list">
+<li class="toc-level-1"><a href="#reference-agent-platform-architecture-2">Reference Agent Platform Architecture</a></li>
+<li class="toc-level-2"><a href="#why-agents-need-a-platform-not-a-script-4">Why Agents Need a Platform, Not a Script</a></li>
+<li class="toc-level-2"><a href="#the-layered-reference-architecture-15">The Layered Reference Architecture</a></li>
+<li class="toc-level-3"><a href="#edge-api-gateway-63">Edge / API Gateway</a></li>
+<li class="toc-level-3"><a href="#session-service-67">Session Service</a></li>
+<li class="toc-level-3"><a href="#orchestrator-71">Orchestrator</a></li>
+<li class="toc-level-3"><a href="#agent-runtime-75">Agent Runtime</a></li>
+<li class="toc-level-3"><a href="#llm-gateway-and-model-router-79">LLM Gateway and Model Router</a></li>
+<li class="toc-level-3"><a href="#tool-layer-83">Tool Layer</a></li>
+<li class="toc-level-3"><a href="#memory-and-state-87">Memory and State</a></li>
+<li class="toc-level-3"><a href="#queues-103">Queues</a></li>
+<li class="toc-level-3"><a href="#observability-107">Observability</a></li>
+<li class="toc-level-2"><a href="#request-lifecycle-walkthrough-114">Request Lifecycle Walkthrough</a></li>
+<li class="toc-level-2"><a href="#control-plane-vs-data-plane-126">Control Plane vs Data Plane</a></li>
+<li class="toc-level-1"><a href="#execution-models-sync-async-and-event-driven-136">Execution Models: Sync, Async, and Event-Driven</a></li>
+<li class="toc-level-2"><a href="#the-spectrum-138">The Spectrum</a></li>
+<li class="toc-level-2"><a href="#synchronous-inline-150">Synchronous Inline</a></li>
+<li class="toc-level-2"><a href="#async-job-pattern-174">Async Job Pattern</a></li>
+<li class="toc-level-2"><a href="#event-driven-agents-186">Event-Driven Agents</a></li>
+<li class="toc-level-1"><a href="#long-running-agents-with-queues-workers-and-durable-execution-204">Long-Running Agents with Queues, Workers, and Durable Execution</a></li>
+<li class="toc-level-2"><a href="#the-core-problem-206">The Core Problem</a></li>
+<li class="toc-level-2"><a href="#three-implementation-approaches-210">Three Implementation Approaches</a></li>
+<li class="toc-level-3"><a href="#approach-a-queue-workers-checkpoints-diy-212">Approach A: Queue + Workers + Checkpoints (DIY)</a></li>
+<li class="toc-level-3"><a href="#approach-b-durable-execution-temporal-and-peers-235">Approach B: Durable Execution (Temporal and peers)</a></li>
+<li class="toc-level-3"><a href="#approach-c-graph-runtime-with-checkpointer-291">Approach C: Graph Runtime with Checkpointer</a></li>
+<li class="toc-level-2"><a href="#worker-design-307">Worker Design</a></li>
+<li class="toc-level-1"><a href="#streaming-sse-websockets-and-event-protocols-317">Streaming: SSE, WebSockets, and Event Protocols</a></li>
+<li class="toc-level-2"><a href="#why-stream-319">Why Stream</a></li>
+<li class="toc-level-2"><a href="#transport-choices-323">Transport Choices</a></li>
+<li class="toc-level-2"><a href="#designing-an-agent-event-schema-335">Designing an Agent Event Schema</a></li>
+<li class="toc-level-2"><a href="#resumable-streams-352">Resumable Streams</a></li>
+<li class="toc-level-2"><a href="#interruption-and-steering-400">Interruption and Steering</a></li>
+<li class="toc-level-1"><a href="#model-routing-and-cascading-408">Model Routing and Cascading</a></li>
+<li class="toc-level-2"><a href="#the-economic-premise-410">The Economic Premise</a></li>
+<li class="toc-level-2"><a href="#routing-strategies-414">Routing Strategies</a></li>
+<li class="toc-level-2"><a href="#cascade-mechanics-427">Cascade Mechanics</a></li>
+<li class="toc-level-3"><a href="#worked-cascade-math-439">Worked Cascade Math</a></li>
+<li class="toc-level-2"><a href="#routing-in-multi-agent-systems-476">Routing in Multi-Agent Systems</a></li>
+<li class="toc-level-1"><a href="#llm-gateways-480">LLM Gateways</a></li>
+<li class="toc-level-2"><a href="#responsibilities-482">Responsibilities</a></li>
+<li class="toc-level-2"><a href="#rate-limiting-with-token-buckets-496">Rate Limiting with Token Buckets</a></li>
+<li class="toc-level-2"><a href="#fallback-design-537">Fallback Design</a></li>
+<li class="toc-level-2"><a href="#quotas-budgets-and-hierarchies-565">Quotas, Budgets, and Hierarchies</a></li>
+<li class="toc-level-2"><a href="#caching-at-the-gateway-587">Caching at the Gateway</a></li>
+<li class="toc-level-1"><a href="#latency-engineering-599">Latency Engineering</a></li>
+<li class="toc-level-2"><a href="#decomposing-agent-latency-601">Decomposing Agent Latency</a></li>
+<li class="toc-level-2"><a href="#the-latency-levers-620">The Latency Levers</a></li>
+<li class="toc-level-2"><a href="#parallelism-635">Parallelism</a></li>
+<li class="toc-level-2"><a href="#speculative-execution-at-the-agent-level-652">Speculative Execution at the Agent Level</a></li>
+<li class="toc-level-2"><a href="#prompt-caching-661">Prompt Caching</a></li>
+<li class="toc-level-2"><a href="#latency-slos-for-agents-708">Latency SLOs for Agents</a></li>
+<li class="toc-level-1"><a href="#cost-engineering-and-token-budgets-721">Cost Engineering and Token Budgets</a></li>
+<li class="toc-level-2"><a href="#anatomy-of-agent-cost-723">Anatomy of Agent Cost</a></li>
+<li class="toc-level-2"><a href="#worked-finops-example-737">Worked FinOps Example</a></li>
+<li class="toc-level-2"><a href="#token-budgets-in-the-agent-loop-786">Token Budgets in the Agent Loop</a></li>
+<li class="toc-level-2"><a href="#context-compaction-economics-815">Context Compaction Economics</a></li>
+<li class="toc-level-2"><a href="#batch-and-flex-tiers-829">Batch and Flex Tiers</a></li>
+<li class="toc-level-2"><a href="#finops-operating-model-833">FinOps Operating Model</a></li>
+</ul></nav>
+
+        </aside>
+    </main>
+
+    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <!-- Prism Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Render Math with KaTeX
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '', right: '', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false,
+                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+                });
+            }
+        });
+
+        // Copy Code Functionality
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const code = pre.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#10b981';
+                button.style.color = '#fff';
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '';
+                    button.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // Filter Nav Links in Sidebar
+        function filterNav() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const lis = document.querySelectorAll('.nav-links li');
+            lis.forEach(li => {
+                const text = li.innerText.toLowerCase();
+                if (text.includes(filter)) {
+                    li.style.display = '';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }
+
+        // Theme Toggle (Dark/Light)
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('agentic_study_theme', isLight ? 'light' : 'dark');
+        }
+        if (localStorage.getItem('agentic_study_theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+    </script>
+</body>
+</html>

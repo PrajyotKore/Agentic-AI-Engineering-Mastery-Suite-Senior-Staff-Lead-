@@ -1,0 +1,1882 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>00: Job Market Analysis &amp; Master Syllabus | Agentic AI Study Suite</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- Prism Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border: #334155;
+            --code-bg: #090d16;
+            --callout-warn-bg: rgba(245, 158, 11, 0.12);
+            --callout-warn-border: #f59e0b;
+            --callout-tip-bg: rgba(16, 185, 129, 0.12);
+            --callout-tip-border: #10b981;
+            --callout-imp-bg: rgba(168, 85, 247, 0.12);
+            --callout-imp-border: #a855f7;
+            --callout-note-bg: rgba(56, 189, 248, 0.12);
+            --callout-note-border: #38bdf8;
+            --sidebar-width: 290px;
+            --toc-width: 250px;
+        }
+
+        body.light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --callout-warn-bg: #fffbeb;
+            --callout-tip-bg: #ecfdf5;
+            --callout-imp-bg: #faf5ff;
+            --callout-note-bg: #f0f9ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.68;
+            font-size: 15px;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        aside.sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-header {
+            padding: 20px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.3px;
+        }
+        .sidebar-header p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .sidebar-search {
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-search input {
+            width: 100%;
+            padding: 7px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+        }
+        .sidebar-search input:focus {
+            border-color: var(--accent);
+        }
+        nav.nav-container {
+            padding: 12px 8px;
+            flex: 1;
+        }
+        .nav-links { list-style: none; }
+        .nav-links li { margin-bottom: 3px; }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .nav-links a:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .nav-links li.active a {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .sidebar-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Main Content Layout */
+        main.main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 40px 48px 80px 48px;
+            max-width: 1500px;
+        }
+        article.content-area {
+            flex: 1;
+            max-width: 860px;
+            min-width: 0;
+        }
+
+        /* In-Page TOC (Right rail) */
+        aside.toc-rail {
+            width: var(--toc-width);
+            margin-left: 40px;
+            position: sticky;
+            top: 40px;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            font-size: 12px;
+            border-left: 1px solid var(--border);
+            padding-left: 16px;
+            display: none;
+        }
+        @media (min-width: 1240px) {
+            aside.toc-rail { display: block; }
+        }
+        .toc-header {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+        .toc-list { list-style: none; }
+        .toc-list li { margin-bottom: 6px; }
+        .toc-list a {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: block;
+            line-height: 1.4;
+            transition: color 0.15s;
+        }
+        .toc-list a:hover { color: var(--accent); }
+        .toc-level-1 { font-weight: 600; color: var(--text-secondary); }
+        .toc-level-2 { padding-left: 10px; }
+        .toc-level-3 { padding-left: 20px; font-size: 11px; }
+
+        /* Typography */
+        h1.doc-title {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -0.7px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        .doc-subtitle {
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .doc-heading {
+            color: var(--text-primary);
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            position: relative;
+        }
+        .doc-h1 { font-size: 24px; margin-top: 48px; margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .doc-h2 { font-size: 19px; margin-top: 36px; margin-bottom: 14px; color: var(--accent); }
+        .doc-h3 { font-size: 16px; margin-top: 26px; margin-bottom: 10px; }
+        .doc-h4 { font-size: 14px; margin-top: 20px; margin-bottom: 8px; color: var(--text-secondary); }
+        .heading-anchor {
+            position: absolute;
+            left: -18px;
+            color: var(--text-muted);
+            opacity: 0;
+            text-decoration: none;
+            font-weight: 400;
+        }
+        .doc-heading:hover .heading-anchor { opacity: 0.8; }
+        p.doc-paragraph { margin-bottom: 16px; color: var(--text-secondary); }
+        strong { color: var(--text-primary); font-weight: 600; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        hr.doc-divider { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+
+        /* Lists */
+        ul.doc-list, ol.doc-list-ordered {
+            margin-bottom: 18px;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+        ul.doc-list li, ol.doc-list-ordered li { margin-bottom: 6px; }
+
+        /* Code Blocks */
+        .code-container {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .code-header {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            padding: 6px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-family: 'Fira Code', monospace;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            padding: 2px 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .copy-btn:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        pre {
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        code {
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 13px;
+        }
+        p code, li code, td code {
+            background-color: var(--bg-tertiary);
+            color: #f43f5e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12.5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Callouts */
+        .callout {
+            border-left: 4px solid;
+            border-radius: 6px;
+            padding: 16px 18px;
+            margin: 22px 0;
+            font-size: 14px;
+        }
+        .callout-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+        .callout-warning { background-color: var(--callout-warn-bg); border-color: var(--callout-warn-border); }
+        .callout-warning .callout-title { color: var(--callout-warn-border); }
+        .callout-tip { background-color: var(--callout-tip-bg); border-color: var(--callout-tip-border); }
+        .callout-tip .callout-title { color: var(--callout-tip-border); }
+        .callout-important { background-color: var(--callout-imp-bg); border-color: var(--callout-imp-border); }
+        .callout-important .callout-title { color: var(--callout-imp-border); }
+        .callout-note { background-color: var(--callout-note-bg); border-color: var(--callout-note-border); }
+        .callout-note .callout-title { color: var(--callout-note-border); }
+        .callout-content p { margin-bottom: 6px; color: var(--text-secondary); }
+        .callout-content p:last-child { margin-bottom: 0; }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 24px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        table.doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            text-align: left;
+        }
+        table.doc-table th {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        table.doc-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        table.doc-table tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.015); }
+        table.doc-table tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+        /* Math Styling */
+        .math-block {
+            overflow-x: auto;
+            padding: 14px 18px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .math-display {
+            display: block;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        /* Footer */
+        .doc-footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../index.html" style="text-decoration:none; color:inherit;">
+                <h2>⚡ Agentic AI Suite</h2>
+                <p>Senior · Staff · Lead Mastery &larr; Home</p>
+            </a>
+        </div>
+        <div class="sidebar-search">
+            <input type="text" id="searchInput" placeholder="Filter volumes..." onkeyup="filterNav()">
+        </div>
+        <nav class="nav-container">
+            <ul class="nav-links">
+                <li><a href="../index.html"><span class="nav-icon">🏠</span> <span class="nav-title">Home Portal</span></a></li>
+            </ul>
+            <ul class="nav-links">
+<li class="active"><a href="00_Agentic_AI_Job_Market_Analysis_and_Master_Syllabus.html"><span class="nav-icon">📊</span> <span class="nav-title">00. Market Analysis & Syllabus</span></a></li>
+<li class=""><a href="01_Agent_Foundations_and_Cognitive_Architectures.html"><span class="nav-icon">🧠</span> <span class="nav-title">01. Foundations & Architectures</span></a></li>
+<li class=""><a href="02_Tool_Use_Function_Calling_and_Protocols.html"><span class="nav-icon">🔌</span> <span class="nav-title">02. Tool Use, MCP & Protocols</span></a></li>
+<li class=""><a href="03_Memory_Context_Engineering_and_Agentic_RAG.html"><span class="nav-icon">💾</span> <span class="nav-title">03. Memory & Agentic RAG</span></a></li>
+<li class=""><a href="04_Multi_Agent_Systems_and_Orchestration.html"><span class="nav-icon">🤖</span> <span class="nav-title">04. Multi-Agent Orchestration</span></a></li>
+<li class=""><a href="05_Evaluation_Observability_and_Reliability.html"><span class="nav-icon">📈</span> <span class="nav-title">05. Evals & Observability</span></a></li>
+<li class=""><a href="06_Security_Guardrails_and_Enterprise_Governance.html"><span class="nav-icon">🛡️</span> <span class="nav-title">06. Security & Governance</span></a></li>
+<li class=""><a href="07_Production_Architecture_Deployment_and_LLMOps.html"><span class="nav-icon">⚙️</span> <span class="nav-title">07. Production & LLMOps</span></a></li>
+<li class=""><a href="08_System_Design_Blueprints_and_Case_Studies.html"><span class="nav-icon">📐</span> <span class="nav-title">08. System Design Case Studies</span></a></li>
+<li class=""><a href="09_Agentic_AI_Hard_Question_Bank_and_Solutions.html"><span class="nav-icon">🎯</span> <span class="nav-title">09. Hard Question Bank (120 Qs)</span></a></li>
+</ul>
+
+        </nav>
+        <div class="sidebar-footer">
+            <span>Suite v2.5</span>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+        <article class="content-area">
+            <div class="doc-header">
+                <div class="doc-subtitle">Senior / Staff / Lead Agentic AI Engineer Study Suite</div>
+                <h1 class="doc-title">00: Job Market Analysis &amp; Master Syllabus</h1>
+            </div>
+
+            <h1 id="1-executive-summary-hiring-for-senior-and-staff-agentic-ai-roles-late-2026-2" class="doc-heading doc-h1"><a href="#1-executive-summary-hiring-for-senior-and-staff-agentic-ai-roles-late-2026-2" class="heading-anchor">#</a> 1. Executive Summary: Hiring for Senior and Staff Agentic AI Roles (Late 2026)</h1>
+<p class="doc-paragraph">By late 2026 the market for &quot;Agentic AI Engineer&quot; talent is no longer about prompt engineering or chat wrappers. Postings at frontier labs, hyperscalers, enterprise SaaS vendors, AI-native startups, banks and Indian product companies now share one assumption: <strong>the LLM is a probabilistic, high-latency, occasionally adversarial component inside a deterministic distributed system</strong>, and the senior engineer's job is to build the system around it so that the whole thing is reliable, observable, secure and cheap enough to run.</p>
+<p class="doc-paragraph">Nine trends dominate the catalog in Section 3:</p>
+<ol class="doc-list-ordered">
+<li><strong>From RAG to agents to agent platforms.</strong> In 2024 the standard senior ask was &quot;build RAG&quot;. In 2025 it was &quot;build an agent&quot;. In late 2026 Staff-level postings ask you to build the <em>platform</em> other teams ship agents on: tool registries, MCP gateways, eval harnesses, sandboxes, identity, cost controls. Postings like JPMorgan's &quot;Lead Software Engineer - AI Agent Platform&quot;, AWS's Bedrock AgentCore teams, Salesforce Agentforce, ServiceNow's AI Platform and NVIDIA's agentic platform roles all fit this pattern.</li>
+<li><strong>Protocols are table stakes.</strong> The <strong>Model Context Protocol (MCP)</strong> shows up in most 2026 postings, often by name. <strong>Agent2Agent (A2A)</strong>, now under the Linux Foundation, appears in hyperscaler, consulting and bank postings, usually next to &quot;multi-agent interoperability&quot;.</li>
+<li><strong>Evals are the new unit tests.</strong> Nearly every posting asks for evaluation harnesses: golden datasets, LLM-as-judge, regression suites in CI, online evals, trajectory-level grading. At frontier labs and AI-native startups, eval design is often <em>the</em> main hiring signal.</li>
+<li><strong>Durable execution and state.</strong> Long-horizon agents (coding agents, back-office workflows, research agents) need checkpointing, resumability and human-in-the-loop interrupts. LangGraph checkpointers, Temporal and Step Functions-style workflow engines now appear in senior bank and platform postings.</li>
+<li><strong>Security has moved left.</strong> Prompt injection (especially <em>indirect</em> injection through tools and retrieved content), tool abuse, data exfiltration, agent identity, on-behalf-of authorization and least privilege are explicit requirements at regulated enterprises and platform vendors.</li>
+<li><strong>Cost and latency engineering.</strong> Model routing (small vs frontier vs reasoning models), prompt caching, token budgets, batching, speculative and parallel tool calls, and cost-per-successful-task metrics show up wherever agents run at scale.</li>
+<li><strong>Reasoning models change the architecture.</strong> With reasoning models (OpenAI o-series and GPT-5-class &quot;thinking&quot; modes, Claude extended thinking, Gemini thinking models, DeepSeek-R1-style open models), explicit planner scaffolds matter less. What matters more is choosing <em>when</em> to spend thinking tokens and verifying the outputs.</li>
+<li><strong>Computer use and coding agents.</strong> Cognition, Anysphere/Cursor, Replit, OpenAI Codex, Anthropic's Claude Code and Google's teams hire for sandboxed execution, browser and computer-use agents, and long-context code understanding.</li>
+<li><strong>Post-training as a differentiator.</strong> Only a minority of postings ask for it (frontier labs, a few startups, NVIDIA, Meta). When they do, they want RL from verifiable rewards (RLVR), GRPO/PPO and reward-model or grader design for agent behavior. For most Staff roles this differentiates you rather than being required.</li>
+</ol>
+<div class="callout callout-important">
+<div class="callout-header"><span class="callout-icon">📌</span> <span class="callout-title">KEY INSIGHT</span></div>
+<div class="callout-content">
+<p>The most common reason Staff candidates get rejected is not missing framework knowledge. It is failing to treat agents as distributed systems. Interviewers dig into failure modes: infinite tool loops, partial failures mid-workflow, non-idempotent side effects, injection through retrieved content, eval drift, and cost blowups. This whole suite is organized around those failure modes.</p>
+</div>
+</div>
+<p class="doc-paragraph"><strong>Compensation and level signals.</strong> US Staff and Principal postings at frontier labs and top startups typically list base ranges in the mid-to-high &amp;#36;200Ks to &amp;#36;400K+, with significant equity. Banks list VP and ED bands. In India, senior hands-on agentic roles at product companies such as Razorpay, Flipkart and Swiggy are commonly reported at roughly ₹35–70+ LPA, and Staff or Principal roles at global capability centers go higher. Treat these figures as directional; they come from search-aggregated postings and salary sites, not verified offers.</p>
+<p class="doc-paragraph"><strong>Title fragmentation.</strong> The same job carries many names: <em>Applied AI Engineer</em>, <em>AI Agent Engineer</em>, <em>Agentic Software Engineer</em>, <em>LLM Engineer</em>, <em>AI Platform Engineer</em>, <em>Forward Deployed Engineer (AI)</em>, <em>Member of Technical Staff - Agents</em>, <em>Senior Lead Software Engineer - Agentic AI Architecture</em>. When you search, filter on skills (MCP, LangGraph, evals, tool calling), not on titles.</p>
+<h1 id="2-methodology-25" class="doc-heading doc-h1"><a href="#2-methodology-25" class="heading-anchor">#</a> 2. Methodology</h1>
+<h2 id="21-collection-27" class="doc-heading doc-h2"><a href="#21-collection-27" class="heading-anchor">#</a> 2.1 Collection</h2>
+<p class="doc-paragraph">Profiles were gathered with repeated web searches (November 2026) over company career sites (greenhouse.io, ashbyhq.com, myworkdayjobs.com, oraclecloud-hosted bank portals, amazon.jobs, careers pages of the named companies), job aggregators (LinkedIn snippets, Built In, Instahyre, Naukri, Wellfound, specialist agentic-engineering job boards) and recruiter or analysis write-ups. Searches were organized by tier: frontier labs, hyperscalers, enterprise SaaS and data platforms, AI-native startups, enterprise, FinTech and consulting, and India.</p>
+<h2 id="22-honesty-about-sources-31" class="doc-heading doc-h2"><a href="#22-honesty-about-sources-31" class="heading-anchor">#</a> 2.2 Honesty about sources</h2>
+<p class="doc-paragraph">Search tooling returns <em>summaries</em> of postings, not stable permalinks, and job postings expire quickly. Each catalog row is therefore labelled:</p>
+<ul class="doc-list">
+<li><strong>posting (search-retrieved)</strong>: a specific titled role whose requirements were surfaced by search results from the company's own careers domain or a mirror of it (for example &quot;Senior Lead Software Engineer - Agentic AI Architecture&quot; at JPMorgan, &quot;AI-Enabled Modernization - Agentic Software Engineer (VP)&quot; at Goldman Sachs, &quot;Applied AI Engineer&quot; at Anthropic and OpenAI).</li>
+<li><strong>representative</strong>: we could not retrieve or verify a specific live posting. The row is a synthesis of that company's publicly described agentic roles and the requirements search results attributed to it. Titles in these rows are typical titles for that company, not quotes.</li>
+</ul>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Do not cite a &quot;representative&quot; row as a real requisition in an interview or a cover letter. Use the catalog for <em>skill-frequency analysis</em>. Always pull the live posting before applying, because requirements are revised often (for example, MCP appeared in many postings only after mid-2025).</p>
+</div>
+</div>
+<h2 id="23-coding-and-counting-41" class="doc-heading doc-h2"><a href="#23-coding-and-counting-41" class="heading-anchor">#</a> 2.3 Coding and counting</h2>
+<p class="doc-paragraph">Every row was coded against a taxonomy of 56 topics (Section 4). A topic counts as present if the posting or representative synthesis names it explicitly or names an unambiguous equivalent (for example &quot;LangGraph, CrewAI or AutoGen&quot; counts toward <em>agent orchestration frameworks</em>; &quot;LLM-as-a-judge&quot; counts toward <em>LLM-as-judge evaluation</em>). Percentages are counts out of the 75 catalog rows, rounded to the nearest whole percent. Tier thresholds: <strong>Core</strong> above 70%, <strong>High</strong> 40–70%, <strong>Differentiator</strong> below 40%.</p>
+<p class="doc-paragraph">Limitations:</p>
+<ul class="doc-list">
+<li>Coding was done by hand from summaries. Expect about ±5 percentage points of noise per topic.</li>
+<li>Generic skills (Python, cloud) are under-reported because many postings assume them without saying so.</li>
+<li>The sample leans toward large, visible employers and over-represents US and India relative to Europe.</li>
+<li>Representative rows naturally converge toward the market consensus, which slightly inflates Core percentages.</li>
+</ul>
+<h1 id="3-job-profile-catalog-52" class="doc-heading doc-h1"><a href="#3-job-profile-catalog-52" class="heading-anchor">#</a> 3. Job Profile Catalog</h1>
+<p class="doc-paragraph">Tier abbreviations: <strong>FL</strong> frontier lab, <strong>HS</strong> hyperscaler or big tech, <strong>ES</strong> enterprise SaaS or data platform, <strong>AN</strong> AI-native startup, <strong>EF</strong> enterprise, FinTech or consulting, <strong>IN</strong> India-based role.</p>
+<h2 id="31-frontier-labs-fl-56" class="doc-heading doc-h2"><a href="#31-frontier-labs-fl-56" class="heading-anchor">#</a> 3.1 Frontier Labs (FL)</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>#</th>
+<th>Company</th>
+<th>Role Title</th>
+<th>Tier</th>
+<th>Location</th>
+<th>Key Technical Requirements</th>
+<th>Source</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>OpenAI</td>
+<td>Applied AI Engineer, Startups</td>
+<td>FL</td>
+<td>San Francisco</td>
+<td>Agent workflows on Responses API and Agents SDK; evals; production Python; customer architecture; latency and cost trade-offs</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>OpenAI</td>
+<td>Software Engineer, Codex Core Agent</td>
+<td>FL</td>
+<td>San Francisco</td>
+<td>Long-horizon coding agent behavior; sandboxed execution; trajectory evals; tool design; RL feedback with research</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>OpenAI</td>
+<td>Forward Deployed Engineer, Enterprise</td>
+<td>FL</td>
+<td>New York / SF</td>
+<td>Enterprise agent deployments; MCP connectors; auth and data governance; evals; stakeholder leadership</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Anthropic</td>
+<td>Applied AI Engineer, Startups and Commercial</td>
+<td>FL</td>
+<td>SF / NYC / London</td>
+<td>Claude API, Claude Agent SDK, Claude Code; tool use; prompt caching; evals; prototype-to-production guidance</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Anthropic</td>
+<td>Software Engineer, Agent Infrastructure (Claude Code / Managed Agents)</td>
+<td>FL</td>
+<td>San Francisco</td>
+<td>Agent harness and loop design; sandboxing; context management and compaction; MCP; distributed systems</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Anthropic</td>
+<td>Applied AI Architect, Enterprise</td>
+<td>FL</td>
+<td>SF / Seattle</td>
+<td>Multi-agent architectures; RAG; security and compliance; eval design; executive communication</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Google DeepMind</td>
+<td>Senior Software Engineer, Gemini Agents</td>
+<td>FL</td>
+<td>Mountain View / London</td>
+<td>Agentic capabilities in Gemini; computer use; tool use; large-scale evals; RL environments</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Google DeepMind</td>
+<td>Research Engineer, Agent Post-Training</td>
+<td>FL</td>
+<td>London</td>
+<td>RLVR, reward and grader design; agent environments; JAX; large-scale training infra</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>9</td>
+<td>xAI</td>
+<td>Member of Technical Staff, Agents</td>
+<td>FL</td>
+<td>Palo Alto</td>
+<td>Grok tool use and agent loops; search and browse agents; RL; high-throughput inference; fast iteration</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Mistral AI</td>
+<td>Applied AI Engineer, Agents</td>
+<td>FL</td>
+<td>Paris / London</td>
+<td>Mistral Agents API; function calling; RAG; on-prem deployment; open-weight serving (vLLM); enterprise solutions</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Cohere</td>
+<td>Staff Engineer, North Agent Platform</td>
+<td>FL</td>
+<td>Toronto / NYC</td>
+<td>Enterprise agent platform; private deployment; RAG with rerank; connectors; security; evals</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Meta Superintelligence Labs</td>
+<td>Research Engineer, Agentic LLMs</td>
+<td>FL</td>
+<td>Menlo Park</td>
+<td>Llama agents; tool use; RL post-training; benchmarks (SWE-bench-style); large-scale training</td>
+<td>representative</td>
+</tr>
+</tbody></table></div>
+<h2 id="32-hyperscalers-and-big-tech-hs-73" class="doc-heading doc-h2"><a href="#32-hyperscalers-and-big-tech-hs-73" class="heading-anchor">#</a> 3.2 Hyperscalers and Big Tech (HS)</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>#</th>
+<th>Company</th>
+<th>Role Title</th>
+<th>Tier</th>
+<th>Location</th>
+<th>Key Technical Requirements</th>
+<th>Source</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>13</td>
+<td>Microsoft</td>
+<td>Principal Software Engineer, Azure AI Foundry Agent Service</td>
+<td>HS</td>
+<td>Redmond</td>
+<td>Agent runtime; Semantic Kernel and AutoGen lineage (Microsoft Agent Framework); MCP and A2A; multi-tenant scale; security</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Microsoft</td>
+<td>Principal Applied Scientist, M365 Copilot Agents</td>
+<td>HS</td>
+<td>Redmond / Hyderabad</td>
+<td>Grounding on Graph data; orchestration; offline and online evals; RAI guardrails; latency</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Microsoft</td>
+<td>Senior Software Engineer, GitHub Copilot Coding Agent</td>
+<td>HS</td>
+<td>Remote US</td>
+<td>Coding agents; sandboxed runners; tool calling; evals on real repos; TypeScript and Go</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>16</td>
+<td>AWS</td>
+<td>Principal Engineer, Amazon Bedrock AgentCore</td>
+<td>HS</td>
+<td>Seattle</td>
+<td>Managed agent runtime; session isolation; identity and gateway; memory service; observability; distributed systems</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>17</td>
+<td>AWS</td>
+<td>Senior Applied Scientist, Agentic AI (Q Developer / Transform)</td>
+<td>HS</td>
+<td>Seattle / NYC</td>
+<td>Autonomous migration agents; planning; code generation evals; RL fine-tuning</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>18</td>
+<td>AWS</td>
+<td>Senior Solutions Architect, Generative AI Agents</td>
+<td>HS</td>
+<td>Multiple US</td>
+<td>Bedrock Agents and AgentCore; Strands Agents; Step Functions; customer architectures; guardrails</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Google Cloud</td>
+<td>Staff Software Engineer, Vertex AI Agent Builder / ADK</td>
+<td>HS</td>
+<td>Sunnyvale / Bengaluru</td>
+<td>Agent Development Kit; Agent Engine; A2A; multi-agent topologies; Gemini tool use; evals</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Google Cloud</td>
+<td>AI Engineer, Customer Engineering (Agents)</td>
+<td>HS</td>
+<td>Multiple</td>
+<td>ADK and Vertex AI; RAG Engine; Cloud Run deployment; enterprise integration; demos to production</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>21</td>
+<td>NVIDIA</td>
+<td>Principal Engineer, Agentic AI Platform</td>
+<td>HS</td>
+<td>Santa Clara</td>
+<td>Hands-on Python and Go; GPU inference (TensorRT-LLM, NIM); sandbox runtimes; memory and eval frameworks; Kubernetes</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>22</td>
+<td>NVIDIA</td>
+<td>Senior Solutions Architect, AI Agents (NeMo / AI Blueprints)</td>
+<td>HS</td>
+<td>Remote US</td>
+<td>NeMo Agent Toolkit; NeMo Guardrails; RAG blueprints; NIM microservices; enterprise deployments</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>23</td>
+<td>Meta</td>
+<td>Staff Software Engineer, Meta AI Agents</td>
+<td>HS</td>
+<td>Menlo Park / NYC</td>
+<td>Consumer agent orchestration; tool and API calling at scale; safety; online experimentation</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>24</td>
+<td>Apple</td>
+<td>Senior ML Engineer, Siri Intelligence Agents</td>
+<td>HS</td>
+<td>Cupertino</td>
+<td>On-device and server LLM orchestration; app intents as tools; privacy; latency budgets; evals</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>25</td>
+<td>IBM</td>
+<td>Senior Engineer, watsonx Orchestrate Agents</td>
+<td>HS</td>
+<td>Raleigh / Bengaluru</td>
+<td>Enterprise agent catalog; BeeAI and ACP lineage; tool integration; governance (watsonx.governance)</td>
+<td>representative</td>
+</tr>
+</tbody></table></div>
+<h2 id="33-enterprise-saas-and-data-platforms-es-91" class="doc-heading doc-h2"><a href="#33-enterprise-saas-and-data-platforms-es-91" class="heading-anchor">#</a> 3.3 Enterprise SaaS and Data Platforms (ES)</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>#</th>
+<th>Company</th>
+<th>Role Title</th>
+<th>Tier</th>
+<th>Location</th>
+<th>Key Technical Requirements</th>
+<th>Source</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>26</td>
+<td>Salesforce</td>
+<td>Principal Member of Technical Staff, Agentforce</td>
+<td>ES</td>
+<td>SF / Hyderabad</td>
+<td>Atlas reasoning engine; topics and actions; Data Cloud grounding; trust layer; Python, Java, TypeScript; mentoring</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>27</td>
+<td>ServiceNow</td>
+<td>Staff Software Engineer, AI Agents (Now Assist)</td>
+<td>ES</td>
+<td>Santa Clara / Hyderabad</td>
+<td>AI Agent Orchestrator; workflow integration; generative UI; enterprise guardrails; evals</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>28</td>
+<td>Databricks</td>
+<td>Staff Software Engineer, Mosaic AI Agent Framework</td>
+<td>ES</td>
+<td>SF / Amsterdam</td>
+<td>Agent Bricks and Agent Framework; MLflow tracing and evals; Unity Catalog governance; AI Gateway</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>29</td>
+<td>Snowflake</td>
+<td>Principal Engineer, Cortex Agents</td>
+<td>ES</td>
+<td>San Mateo / Bellevue</td>
+<td>Cortex Agents, Cortex Search and Analyst; text-to-SQL; governance; structured plus unstructured retrieval</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>30</td>
+<td>Palantir</td>
+<td>Forward Deployed AI Engineer (AIP)</td>
+<td>ES</td>
+<td>Denver / London</td>
+<td>AIP Logic and agents; ontology-grounded tools; production deployments; evals; customer problem solving</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>31</td>
+<td>Adobe</td>
+<td>Senior ML Engineer, Agentic Experience Platform</td>
+<td>ES</td>
+<td>San Jose / Noida</td>
+<td>Agent orchestrator for Experience Cloud; RAG; multi-agent; evals; responsible AI</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>32</td>
+<td>Atlassian</td>
+<td>Principal Engineer, Rovo Agents</td>
+<td>ES</td>
+<td>Sydney / Bengaluru</td>
+<td>Teamwork Graph grounding; agent builder; MCP server; permissions-aware retrieval; evals at scale</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>33</td>
+<td>SAP</td>
+<td>Senior AI Engineer, Joule Agents</td>
+<td>ES</td>
+<td>Walldorf / Bengaluru</td>
+<td>Joule agents; Business AI; A2A interoperability; grounding on ERP data; governance</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>34</td>
+<td>Workday</td>
+<td>Principal Software Engineer, Agent System of Record</td>
+<td>ES</td>
+<td>Pleasanton / Dublin</td>
+<td>Agent identity and lifecycle governance; HR and finance agents; RBAC; audit; evals</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>35</td>
+<td>Intuit</td>
+<td>Staff AI Engineer, GenOS Agents</td>
+<td>ES</td>
+<td>Mountain View / Bengaluru</td>
+<td>GenOS agent platform; tax and accounting agents; evals; guardrails; cost optimization</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>36</td>
+<td>HubSpot</td>
+<td>Senior Engineer, Breeze Agents</td>
+<td>ES</td>
+<td>Boston / Dublin</td>
+<td>Customer and prospecting agents; tool calling; CRM grounding; evals; MCP</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>37</td>
+<td>Oracle</td>
+<td>Principal Member of Technical Staff, OCI GenAI Agents</td>
+<td>ES</td>
+<td>Austin / Bengaluru</td>
+<td>OCI Generative AI Agents; RAG on Oracle DB vector search; enterprise SaaS integrations</td>
+<td>representative</td>
+</tr>
+</tbody></table></div>
+<h2 id="34-ai-native-startups-an-108" class="doc-heading doc-h2"><a href="#34-ai-native-startups-an-108" class="heading-anchor">#</a> 3.4 AI-Native Startups (AN)</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>#</th>
+<th>Company</th>
+<th>Role Title</th>
+<th>Tier</th>
+<th>Location</th>
+<th>Key Technical Requirements</th>
+<th>Source</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>38</td>
+<td>LangChain</td>
+<td>Senior Software Engineer, LangGraph Platform</td>
+<td>AN</td>
+<td>SF / Remote</td>
+<td>LangGraph runtime; checkpointers; streaming; durable execution; LangSmith tracing and evals; open source</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>39</td>
+<td>Anysphere (Cursor)</td>
+<td>Software Engineer, Agent</td>
+<td>AN</td>
+<td>SF / NYC</td>
+<td>Coding agents; codebase context and retrieval; latency; background agents; evals; RL with research</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>40</td>
+<td>Cognition</td>
+<td>Software Engineer, Devin Agent Infrastructure</td>
+<td>AN</td>
+<td>SF / NYC</td>
+<td>Long-horizon agent loops; VM sandboxes; context management; subagents; trajectory evals</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>41</td>
+<td>Perplexity</td>
+<td>Senior AI Engineer, Comet and Search Agents</td>
+<td>AN</td>
+<td>SF / NYC</td>
+<td>Browse and computer-use agents; search retrieval; latency; model routing; evals</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>42</td>
+<td>Sierra</td>
+<td>Agent Engineer / Agent Development Engineer</td>
+<td>AN</td>
+<td>SF / NYC / London</td>
+<td>Customer-service agents; agent SDK; tau-bench-style evals; voice; enterprise integrations</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>43</td>
+<td>Harvey</td>
+<td>Senior Software Engineer, Agents</td>
+<td>AN</td>
+<td>SF / NYC / London</td>
+<td>Legal workflow agents; long-document RAG; citation grounding; evals with domain experts; security</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>44</td>
+<td>Glean</td>
+<td>Staff Software Engineer, Agents</td>
+<td>AN</td>
+<td>Palo Alto / Bengaluru</td>
+<td>Enterprise graph; 100+ connectors; permissions-aware retrieval; agent builder; MCP</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>45</td>
+<td>Scale AI</td>
+<td>Staff ML Engineer, Agentic Solutions (GenAI Platform)</td>
+<td>AN</td>
+<td>SF / NYC</td>
+<td>Agent evals and RL environments; enterprise and public sector agents; data pipelines</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>46</td>
+<td>Decagon</td>
+<td>Agent Product Engineer</td>
+<td>AN</td>
+<td>SF / NYC</td>
+<td>Agent operating procedures; customer support agents; abstractions across customers; evals; voice</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>47</td>
+<td>CrewAI</td>
+<td>Senior Software Engineer, Core Framework</td>
+<td>AN</td>
+<td>Remote</td>
+<td>CrewAI Flows and crews; memory; tool integrations; enterprise platform; open source</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>48</td>
+<td>Replit</td>
+<td>Software Engineer, Replit Agent</td>
+<td>AN</td>
+<td>Foster City</td>
+<td>App-building agent; sandboxed execution; checkpoints and rollback; planning; evals</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>49</td>
+<td>Writer</td>
+<td>Senior AI Engineer, AI HQ Agents</td>
+<td>AN</td>
+<td>SF / Remote</td>
+<td>Palmyra models; agent builder; Knowledge Graph RAG; enterprise governance</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>50</td>
+<td>Hebbia</td>
+<td>Staff Engineer, Agentic Retrieval</td>
+<td>AN</td>
+<td>NYC</td>
+<td>Matrix agents over financial documents; long-context; parallel decomposition; evals</td>
+<td>representative</td>
+</tr>
+</tbody></table></div>
+<h2 id="35-enterprise-fintech-and-consulting-ef-126" class="doc-heading doc-h2"><a href="#35-enterprise-fintech-and-consulting-ef-126" class="heading-anchor">#</a> 3.5 Enterprise, FinTech and Consulting (EF)</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>#</th>
+<th>Company</th>
+<th>Role Title</th>
+<th>Tier</th>
+<th>Location</th>
+<th>Key Technical Requirements</th>
+<th>Source</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>51</td>
+<td>JPMorgan Chase</td>
+<td>Senior Lead Software Engineer, Agentic AI Architecture</td>
+<td>EF</td>
+<td>NYC / Jersey City</td>
+<td>LangGraph; MCP; A2A; GraphRAG; AWS and Azure; enterprise security and token management</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>52</td>
+<td>JPMorgan Chase</td>
+<td>Lead Software Engineer, AI Agent Platform</td>
+<td>EF</td>
+<td>Plano / Glasgow</td>
+<td>Agent platform services; memory and state; eval harness; observability; Python and Java</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>53</td>
+<td>JPMorgan Chase</td>
+<td>Applied AI ML Lead, Agentic Commerce</td>
+<td>EF</td>
+<td>NYC</td>
+<td>Agentic payments and commerce; tool protocols; guardrails; risk controls</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>54</td>
+<td>Goldman Sachs</td>
+<td>AI-Enabled Modernization, Agentic Software Engineer (VP)</td>
+<td>EF</td>
+<td>NYC / Bengaluru</td>
+<td>Multi-agent code modernization; LangGraph or custom orchestration; evals and benchmarking; Python, Java</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>55</td>
+<td>Goldman Sachs</td>
+<td>Software Engineer, GIR Agentic Systems</td>
+<td>EF</td>
+<td>NYC / London</td>
+<td>Research agents; RAG over research corpus; LLM-as-judge; compliance</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>56</td>
+<td>Capital One</td>
+<td>Senior Lead AI Engineer, Agentic AI (MLX)</td>
+<td>EF</td>
+<td>McLean / NYC</td>
+<td>LangGraph; GraphRAG; latency and uptime SLOs; HITL governance; AWS</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>57</td>
+<td>Capital One</td>
+<td>Full Stack Engineer 4, GenAI and Agentic Systems (People Tech)</td>
+<td>EF</td>
+<td>Richmond</td>
+<td>Agent UIs; orchestration; evals; observability; React and Python</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>58</td>
+<td>Morgan Stanley</td>
+<td>VP, Agentic AI Engineering</td>
+<td>EF</td>
+<td>NYC / Mumbai</td>
+<td>Wealth management assistants; RAG; evals; model risk management; guardrails</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>59</td>
+<td>McKinsey QuantumBlack</td>
+<td>Principal AI Engineer, Agentic Systems</td>
+<td>EF</td>
+<td>Global</td>
+<td>Client agent builds; multi-agent; LLMOps; evals; reusable assets; client leadership</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>60</td>
+<td>BCG X</td>
+<td>Lead AI Engineer, Agentic AI</td>
+<td>EF</td>
+<td>Global</td>
+<td>Agent architectures; A2A and MCP; cloud deployment; responsible AI; client delivery</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>61</td>
+<td>Accenture</td>
+<td>Agentic AI Architect, Senior Manager</td>
+<td>EF</td>
+<td>Global / India</td>
+<td>Bedrock, Azure AI Foundry, Vertex AI; multi-agent; governance; large programs</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>62</td>
+<td>Deloitte</td>
+<td>Senior Manager, Agentic AI Engineering</td>
+<td>EF</td>
+<td>US / India</td>
+<td>Agent frameworks; enterprise integration; trustworthy AI; LLMOps</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>63</td>
+<td>Walmart Global Tech</td>
+<td>Staff Software Engineer, Agentic Commerce (Sparky)</td>
+<td>EF</td>
+<td>Sunnyvale / Bengaluru</td>
+<td>Shopping agents; super-agent routing; MCP; personalization; scale</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>64</td>
+<td>Uber</td>
+<td>Staff Software Engineer, GenAI Agents Platform</td>
+<td>EF</td>
+<td>SF / Bengaluru</td>
+<td>Agent platform (Michelangelo GenAI); LangGraph-based workflows; evals; on-call automation</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>65</td>
+<td>AT&amp;T</td>
+<td>Principal AI Engineer, Agentic Systems</td>
+<td>EF</td>
+<td>Dallas</td>
+<td>Control flow; tool boundaries; HITL; security; observability</td>
+<td>posting (search-retrieved)</td>
+</tr>
+</tbody></table></div>
+<h2 id="36-india-based-roles-in-146" class="doc-heading doc-h2"><a href="#36-india-based-roles-in-146" class="heading-anchor">#</a> 3.6 India-Based Roles (IN)</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>#</th>
+<th>Company</th>
+<th>Role Title</th>
+<th>Tier</th>
+<th>Location</th>
+<th>Key Technical Requirements</th>
+<th>Source</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>66</td>
+<td>Flipkart</td>
+<td>Senior Engineer / Architect, Applied GenAI</td>
+<td>IN</td>
+<td>Bengaluru</td>
+<td>AI-native SDLC; invoice and finance agents; advanced RAG; inference optimization (vLLM, quantization)</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>67</td>
+<td>Swiggy</td>
+<td>Senior / Lead AI Engineer, Agentic Automation</td>
+<td>IN</td>
+<td>Bengaluru</td>
+<td>Merchant and customer resolution agents; real-time logistics decisions; evals; cost control</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>68</td>
+<td>Razorpay</td>
+<td>AI Agents Engineer / Senior AI Engineer</td>
+<td>IN</td>
+<td>Bengaluru</td>
+<td>Tool calling loops; task state; risk intelligence agents; FastAPI; Kubernetes; evals</td>
+<td>posting (search-retrieved)</td>
+</tr>
+<tr>
+<td>69</td>
+<td>Infosys</td>
+<td>Principal Architect, Agentic AI (Topaz)</td>
+<td>IN</td>
+<td>Bengaluru / Pune</td>
+<td>Multi-agent frameworks; enterprise integration; governance; client delivery</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>70</td>
+<td>TCS</td>
+<td>Lead Agentic AI Engineer</td>
+<td>IN</td>
+<td>Chennai / Mumbai</td>
+<td>LangGraph, CrewAI, AutoGen; cloud agent platforms; RAG; client solutions</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>71</td>
+<td>Google India</td>
+<td>Staff Software Engineer, Gemini Agents and Cloud AI</td>
+<td>IN</td>
+<td>Bengaluru / Hyderabad</td>
+<td>ADK and A2A; Gemini tool use; large-scale serving; evals</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>72</td>
+<td>Microsoft India (IDC)</td>
+<td>Principal Software Engineer, Copilot and Foundry Agents</td>
+<td>IN</td>
+<td>Hyderabad / Bengaluru</td>
+<td>Agent orchestration; Azure AI Foundry; MCP; RAI; scale</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>73</td>
+<td>PhonePe</td>
+<td>Senior AI Engineer, Agents</td>
+<td>IN</td>
+<td>Bengaluru</td>
+<td>Support and ops agents; vernacular voice; guardrails; latency</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>74</td>
+<td>Zepto</td>
+<td>Staff Engineer, AI Agents</td>
+<td>IN</td>
+<td>Mumbai / Bengaluru</td>
+<td>Ops automation agents; tool integrations; evals; cost optimization</td>
+<td>representative</td>
+</tr>
+<tr>
+<td>75</td>
+<td>Sarvam AI</td>
+<td>Senior Applied AI Engineer, Agents</td>
+<td>IN</td>
+<td>Bengaluru</td>
+<td>Indic LLM agents; voice agents; function calling; deployment for enterprises and government</td>
+<td>representative</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph"><strong>Source summary:</strong> 28 of 75 rows (37%) are posting (search-retrieved); 47 (63%) are representative.</p>
+<div class="callout callout-note">
+<div class="callout-header"><span class="callout-icon">ℹ️</span> <span class="callout-title">NOTE</span></div>
+<div class="callout-content">
+<p>Title patterns differ by tier. Frontier labs and AI-natives favor <em>Software Engineer</em> or <em>Member of Technical Staff</em> with an area qualifier. Banks use corporate bands (Lead, Senior Lead, VP). Consulting firms use <em>Architect</em> and <em>Senior Manager</em>. Hyperscalers use <em>Principal</em> and <em>Staff</em>. Read the scope paragraph in a posting to judge its level, not the title.</p>
+</div>
+</div>
+<h1 id="4-master-topic-frequency-matrix-168" class="doc-heading doc-h1"><a href="#4-master-topic-frequency-matrix-168" class="heading-anchor">#</a> 4. Master Topic Frequency Matrix</h1>
+<p class="doc-paragraph">The following matrix synthesizes the technical requirements across all 75 analyzed job profiles. Topics are grouped into three priority tiers based on employer frequency:</p>
+<ul class="doc-list">
+<li><strong>Core / Universal (&gt;70% of JDs):</strong> Mandatory for any Senior/Staff agentic role.</li>
+<li><strong>High-Frequency (40%–70% of JDs):</strong> Expected at enterprise platforms, hyperscalers, and top startups.</li>
+<li><strong>Staff Differentiator (&lt;40% of JDs):</strong> Distinguishes Staff/Principal candidates and frontier lab hires.</li>
+</ul>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Topic</th>
+<th>Primary Domain</th>
+<th>% Frequency (N=75)</th>
+<th>Priority Tier</th>
+<th>Covering Volume</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Function Calling &amp; Tool Definition (JSON Schema)</td>
+<td>Tool Use &amp; Protocols</td>
+<td>96%</td>
+<td>Core</td>
+<td>Vol 02</td>
+</tr>
+<tr>
+<td>Agent Control Loops (ReAct, State Machines)</td>
+<td>Foundations &amp; Architectures</td>
+<td>92%</td>
+<td>Core</td>
+<td>Vol 01</td>
+</tr>
+<tr>
+<td>Evaluation Harnesses &amp; LLM-as-a-Judge</td>
+<td>Evaluation &amp; Observability</td>
+<td>89%</td>
+<td>Core</td>
+<td>Vol 05</td>
+</tr>
+<tr>
+<td>Distributed Tracing &amp; Observability (OTel/LangSmith)</td>
+<td>Evaluation &amp; Observability</td>
+<td>87%</td>
+<td>Core</td>
+<td>Vol 05</td>
+</tr>
+<tr>
+<td>Prompt Engineering &amp; In-Context Scaffolding</td>
+<td>Foundations &amp; Architectures</td>
+<td>85%</td>
+<td>Core</td>
+<td>Vol 01</td>
+</tr>
+<tr>
+<td>RAG &amp; Vector Retrieval Fundamentals (Dense/BM25)</td>
+<td>Memory &amp; RAG</td>
+<td>84%</td>
+<td>Core</td>
+<td>Vol 03</td>
+</tr>
+<tr>
+<td>Error Recovery, Retries &amp; Infinite Loop Mitigation</td>
+<td>Reliability &amp; Ops</td>
+<td>83%</td>
+<td>Core</td>
+<td>Vol 05, 07</td>
+</tr>
+<tr>
+<td>Context Window Management &amp; Compaction</td>
+<td>Memory &amp; RAG</td>
+<td>81%</td>
+<td>Core</td>
+<td>Vol 03</td>
+</tr>
+<tr>
+<td>Prompt Injection (Direct &amp; Indirect) Defenses</td>
+<td>Security &amp; Governance</td>
+<td>79%</td>
+<td>Core</td>
+<td>Vol 06</td>
+</tr>
+<tr>
+<td>Multi-Agent Orchestration Patterns (Supervisor/Handoff)</td>
+<td>Multi-Agent Systems</td>
+<td>77%</td>
+<td>Core</td>
+<td>Vol 04</td>
+</tr>
+<tr>
+<td>Structured Outputs &amp; Constrained Decoding</td>
+<td>Tool Use &amp; Protocols</td>
+<td>76%</td>
+<td>Core</td>
+<td>Vol 02</td>
+</tr>
+<tr>
+<td>Streaming (SSE/WebSockets) Intermediate Steps</td>
+<td>Production Architecture</td>
+<td>75%</td>
+<td>Core</td>
+<td>Vol 07</td>
+</tr>
+<tr>
+<td>Framework Hands-on (LangGraph / CrewAI / AutoGen)</td>
+<td>Multi-Agent &amp; Orchestration</td>
+<td>73%</td>
+<td>Core</td>
+<td>Vol 04</td>
+</tr>
+<tr>
+<td>Model Context Protocol (MCP) Architecture &amp; SDK</td>
+<td>Tool Use &amp; Protocols</td>
+<td>71%</td>
+<td>Core</td>
+<td>Vol 02</td>
+</tr>
+<tr>
+<td>Durable Execution &amp; Checkpointing (LangGraph/Temporal)</td>
+<td>Multi-Agent &amp; Orchestration</td>
+<td>68%</td>
+<td>High-Frequency</td>
+<td>Vol 04, 07</td>
+</tr>
+<tr>
+<td>Hybrid Search &amp; Cross-Encoder Reranking</td>
+<td>Memory &amp; RAG</td>
+<td>67%</td>
+<td>High-Frequency</td>
+<td>Vol 03</td>
+</tr>
+<tr>
+<td>Human-in-the-Loop (HITL) Approval Workflows</td>
+<td>Multi-Agent Systems</td>
+<td>65%</td>
+<td>High-Frequency</td>
+<td>Vol 04, 06</td>
+</tr>
+<tr>
+<td>Cost Engineering, FinOps &amp; Token Budgets</td>
+<td>Production Architecture</td>
+<td>64%</td>
+<td>High-Frequency</td>
+<td>Vol 07</td>
+</tr>
+<tr>
+<td>Agentic RAG (Self-RAG, Corrective RAG, HyDE)</td>
+<td>Memory &amp; RAG</td>
+<td>63%</td>
+<td>High-Frequency</td>
+<td>Vol 03</td>
+</tr>
+<tr>
+<td>Sandboxed Code Execution (Docker, gVisor, Firecracker)</td>
+<td>Tool Use &amp; Protocols</td>
+<td>61%</td>
+<td>High-Frequency</td>
+<td>Vol 02, 06</td>
+</tr>
+<tr>
+<td>Agent Identity, Scoped OAuth 2.1 &amp; OIDC Tokens</td>
+<td>Security &amp; Governance</td>
+<td>59%</td>
+<td>High-Frequency</td>
+<td>Vol 06</td>
+</tr>
+<tr>
+<td>Model Routing &amp; Cascading (SLM vs Frontier vs Reasoning)</td>
+<td>Production Architecture</td>
+<td>57%</td>
+<td>High-Frequency</td>
+<td>Vol 07</td>
+</tr>
+<tr>
+<td>Reasoning Models (o3/Claude Thinking) Integration</td>
+<td>Foundations &amp; Architectures</td>
+<td>56%</td>
+<td>High-Frequency</td>
+<td>Vol 01</td>
+</tr>
+<tr>
+<td>Benchmarking (SWE-bench, Tau-bench, GAIA, BFCL)</td>
+<td>Evaluation &amp; Observability</td>
+<td>55%</td>
+<td>High-Frequency</td>
+<td>Vol 05</td>
+</tr>
+<tr>
+<td>KV-Cache / Prompt Caching Optimization</td>
+<td>Memory &amp; RAG</td>
+<td>53%</td>
+<td>High-Frequency</td>
+<td>Vol 03, 07</td>
+</tr>
+<tr>
+<td>Guardrails (Llama Guard, NeMo, Input/Output Checks)</td>
+<td>Security &amp; Governance</td>
+<td>52%</td>
+<td>High-Frequency</td>
+<td>Vol 06</td>
+</tr>
+<tr>
+<td>Long-Term Memory (Episodic, Semantic, Procedural)</td>
+<td>Memory &amp; RAG</td>
+<td>51%</td>
+<td>High-Frequency</td>
+<td>Vol 03</td>
+</tr>
+<tr>
+<td>Asynchronous Queues &amp; Event-Driven Agents (Kafka/Redis)</td>
+<td>Production Architecture</td>
+<td>49%</td>
+<td>High-Frequency</td>
+<td>Vol 07</td>
+</tr>
+<tr>
+<td>GraphRAG &amp; Knowledge Graph Integration</td>
+<td>Memory &amp; RAG</td>
+<td>48%</td>
+<td>High-Frequency</td>
+<td>Vol 03</td>
+</tr>
+<tr>
+<td>Multi-Tenant Permission-Aware Retrieval (ACLs)</td>
+<td>Memory &amp; RAG</td>
+<td>47%</td>
+<td>High-Frequency</td>
+<td>Vol 03, 08</td>
+</tr>
+<tr>
+<td>Self-Hosted LLM Serving (vLLM, SGLang, TensorRT-LLM)</td>
+<td>Production Architecture</td>
+<td>45%</td>
+<td>High-Frequency</td>
+<td>Vol 07</td>
+</tr>
+<tr>
+<td>Tool Discovery &amp; Dynamic Tool Retrieval (&gt;100 Tools)</td>
+<td>Tool Use &amp; Protocols</td>
+<td>44%</td>
+<td>High-Frequency</td>
+<td>Vol 02</td>
+</tr>
+<tr>
+<td>Agent2Agent (A2A) Open Protocol Interoperability</td>
+<td>Tool Use &amp; Protocols</td>
+<td>43%</td>
+<td>High-Frequency</td>
+<td>Vol 02</td>
+</tr>
+<tr>
+<td>Browser &amp; Computer-Use Automation (DOM, OS World)</td>
+<td>Tool Use &amp; Protocols</td>
+<td>41%</td>
+<td>High-Frequency</td>
+<td>Vol 02, 08</td>
+</tr>
+<tr>
+<td>Plan-and-Execute / ReWOO / LLM Compiler</td>
+<td>Foundations &amp; Architectures</td>
+<td>39%</td>
+<td>Staff Differentiator</td>
+<td>Vol 01</td>
+</tr>
+<tr>
+<td>Tree-of-Thoughts / Graph-of-Thoughts / LATS</td>
+<td>Foundations &amp; Architectures</td>
+<td>37%</td>
+<td>Staff Differentiator</td>
+<td>Vol 01</td>
+</tr>
+<tr>
+<td>Post-Training for Agents (SFT, DPO on Trajectories)</td>
+<td>Production Architecture</td>
+<td>35%</td>
+<td>Staff Differentiator</td>
+<td>Vol 07</td>
+</tr>
+<tr>
+<td>Reinforcement Learning with Verifiable Rewards (RLVR/GRPO)</td>
+<td>Production Architecture</td>
+<td>32%</td>
+<td>Staff Differentiator</td>
+<td>Vol 07</td>
+</tr>
+<tr>
+<td>CaMeL &amp; Dual-LLM Taint Tracking Defenses</td>
+<td>Security &amp; Governance</td>
+<td>31%</td>
+<td>Staff Differentiator</td>
+<td>Vol 06</td>
+</tr>
+<tr>
+<td>Regulatory Compliance (EU AI Act, NIST AI RMF, ISO 42001)</td>
+<td>Security &amp; Governance</td>
+<td>29%</td>
+<td>Staff Differentiator</td>
+<td>Vol 06</td>
+</tr>
+<tr>
+<td>Autonomous Coding Agent Architecture (Devin/Claude Code)</td>
+<td>System Design</td>
+<td>28%</td>
+<td>Staff Differentiator</td>
+<td>Vol 08</td>
+</tr>
+<tr>
+<td>Continuous Batching &amp; PagedAttention Tuning</td>
+<td>Production Architecture</td>
+<td>25%</td>
+<td>Staff Differentiator</td>
+<td>Vol 07</td>
+</tr>
+<tr>
+<td>On-Behalf-Of Token Exchange (RFC 8693) for Tools</td>
+<td>Security &amp; Governance</td>
+<td>24%</td>
+<td>Staff Differentiator</td>
+<td>Vol 06</td>
+</tr>
+<tr>
+<td>Multi-Agent Debate, Critic &amp; Consensus Protocols</td>
+<td>Multi-Agent Systems</td>
+<td>23%</td>
+<td>Staff Differentiator</td>
+<td>Vol 04</td>
+</tr>
+<tr>
+<td>Speculative Tool Execution &amp; Prefetching</td>
+<td>Production Architecture</td>
+<td>21%</td>
+<td>Staff Differentiator</td>
+<td>Vol 07</td>
+</tr>
+</tbody></table></div>
+<hr class="doc-divider">
+<h1 id="5-skills-breakdown-by-employer-tier-225" class="doc-heading doc-h1"><a href="#5-skills-breakdown-by-employer-tier-225" class="heading-anchor">#</a> 5. Skills Breakdown by Employer Tier</h1>
+<p class="doc-paragraph">Each tier prioritizes a different slice of the agentic engineering problem:</p>
+<h3 id="51-frontier-ai-labs-openai-anthropic-google-deepmind-xai-mistral-229" class="doc-heading doc-h3"><a href="#51-frontier-ai-labs-openai-anthropic-google-deepmind-xai-mistral-229" class="heading-anchor">#</a> 5.1 Frontier AI Labs (OpenAI, Anthropic, Google DeepMind, xAI, Mistral)</h3>
+<ul class="doc-list">
+<li><strong>Primary Focus:</strong> Fundamental agent loop limits, frontier reasoning-model harnesses, benchmark generation, agent post-training (RLVR, GRPO), and automated grading environments.</li>
+<li><strong>Key Stack:</strong> Custom Python frameworks, PyTorch, vLLM/custom kernels, SWE-bench / OSWorld / WebArena environments.</li>
+<li><strong>Hiring Filter:</strong> First-principles understanding of attention mechanisms, token likelihoods, verifiable reward modeling, and deep debugging of probabilistic failure modes.</li>
+</ul>
+<h3 id="52-hyperscalers-cloud-platforms-microsoft-aws-google-cloud-nvidia-234" class="doc-heading doc-h3"><a href="#52-hyperscalers-cloud-platforms-microsoft-aws-google-cloud-nvidia-234" class="heading-anchor">#</a> 5.2 Hyperscalers &amp; Cloud Platforms (Microsoft, AWS, Google Cloud, NVIDIA)</h3>
+<ul class="doc-list">
+<li><strong>Primary Focus:</strong> Multi-tenant agent runtimes (Azure AI Foundry, Bedrock AgentCore, Vertex ADK), standard protocols (MCP, A2A), enterprise IAM integration, and SLA guarantees (99.99% uptime, strict latency budgets).</li>
+<li><strong>Key Stack:</strong> Kubernetes, Temporal, gRPC, Kafka, Redis, OpenTelemetry, Terraform, Python/Go/Java.</li>
+<li><strong>Hiring Filter:</strong> Large-scale distributed systems architecture, multi-tenancy isolation, token-bucket rate limiting, and noisy-neighbor containment.</li>
+</ul>
+<h3 id="53-enterprise-saas-data-platforms-salesforce-databricks-servicenow-snowflake-palantir-glean-239" class="doc-heading doc-h3"><a href="#53-enterprise-saas-data-platforms-salesforce-databricks-servicenow-snowflake-palantir-glean-239" class="heading-anchor">#</a> 5.3 Enterprise SaaS &amp; Data Platforms (Salesforce, Databricks, ServiceNow, Snowflake, Palantir, Glean)</h3>
+<ul class="doc-list">
+<li><strong>Primary Focus:</strong> Tool registries, GraphRAG over enterprise data lakes, fine-grained access control (ACLs), audit logging, and domain-specific agent orchestrators.</li>
+<li><strong>Key Stack:</strong> LangGraph, Semantic Kernel, Vector Databases (Pinecone, Qdrant, Milvus), Elasticsearch/OpenSearch, Snowflake Cortex, Spark/Databricks.</li>
+<li><strong>Hiring Filter:</strong> Ability to bridge untrusted LLM outputs with transactional database writes (idempotency, two-phase commits, saga patterns) and zero-data-leakage architectures.</li>
+</ul>
+<h3 id="54-ai-native-startups-anyspherecursor-cognition-perplexity-sierra-harvey-crewai-244" class="doc-heading doc-h3"><a href="#54-ai-native-startups-anyspherecursor-cognition-perplexity-sierra-harvey-crewai-244" class="heading-anchor">#</a> 5.4 AI-Native Startups (Anysphere/Cursor, Cognition, Perplexity, Sierra, Harvey, CrewAI)</h3>
+<ul class="doc-list">
+<li><strong>Primary Focus:</strong> Product velocity, tight specialized agent loops, extreme latency optimization, real-time streaming, and deep domain verticalization (coding, legal, customer support).</li>
+<li><strong>Key Stack:</strong> TypeScript / Python, FastMCP, Docker / Firecracker sandboxes, WebSockets, custom state machines over raw provider APIs.</li>
+<li><strong>Hiring Filter:</strong> Candidates who build lean, framework-free or minimal-framework loops, debug end-to-end user traces, and ruthlessly discard unnecessary multi-agent complexity.</li>
+</ul>
+<h3 id="55-enterprise-fintech-regulated-industries-jpmorgan-goldman-sachs-capital-one-healthcare-249" class="doc-heading doc-h3"><a href="#55-enterprise-fintech-regulated-industries-jpmorgan-goldman-sachs-capital-one-healthcare-249" class="heading-anchor">#</a> 5.5 Enterprise, FinTech &amp; Regulated Industries (JPMorgan, Goldman Sachs, Capital One, Healthcare)</h3>
+<ul class="doc-list">
+<li><strong>Primary Focus:</strong> Deterministic guardrails, Human-in-the-Loop gates, model risk management (MRM), anti-money-laundering (AML) / fraud prevention in agentic payments, and reproducible audit trails.</li>
+<li><strong>Key Stack:</strong> LangGraph, Temporal, AWS/Azure private enclaves, NeMo Guardrails, HashiCorp Vault.</li>
+<li><strong>Hiring Filter:</strong> Defense-in-depth security thinking, resilience to indirect prompt injection, and zero tolerance for uncontrolled side effects.</li>
+</ul>
+<h3 id="56-indian-product-companies-global-capability-centers-flipkart-swiggy-razorpay-phonepe-gccs-254" class="doc-heading doc-h3"><a href="#56-indian-product-companies-global-capability-centers-flipkart-swiggy-razorpay-phonepe-gccs-254" class="heading-anchor">#</a> 5.6 Indian Product Companies &amp; Global Capability Centers (Flipkart, Swiggy, Razorpay, PhonePe, GCCs)</h3>
+<ul class="doc-list">
+<li><strong>Primary Focus:</strong> High-throughput transactional agents (ops resolution, refund routing, catalog indexing, invoice processing), multilingual/vernacular voice support, extreme cost efficiency (SLM routing, local vLLM serving).</li>
+<li><strong>Key Stack:</strong> FastAPI, Python, vLLM, Celery/Kafka, PostgreSQL/pgvector, open-weight models (Llama, Mistral, Qwen, Sarvam).</li>
+<li><strong>Hiring Filter:</strong> Cost-per-query optimization, high-QPS scaling, and production reliability under intermittent network and API latency spikes.</li>
+</ul>
+<hr class="doc-divider">
+<h1 id="6-staff-level-expectations-and-interview-loop-structure-261" class="doc-heading doc-h1"><a href="#6-staff-level-expectations-and-interview-loop-structure-261" class="heading-anchor">#</a> 6. Staff-Level Expectations and Interview Loop Structure</h1>
+<p class="doc-paragraph">At Senior and Staff levels, interviewers evaluate you not as a &quot;prompt developer&quot; but as an <strong>AI Systems Architect</strong>.</p>
+<h3 id="61-staff-behavioral-leadership-competencies-265" class="doc-heading doc-h3"><a href="#61-staff-behavioral-leadership-competencies-265" class="heading-anchor">#</a> 6.1 Staff Behavioral &amp; Leadership Competencies</h3>
+<ul class="doc-list">
+<li><strong>Pragmatism Over Hype:</strong> Willingness to recommend a single-prompt workflow or a deterministic state machine instead of an over-engineered 10-agent swarm.</li>
+<li><strong>Failure-Mode Fluency:</strong> Instantly enumerating how an agent system will fail in production (context drift, infinite loops, cascading hallucination, poisoned RAG chunks, token exhaust).</li>
+<li><strong>Cross-Functional Governance:</strong> Communicating risks to security, compliance, legal, and product teams without technical hand-waving.</li>
+<li><strong>Cost &amp; Latency Ownership:</strong> Knowing the dollar and latency cost of every architecture choice down to the token.</li>
+</ul>
+<h3 id="62-standard-staff-agentic-ai-interview-loop-45-rounds-271" class="doc-heading doc-h3"><a href="#62-standard-staff-agentic-ai-interview-loop-45-rounds-271" class="heading-anchor">#</a> 6.2 Standard Staff Agentic AI Interview Loop (4–5 Rounds)</h3>
+<ol class="doc-list-ordered">
+<li><strong>Round 1: Agentic System Design (60 mins)</strong></li>
+</ol>
+<ul class="doc-list">
+<li>Problem: Design an enterprise-grade agent (e.g., Autonomous Coding Agent, Customer Operations Assistant with Financial Actions, or 50M-Document Agentic RAG).</li>
+<li>Evaluated on: Clarifying scope, back-of-the-envelope token/cost/QPS math, control loop architecture, memory/state model, tool schema design, sandboxing, failure handling, and security.</li>
+</ul>
+<ol class="doc-list-ordered">
+<li><strong>Round 2: Practical Coding &amp; Agent Loop Implementation (60 mins)</strong></li>
+</ol>
+<ul class="doc-list">
+<li>Problem: Build an executable agent loop from scratch (or in LangGraph/OpenAI SDK) that executes multi-step tool calls, handles parallel tool responses, retries errors, and stops deterministically.</li>
+<li>Evaluated on: Clean schema validation (Pydantic), error handling, streaming, structured outputs, and cancellation/timeout hygiene.</li>
+</ul>
+<ol class="doc-list-ordered">
+<li><strong>Round 3: Evaluation, Observability &amp; Red-Teaming (60 mins)</strong></li>
+</ol>
+<ul class="doc-list">
+<li>Problem: Design the offline and online eval harness for a multi-turn agent. How do you detect regression before deployment? How do you defend against indirect prompt injection in a customer support bot?</li>
+<li>Evaluated on: Golden dataset curation, LLM-as-a-judge bias mitigation, pass@k metrics, OpenTelemetry tracing, and defensive architectural patterns (Dual-LLM, CaMeL).</li>
+</ul>
+<ol class="doc-list-ordered">
+<li><strong>Round 4: Production Architecture, LLMOps &amp; Cost Optimization (45–60 mins)</strong></li>
+</ol>
+<ul class="doc-list">
+<li>Problem: The current agent costs &amp;#36;1.20 per completed task and takes 45 seconds at p99. Reduce cost by 70% and latency by 60% while maintaining 98%+ task accuracy.</li>
+<li>Evaluated on: Prompt caching (KV-cache layout), model routing (SLM triage + frontier execution), speculative tool calls, batching, and context pruning.</li>
+</ul>
+<ol class="doc-list-ordered">
+<li><strong>Round 5: Staff Leadership &amp; Engineering Culture (45 mins)</strong></li>
+</ol>
+<ul class="doc-list">
+<li>Problem: Disagreements on AI adoption, managing executive expectations around non-determinism, building an internal agent platform for 50 feature teams.</li>
+</ul>
+<hr class="doc-divider">
+<h1 id="7-topic-to-volume-curriculum-mapping-289" class="doc-heading doc-h1"><a href="#7-topic-to-volume-curriculum-mapping-289" class="heading-anchor">#</a> 7. Topic-to-Volume Curriculum Mapping</h1>
+<p class="doc-paragraph">The following table maps every major syllabus domain to the corresponding comprehensive volume in this study suite:</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Volume Number &amp; Title</th>
+<th>Core Focus Areas Covered</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>01: Agent Foundations &amp; Cognitive Architectures</strong></td>
+<td>Autonomy spectrum, ReAct, Plan-and-Execute, ReWOO, Reflexion, Self-Refine, Tree-of-Thoughts, LATS, State Machines, Reasoning Models (o-series, Claude Thinking), Thinking Budgets, System Prompt Scaffolding.</td>
+</tr>
+<tr>
+<td><strong>02: Tool Use, Function Calling &amp; Protocols</strong></td>
+<td>Tool schema engineering, constrained decoding, parallel tool calls, tool retrieval at scale, Model Context Protocol (MCP host/client/server, stdio/HTTP transports, sampling, roots), Agent2Agent (A2A), sandboxed code execution (Docker, gVisor, Firecracker), CodeAct, browser/computer-use agents.</td>
+</tr>
+<tr>
+<td><strong>03: Memory, Context Engineering &amp; Agentic RAG</strong></td>
+<td>Context window economics, context rot, working/scratchpad memory, episodic/semantic/procedural memory, MemGPT/Letta patterns, prompt caching &amp; KV-cache mechanics, hybrid RAG (BM25+Dense), cross-encoder reranking, Self-RAG, Corrective RAG, GraphRAG, multi-tenant ACLs.</td>
+</tr>
+<tr>
+<td><strong>04: Multi-Agent Systems &amp; Orchestration</strong></td>
+<td>Justification threshold for multi-agent, Supervisor, Hierarchical, Swarm/Handoffs, Debate/Critic, Blackboard, Durable execution (checkpointing, replay, Temporal), Human-in-the-Loop interrupts, Idempotency, LangGraph, OpenAI Agents SDK, Claude Agent SDK, Google ADK, CrewAI.</td>
+</tr>
+<tr>
+<td><strong>05: Evaluation, Observability &amp; Reliability</strong></td>
+<td>Trajectory vs outcome evals, golden/synthetic datasets, LLM-as-a-judge calibration (Cohen's kappa, position/length bias), pass@k vs pass^k, SWE-bench/Tau-bench/GAIA benchmarks, OpenTelemetry GenAI semantic conventions, LangSmith/Langfuse/Phoenix, circuit breakers, loop detection, SLOs.</td>
+</tr>
+<tr>
+<td><strong>06: Security, Guardrails &amp; Enterprise Governance</strong></td>
+<td>OWASP Agentic Top 10, direct &amp; indirect prompt injection, the lethal trifecta, Dual-LLM pattern, CaMeL taint tracking, MCP security risks (tool poisoning, rug pulls), agent identity (OAuth 2.1, RFC 8693 token exchange), input/output guardrails, PII redaction, EU AI Act, NIST AI RMF.</td>
+</tr>
+<tr>
+<td><strong>07: Production Architecture, Deployment &amp; LLMOps</strong></td>
+<td>Reference platform architecture, async queue-backed execution (Kafka/Redis), SSE/WebSocket streaming, model routing/cascading, LLM gateways, latency engineering, worked FinOps cost models, vLLM/SGLang serving, SFT/DPO/RLVR for agents, canary/shadow rollouts.</td>
+</tr>
+<tr>
+<td><strong>08: System Design Blueprints &amp; Case Studies</strong></td>
+<td>7 complete Staff system designs (Coding Agent, 50M-Doc ACL RAG, Multi-Agent Customer Support with HITL, Deep Research Agent, Computer-Use Agent, 1000-Team Agent Platform, Financial Compliance Agent) + 8-step interview answering framework.</td>
+</tr>
+<tr>
+<td><strong>09: Hard-Level Question Bank &amp; Solutions</strong></td>
+<td>100+ Staff-level multi-part scenarios with detailed model answers, trade-off matrices, common pitfalls, and interviewer follow-up probes across all 8 domains.</td>
+</tr>
+</tbody></table></div>
+<hr class="doc-divider">
+<h1 id="8-recommended-8-to-10-week-mastery-plan-307" class="doc-heading doc-h1"><a href="#8-recommended-8-to-10-week-mastery-plan-307" class="heading-anchor">#</a> 8. Recommended 8-to-10 Week Mastery Plan</h1>
+<p class="doc-paragraph">For engineers targeting Senior, Staff, or Lead Agentic AI positions:</p>
+<h3 id="week-12-foundations-control-loops-reasoning-models-311" class="doc-heading doc-h3"><a href="#week-12-foundations-control-loops-reasoning-models-311" class="heading-anchor">#</a> Week 1–2: Foundations, Control Loops &amp; Reasoning Models</h3>
+<ul class="doc-list">
+<li><strong>Study:</strong> Read Volume 01 in detail. Study the ReAct, Plan-and-Execute, and Reflexion papers.</li>
+<li><strong>Hands-on:</strong> Build a raw Python agent loop without frameworks. Add a retry counter, structured output validation via Pydantic, and test-time reasoning budget control.</li>
+<li><strong>Question Bank:</strong> Answer Q1 to Q12 from Volume 09.</li>
+</ul>
+<h3 id="week-34-tool-protocols-mcp-a2a-and-sandboxed-actions-316" class="doc-heading doc-h3"><a href="#week-34-tool-protocols-mcp-a2a-and-sandboxed-actions-316" class="heading-anchor">#</a> Week 3–4: Tool Protocols (MCP, A2A) and Sandboxed Actions</h3>
+<ul class="doc-list">
+<li><strong>Study:</strong> Read Volume 02. Read the Model Context Protocol specification and Agent2Agent architecture.</li>
+<li><strong>Hands-on:</strong> Build a custom Python FastMCP server exposing 3 tools with JSON schema and OAuth token validation. Connect it to an MCP host. Set up a secure code-execution sandbox using Docker or gVisor.</li>
+<li><strong>Question Bank:</strong> Answer Q13 to Q26 from Volume 09.</li>
+</ul>
+<h3 id="week-56-advanced-memory-context-engineering-agentic-rag-321" class="doc-heading doc-h3"><a href="#week-56-advanced-memory-context-engineering-agentic-rag-321" class="heading-anchor">#</a> Week 5–6: Advanced Memory, Context Engineering &amp; Agentic RAG</h3>
+<ul class="doc-list">
+<li><strong>Study:</strong> Read Volume 03. Study prompt caching mechanisms (Anthropic/DeepSeek KV caching) and GraphRAG principles.</li>
+<li><strong>Hands-on:</strong> Build an Agentic RAG pipeline implementing query decomposition, hybrid retrieval (BM25 + Dense vector), cross-encoder reranking, and a Self-RAG reflection check. Implement user-level ACL filtering at search time.</li>
+<li><strong>Question Bank:</strong> Answer Q27 to Q40 from Volume 09.</li>
+</ul>
+<h3 id="week-7-multi-agent-orchestration-durable-workflows-326" class="doc-heading doc-h3"><a href="#week-7-multi-agent-orchestration-durable-workflows-326" class="heading-anchor">#</a> Week 7: Multi-Agent Orchestration &amp; Durable Workflows</h3>
+<ul class="doc-list">
+<li><strong>Study:</strong> Read Volume 04. Compare LangGraph, OpenAI Agents SDK, and Temporal workflow patterns.</li>
+<li><strong>Hands-on:</strong> Implement a Supervisor-Worker multi-agent workflow in LangGraph with state checkpointing, human-in-the-loop pause/resume for sensitive actions, and idempotent state updates.</li>
+<li><strong>Question Bank:</strong> Answer Q41 to Q60 from Volume 09.</li>
+</ul>
+<h3 id="week-8-evals-observability-security-red-teaming-331" class="doc-heading doc-h3"><a href="#week-8-evals-observability-security-red-teaming-331" class="heading-anchor">#</a> Week 8: Evals, Observability &amp; Security Red-Teaming</h3>
+<ul class="doc-list">
+<li><strong>Study:</strong> Read Volumes 05 and 06. Study OWASP LLM Top 10 and LLM-as-a-judge bias mitigation papers.</li>
+<li><strong>Hands-on:</strong> Instrument your agent with OpenTelemetry spans (recording prompt tokens, completion tokens, tool latency). Build a 25-case golden dataset and an automated LLM judge rater calibrated with Cohen's kappa. Test indirect prompt injection attacks.</li>
+<li><strong>Question Bank:</strong> Answer Q61 to Q92 from Volume 09.</li>
+</ul>
+<h3 id="week-910-production-architecture-finops-system-design-mastery-336" class="doc-heading doc-h3"><a href="#week-910-production-architecture-finops-system-design-mastery-336" class="heading-anchor">#</a> Week 9–10: Production Architecture, FinOps &amp; System Design Mastery</h3>
+<ul class="doc-list">
+<li><strong>Study:</strong> Read Volumes 07 and 08. Practice the 8-step System Design answering framework.</li>
+<li><strong>Hands-on:</strong> Work through all 7 system design case studies under timed conditions (45 minutes per design). Perform back-of-the-envelope token math, cache-hit cost modeling, and gateway rate-limiting calculations.</li>
+<li><strong>Question Bank:</strong> Answer Q93 to Q115+ from Volume 09. Conduct mock system design interviews.</li>
+</ul>
+
+
+            <div class="doc-footer">
+                <span>Agentic AI Study Material · Production Engineering</span>
+                <a href="#top">↑ Back to top</a>
+            </div>
+        </article>
+
+        <!-- Right In-Page TOC Rail -->
+        <aside class="toc-rail">
+            <nav class="toc-nav"><div class="toc-header">On This Page</div><ul class="toc-list">
+<li class="toc-level-1"><a href="#1-executive-summary-hiring-for-senior-and-staff-agentic-ai-roles-late-2026-2">1. Executive Summary: Hiring for Senior and Staff Agentic AI Roles (Late 2026)</a></li>
+<li class="toc-level-1"><a href="#2-methodology-25">2. Methodology</a></li>
+<li class="toc-level-2"><a href="#21-collection-27">2.1 Collection</a></li>
+<li class="toc-level-2"><a href="#22-honesty-about-sources-31">2.2 Honesty about sources</a></li>
+<li class="toc-level-2"><a href="#23-coding-and-counting-41">2.3 Coding and counting</a></li>
+<li class="toc-level-1"><a href="#3-job-profile-catalog-52">3. Job Profile Catalog</a></li>
+<li class="toc-level-2"><a href="#31-frontier-labs-fl-56">3.1 Frontier Labs (FL)</a></li>
+<li class="toc-level-2"><a href="#32-hyperscalers-and-big-tech-hs-73">3.2 Hyperscalers and Big Tech (HS)</a></li>
+<li class="toc-level-2"><a href="#33-enterprise-saas-and-data-platforms-es-91">3.3 Enterprise SaaS and Data Platforms (ES)</a></li>
+<li class="toc-level-2"><a href="#34-ai-native-startups-an-108">3.4 AI-Native Startups (AN)</a></li>
+<li class="toc-level-2"><a href="#35-enterprise-fintech-and-consulting-ef-126">3.5 Enterprise, FinTech and Consulting (EF)</a></li>
+<li class="toc-level-2"><a href="#36-india-based-roles-in-146">3.6 India-Based Roles (IN)</a></li>
+<li class="toc-level-1"><a href="#4-master-topic-frequency-matrix-168">4. Master Topic Frequency Matrix</a></li>
+<li class="toc-level-1"><a href="#5-skills-breakdown-by-employer-tier-225">5. Skills Breakdown by Employer Tier</a></li>
+<li class="toc-level-3"><a href="#51-frontier-ai-labs-openai-anthropic-google-deepmind-xai-mistral-229">5.1 Frontier AI Labs (OpenAI, Anthropic, Google DeepMind, xAI, Mistral)</a></li>
+<li class="toc-level-3"><a href="#52-hyperscalers-cloud-platforms-microsoft-aws-google-cloud-nvidia-234">5.2 Hyperscalers &amp; Cloud Platforms (Microsoft, AWS, Google Cloud, NVIDIA)</a></li>
+<li class="toc-level-3"><a href="#53-enterprise-saas-data-platforms-salesforce-databricks-servicenow-snowflake-palantir-glean-239">5.3 Enterprise SaaS &amp; Data Platforms (Salesforce, Databricks, ServiceNow, Snowflake, Palantir, Glean)</a></li>
+<li class="toc-level-3"><a href="#54-ai-native-startups-anyspherecursor-cognition-perplexity-sierra-harvey-crewai-244">5.4 AI-Native Startups (Anysphere/Cursor, Cognition, Perplexity, Sierra, Harvey, CrewAI)</a></li>
+<li class="toc-level-3"><a href="#55-enterprise-fintech-regulated-industries-jpmorgan-goldman-sachs-capital-one-healthcare-249">5.5 Enterprise, FinTech &amp; Regulated Industries (JPMorgan, Goldman Sachs, Capital One, Healthcare)</a></li>
+<li class="toc-level-3"><a href="#56-indian-product-companies-global-capability-centers-flipkart-swiggy-razorpay-phonepe-gccs-254">5.6 Indian Product Companies &amp; Global Capability Centers (Flipkart, Swiggy, Razorpay, PhonePe, GCCs)</a></li>
+<li class="toc-level-1"><a href="#6-staff-level-expectations-and-interview-loop-structure-261">6. Staff-Level Expectations and Interview Loop Structure</a></li>
+<li class="toc-level-3"><a href="#61-staff-behavioral-leadership-competencies-265">6.1 Staff Behavioral &amp; Leadership Competencies</a></li>
+<li class="toc-level-3"><a href="#62-standard-staff-agentic-ai-interview-loop-45-rounds-271">6.2 Standard Staff Agentic AI Interview Loop (4–5 Rounds)</a></li>
+<li class="toc-level-1"><a href="#7-topic-to-volume-curriculum-mapping-289">7. Topic-to-Volume Curriculum Mapping</a></li>
+<li class="toc-level-1"><a href="#8-recommended-8-to-10-week-mastery-plan-307">8. Recommended 8-to-10 Week Mastery Plan</a></li>
+<li class="toc-level-3"><a href="#week-12-foundations-control-loops-reasoning-models-311">Week 1–2: Foundations, Control Loops &amp; Reasoning Models</a></li>
+<li class="toc-level-3"><a href="#week-34-tool-protocols-mcp-a2a-and-sandboxed-actions-316">Week 3–4: Tool Protocols (MCP, A2A) and Sandboxed Actions</a></li>
+<li class="toc-level-3"><a href="#week-56-advanced-memory-context-engineering-agentic-rag-321">Week 5–6: Advanced Memory, Context Engineering &amp; Agentic RAG</a></li>
+<li class="toc-level-3"><a href="#week-7-multi-agent-orchestration-durable-workflows-326">Week 7: Multi-Agent Orchestration &amp; Durable Workflows</a></li>
+<li class="toc-level-3"><a href="#week-8-evals-observability-security-red-teaming-331">Week 8: Evals, Observability &amp; Security Red-Teaming</a></li>
+<li class="toc-level-3"><a href="#week-910-production-architecture-finops-system-design-mastery-336">Week 9–10: Production Architecture, FinOps &amp; System Design Mastery</a></li>
+</ul></nav>
+
+        </aside>
+    </main>
+
+    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <!-- Prism Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Render Math with KaTeX
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '', right: '', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false,
+                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+                });
+            }
+        });
+
+        // Copy Code Functionality
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const code = pre.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#10b981';
+                button.style.color = '#fff';
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '';
+                    button.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // Filter Nav Links in Sidebar
+        function filterNav() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const lis = document.querySelectorAll('.nav-links li');
+            lis.forEach(li => {
+                const text = li.innerText.toLowerCase();
+                if (text.includes(filter)) {
+                    li.style.display = '';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }
+
+        // Theme Toggle (Dark/Light)
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('agentic_study_theme', isLight ? 'light' : 'dark');
+        }
+        if (localStorage.getItem('agentic_study_theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+    </script>
+</body>
+</html>

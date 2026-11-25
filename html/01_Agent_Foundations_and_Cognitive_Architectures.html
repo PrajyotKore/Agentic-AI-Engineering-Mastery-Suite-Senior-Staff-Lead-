@@ -1,0 +1,1627 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01: Foundations &amp; Cognitive Architectures | Agentic AI Study Suite</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- Prism Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border: #334155;
+            --code-bg: #090d16;
+            --callout-warn-bg: rgba(245, 158, 11, 0.12);
+            --callout-warn-border: #f59e0b;
+            --callout-tip-bg: rgba(16, 185, 129, 0.12);
+            --callout-tip-border: #10b981;
+            --callout-imp-bg: rgba(168, 85, 247, 0.12);
+            --callout-imp-border: #a855f7;
+            --callout-note-bg: rgba(56, 189, 248, 0.12);
+            --callout-note-border: #38bdf8;
+            --sidebar-width: 290px;
+            --toc-width: 250px;
+        }
+
+        body.light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --callout-warn-bg: #fffbeb;
+            --callout-tip-bg: #ecfdf5;
+            --callout-imp-bg: #faf5ff;
+            --callout-note-bg: #f0f9ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.68;
+            font-size: 15px;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        aside.sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-header {
+            padding: 20px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.3px;
+        }
+        .sidebar-header p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .sidebar-search {
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-search input {
+            width: 100%;
+            padding: 7px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+        }
+        .sidebar-search input:focus {
+            border-color: var(--accent);
+        }
+        nav.nav-container {
+            padding: 12px 8px;
+            flex: 1;
+        }
+        .nav-links { list-style: none; }
+        .nav-links li { margin-bottom: 3px; }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .nav-links a:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .nav-links li.active a {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .sidebar-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Main Content Layout */
+        main.main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 40px 48px 80px 48px;
+            max-width: 1500px;
+        }
+        article.content-area {
+            flex: 1;
+            max-width: 860px;
+            min-width: 0;
+        }
+
+        /* In-Page TOC (Right rail) */
+        aside.toc-rail {
+            width: var(--toc-width);
+            margin-left: 40px;
+            position: sticky;
+            top: 40px;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            font-size: 12px;
+            border-left: 1px solid var(--border);
+            padding-left: 16px;
+            display: none;
+        }
+        @media (min-width: 1240px) {
+            aside.toc-rail { display: block; }
+        }
+        .toc-header {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+        .toc-list { list-style: none; }
+        .toc-list li { margin-bottom: 6px; }
+        .toc-list a {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: block;
+            line-height: 1.4;
+            transition: color 0.15s;
+        }
+        .toc-list a:hover { color: var(--accent); }
+        .toc-level-1 { font-weight: 600; color: var(--text-secondary); }
+        .toc-level-2 { padding-left: 10px; }
+        .toc-level-3 { padding-left: 20px; font-size: 11px; }
+
+        /* Typography */
+        h1.doc-title {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -0.7px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        .doc-subtitle {
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .doc-heading {
+            color: var(--text-primary);
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            position: relative;
+        }
+        .doc-h1 { font-size: 24px; margin-top: 48px; margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .doc-h2 { font-size: 19px; margin-top: 36px; margin-bottom: 14px; color: var(--accent); }
+        .doc-h3 { font-size: 16px; margin-top: 26px; margin-bottom: 10px; }
+        .doc-h4 { font-size: 14px; margin-top: 20px; margin-bottom: 8px; color: var(--text-secondary); }
+        .heading-anchor {
+            position: absolute;
+            left: -18px;
+            color: var(--text-muted);
+            opacity: 0;
+            text-decoration: none;
+            font-weight: 400;
+        }
+        .doc-heading:hover .heading-anchor { opacity: 0.8; }
+        p.doc-paragraph { margin-bottom: 16px; color: var(--text-secondary); }
+        strong { color: var(--text-primary); font-weight: 600; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        hr.doc-divider { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+
+        /* Lists */
+        ul.doc-list, ol.doc-list-ordered {
+            margin-bottom: 18px;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+        ul.doc-list li, ol.doc-list-ordered li { margin-bottom: 6px; }
+
+        /* Code Blocks */
+        .code-container {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .code-header {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            padding: 6px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-family: 'Fira Code', monospace;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            padding: 2px 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .copy-btn:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        pre {
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        code {
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 13px;
+        }
+        p code, li code, td code {
+            background-color: var(--bg-tertiary);
+            color: #f43f5e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12.5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Callouts */
+        .callout {
+            border-left: 4px solid;
+            border-radius: 6px;
+            padding: 16px 18px;
+            margin: 22px 0;
+            font-size: 14px;
+        }
+        .callout-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+        .callout-warning { background-color: var(--callout-warn-bg); border-color: var(--callout-warn-border); }
+        .callout-warning .callout-title { color: var(--callout-warn-border); }
+        .callout-tip { background-color: var(--callout-tip-bg); border-color: var(--callout-tip-border); }
+        .callout-tip .callout-title { color: var(--callout-tip-border); }
+        .callout-important { background-color: var(--callout-imp-bg); border-color: var(--callout-imp-border); }
+        .callout-important .callout-title { color: var(--callout-imp-border); }
+        .callout-note { background-color: var(--callout-note-bg); border-color: var(--callout-note-border); }
+        .callout-note .callout-title { color: var(--callout-note-border); }
+        .callout-content p { margin-bottom: 6px; color: var(--text-secondary); }
+        .callout-content p:last-child { margin-bottom: 0; }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 24px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        table.doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            text-align: left;
+        }
+        table.doc-table th {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        table.doc-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        table.doc-table tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.015); }
+        table.doc-table tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+        /* Math Styling */
+        .math-block {
+            overflow-x: auto;
+            padding: 14px 18px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .math-display {
+            display: block;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        /* Footer */
+        .doc-footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../index.html" style="text-decoration:none; color:inherit;">
+                <h2>⚡ Agentic AI Suite</h2>
+                <p>Senior · Staff · Lead Mastery &larr; Home</p>
+            </a>
+        </div>
+        <div class="sidebar-search">
+            <input type="text" id="searchInput" placeholder="Filter volumes..." onkeyup="filterNav()">
+        </div>
+        <nav class="nav-container">
+            <ul class="nav-links">
+                <li><a href="../index.html"><span class="nav-icon">🏠</span> <span class="nav-title">Home Portal</span></a></li>
+            </ul>
+            <ul class="nav-links">
+<li class=""><a href="00_Agentic_AI_Job_Market_Analysis_and_Master_Syllabus.html"><span class="nav-icon">📊</span> <span class="nav-title">00. Market Analysis & Syllabus</span></a></li>
+<li class="active"><a href="01_Agent_Foundations_and_Cognitive_Architectures.html"><span class="nav-icon">🧠</span> <span class="nav-title">01. Foundations & Architectures</span></a></li>
+<li class=""><a href="02_Tool_Use_Function_Calling_and_Protocols.html"><span class="nav-icon">🔌</span> <span class="nav-title">02. Tool Use, MCP & Protocols</span></a></li>
+<li class=""><a href="03_Memory_Context_Engineering_and_Agentic_RAG.html"><span class="nav-icon">💾</span> <span class="nav-title">03. Memory & Agentic RAG</span></a></li>
+<li class=""><a href="04_Multi_Agent_Systems_and_Orchestration.html"><span class="nav-icon">🤖</span> <span class="nav-title">04. Multi-Agent Orchestration</span></a></li>
+<li class=""><a href="05_Evaluation_Observability_and_Reliability.html"><span class="nav-icon">📈</span> <span class="nav-title">05. Evals & Observability</span></a></li>
+<li class=""><a href="06_Security_Guardrails_and_Enterprise_Governance.html"><span class="nav-icon">🛡️</span> <span class="nav-title">06. Security & Governance</span></a></li>
+<li class=""><a href="07_Production_Architecture_Deployment_and_LLMOps.html"><span class="nav-icon">⚙️</span> <span class="nav-title">07. Production & LLMOps</span></a></li>
+<li class=""><a href="08_System_Design_Blueprints_and_Case_Studies.html"><span class="nav-icon">📐</span> <span class="nav-title">08. System Design Case Studies</span></a></li>
+<li class=""><a href="09_Agentic_AI_Hard_Question_Bank_and_Solutions.html"><span class="nav-icon">🎯</span> <span class="nav-title">09. Hard Question Bank (120 Qs)</span></a></li>
+</ul>
+
+        </nav>
+        <div class="sidebar-footer">
+            <span>Suite v2.5</span>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+        <article class="content-area">
+            <div class="doc-header">
+                <div class="doc-subtitle">Senior / Staff / Lead Agentic AI Engineer Study Suite</div>
+                <h1 class="doc-title">01: Foundations &amp; Cognitive Architectures</h1>
+            </div>
+
+            <h1 id="1-what-makes-a-system-agentic-2" class="doc-heading doc-h1"><a href="#1-what-makes-a-system-agentic-2" class="heading-anchor">#</a> 1. What Makes a System Agentic</h1>
+<h2 id="11-a-first-principles-definition-4" class="doc-heading doc-h2"><a href="#11-a-first-principles-definition-4" class="heading-anchor">#</a> 1.1 A First-Principles Definition</h2>
+<p class="doc-paragraph">An <strong>agent</strong> is a system in which a language model <em>decides the control flow</em> of a program at runtime: which action to take next, which tool to call, with which arguments, and when to stop. Everything else (memory, tools, planning, reflection) is an elaboration of that one property. A program where the developer hard-codes the sequence of LLM calls is a <strong>workflow</strong>, however sophisticated its prompts are.</p>
+<p class="doc-paragraph">This framing comes directly from Anthropic's <em>Building Effective Agents</em> (December 2024), which remains the most widely cited taxonomy in industry:</p>
+<ul class="doc-list">
+<li><strong>Workflows</strong>: LLMs and tools are orchestrated through <em>predefined code paths</em>.</li>
+<li><strong>Agents</strong>: LLMs <em>dynamically direct their own processes and tool usage</em>, maintaining control over how they accomplish tasks.</li>
+</ul>
+<p class="doc-paragraph">Both are &quot;agentic systems&quot;. The distinction matters because it determines how you test, observe, bound cost and reason about failure. A workflow has an enumerable set of execution paths; an agent has an unbounded one.</p>
+<p class="doc-paragraph">A useful formalism: treat the agent as a policy <code>π(a_t | s_t)</code> where the state <code>s_t</code> is the context window (system prompt + history + tool results) and the action <code>a_t</code> is either a tool call, a message to the user, or a terminate signal. The environment executes the action and returns an observation <code>o_t</code>, and <code>s_{t+1} = f(s_t, a_t, o_t)</code>. The function <code>f</code> is <strong>context engineering</strong>: what you keep, summarise, drop or retrieve. Most production quality problems live in <code>f</code>, not in <code>π</code>.</p>
+<h2 id="12-the-autonomy-spectrum-17" class="doc-heading doc-h2"><a href="#12-the-autonomy-spectrum-17" class="heading-anchor">#</a> 1.2 The Autonomy Spectrum</h2>
+<p class="doc-paragraph">Agency is not binary. Think of it as a ladder where each rung hands one more decision to the model.</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Level</th>
+<th>Name</th>
+<th>Who decides control flow</th>
+<th>Example</th>
+<th>Typical failure surface</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>L0</td>
+<td>Single call</td>
+<td>Developer</td>
+<td>Classify a ticket</td>
+<td>Prompt quality</td>
+</tr>
+<tr>
+<td>L1</td>
+<td>Chain / workflow</td>
+<td>Developer</td>
+<td>Extract, then translate, then format</td>
+<td>Error propagation between steps</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>Router</td>
+<td>Model picks one branch of a fixed set</td>
+<td>Route to billing vs tech-support prompt</td>
+<td>Misrouting</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>Tool-using agent</td>
+<td>Model picks tools and loops</td>
+<td>ReAct support agent with 10 tools</td>
+<td>Loops, wrong tool, wrong args</td>
+</tr>
+<tr>
+<td>L4</td>
+<td>Planning / multi-agent</td>
+<td>Model decomposes goals and delegates</td>
+<td>Deep research, coding agents</td>
+<td>Plan drift, coordination cost explosion</td>
+</tr>
+<tr>
+<td>L5</td>
+<td>Open-ended autonomous</td>
+<td>Model sets its own sub-goals over hours/days</td>
+<td>Long-horizon SWE agents, computer use</td>
+<td>Safety, irreversibility, unbounded spend</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph">Two orthogonal axes are often conflated with this ladder:</p>
+<ul class="doc-list">
+<li><strong>Action reversibility</strong>: read-only search vs. sending email vs. moving money. Autonomy should be <em>inversely</em> coupled to irreversibility.</li>
+<li><strong>Horizon</strong>: number of steps before a human sees output. Error compounds roughly as <code>p_success ≈ p_step^n</code>. At 95% per-step reliability, a 20-step task succeeds only ~36% of the time without recovery mechanisms.</li>
+</ul>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Staff-level framing for design reviews: &quot;What is the lowest rung on the autonomy ladder that solves this problem?&quot; Every rung up buys flexibility at the cost of testability, latency and spend. Anthropic's own guidance is to start with the simplest solution and add agency only when it demonstrably improves outcomes on your eval set.</p>
+</div>
+</div>
+<h2 id="13-workflows-vs-agents-when-to-choose-which-38" class="doc-heading doc-h2"><a href="#13-workflows-vs-agents-when-to-choose-which-38" class="heading-anchor">#</a> 1.3 Workflows vs Agents: When to Choose Which</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Criterion</th>
+<th>Prefer workflow</th>
+<th>Prefer agent</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Task structure</td>
+<td>Known, stable decomposition</td>
+<td>Unknown number of steps, path depends on findings</td>
+</tr>
+<tr>
+<td>Input variance</td>
+<td>Low</td>
+<td>High (open-ended user goals)</td>
+</tr>
+<tr>
+<td>Latency SLO</td>
+<td>Tight (p95 under 2 s)</td>
+<td>Relaxed (seconds to minutes)</td>
+</tr>
+<tr>
+<td>Cost sensitivity</td>
+<td>High volume, low margin</td>
+<td>High value per task</td>
+</tr>
+<tr>
+<td>Auditability</td>
+<td>Regulated, must explain each step</td>
+<td>Outcome-checked rather than path-checked</td>
+</tr>
+<tr>
+<td>Evaluation</td>
+<td>Per-step unit tests</td>
+<td>Outcome-based evals plus trajectory analysis</td>
+</tr>
+<tr>
+<td>Tooling breadth</td>
+<td>Few tools, fixed order</td>
+<td>Many tools, conditional use</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph">The pragmatic production pattern in 2026 is <strong>workflow-shaped skeletons with agentic leaves</strong>: a deterministic graph (often LangGraph, Temporal or plain code) where specific nodes are bounded agent loops with their own tool sets, step caps and budgets. This combines the auditability of workflows with local flexibility.</p>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>&quot;Agent-washing&quot; a deterministic process is a common and expensive mistake. If your agent calls the same five tools in the same order 98% of the time (check your traces), you are paying for a model to rediscover a fixed workflow on every request, with added nondeterminism. Compile it into a workflow and keep an agentic fallback for the remaining 2%.</p>
+</div>
+</div>
+<h2 id="14-the-building-blocks-the-augmented-llm-55" class="doc-heading doc-h2"><a href="#14-the-building-blocks-the-augmented-llm-55" class="heading-anchor">#</a> 1.4 The Building Blocks: The Augmented LLM</h2>
+<p class="doc-paragraph">Anthropic's taxonomy starts with the <strong>augmented LLM</strong>: a model with access to retrieval, tools and memory. Every pattern in this document composes augmented LLM calls.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                +----------------------------------+
+   input  ---&gt;  |           Augmented LLM          | ---&gt; output
+                |  +-----------+   +------------+  |
+                |  | Retrieval |   |   Tools    |  |
+                |  +-----------+   +------------+  |
+                |         +--------------+         |
+                |         |    Memory    |         |
+                |         +--------------+         |
+                +----------------------------------+</code></pre></div>
+<p class="doc-paragraph">In 2026 the tool interface is largely standardised by the <strong>Model Context Protocol (MCP)</strong>, which exposes tools, resources and prompts from servers to any compliant client; agent-to-agent delegation across organisational boundaries increasingly uses <strong>A2A</strong> (Agent2Agent, now under the Linux Foundation). Those protocols are covered in a later part of this suite; here the important point is that the <em>cognitive architecture</em> (how the model decides) is independent of the <em>transport</em> (how tools are reached).</p>
+<h1 id="2-the-agent-loop-73" class="doc-heading doc-h1"><a href="#2-the-agent-loop-73" class="heading-anchor">#</a> 2. The Agent Loop</h1>
+<h2 id="21-mechanics-75" class="doc-heading doc-h2"><a href="#21-mechanics-75" class="heading-anchor">#</a> 2.1 Mechanics</h2>
+<p class="doc-paragraph">Every tool-using agent, whatever the framework, reduces to this loop:</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">messages = [system, user_goal]
+loop:
+    response = model(messages, tools)
+    if response has tool_calls:
+        for call in response.tool_calls:          # possibly in parallel
+            result = execute(call)                # sandboxed, timed out, authorised
+            messages.append(tool_result(call.id, result))
+        messages.append(response)                 # order matters per provider API
+    else:
+        return response.final_text                # model chose to stop
+    enforce_budgets()                             # steps, tokens, wall-clock, $ </code></pre></div>
+<p class="doc-paragraph">The model &quot;stops&quot; by emitting a turn with no tool calls (in Anthropic's Messages API, <code>stop_reason == &quot;end_turn&quot;</code> vs <code>&quot;tool_use&quot;</code>; in OpenAI's APIs, absence of function calls in the output). Frameworks such as the <strong>OpenAI Agents SDK</strong> (<code>Runner.run</code>), <strong>Claude Agent SDK</strong> (the harness behind Claude Code), <strong>Google ADK</strong> (<code>LlmAgent</code> executed by a <code>Runner</code>), <strong>LangGraph</strong> (<code>create_react_agent</code> or a hand-built graph) and <strong>CrewAI/AG2</strong> all wrap exactly this loop, adding tracing, guardrails, handoffs and persistence.</p>
+<h2 id="22-a-minimal-production-shaped-implementation-95" class="doc-heading doc-h2"><a href="#22-a-minimal-production-shaped-implementation-95" class="heading-anchor">#</a> 2.2 A Minimal, Production-Shaped Implementation</h2>
+<p class="doc-paragraph">The following uses the Anthropic Python SDK's Messages API, which is stable and well documented. Note the explicit budgets and error-as-observation handling.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">import json, time
+import anthropic
+
+client = anthropic.Anthropic()
+
+TOOLS = [
+    {
+        &quot;name&quot;: &quot;search_orders&quot;,
+        &quot;description&quot;: &quot;Look up a customer's orders by email. Returns at most 10 orders, newest first.&quot;,
+        &quot;input_schema&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {&quot;email&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;format&quot;: &quot;email&quot;}},
+            &quot;required&quot;: [&quot;email&quot;],
+        },
+    },
+]
+
+def execute(name: str, args: dict) -&gt; str:
+    try:
+        if name == &quot;search_orders&quot;:
+            return json.dumps(order_service.search(args[&quot;email&quot;]))  # your code
+        return json.dumps({&quot;error&quot;: f&quot;unknown tool {name}&quot;})
+    except Exception as e:  # errors become observations, not crashes
+        return json.dumps({&quot;error&quot;: type(e).__name__, &quot;detail&quot;: str(e)[:500]})
+
+def run_agent(goal: str, max_steps=12, max_seconds=90, max_output_tokens_total=20_000):
+    messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: goal}]
+    started, out_tokens = time.monotonic(), 0
+    for step in range(max_steps):
+        resp = client.messages.create(
+            model=&quot;claude-sonnet-4-5&quot;,          # pin a specific model version in prod
+            max_tokens=2048,
+            system=SYSTEM_PROMPT,
+            tools=TOOLS,
+            messages=messages,
+        )
+        out_tokens += resp.usage.output_tokens
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: resp.content})
+        if resp.stop_reason != &quot;tool_use&quot;:
+            return {&quot;status&quot;: &quot;done&quot;, &quot;steps&quot;: step + 1, &quot;answer&quot;: resp.content}
+        results = []
+        for block in resp.content:
+            if block.type == &quot;tool_use&quot;:
+                results.append({
+                    &quot;type&quot;: &quot;tool_result&quot;,
+                    &quot;tool_use_id&quot;: block.id,
+                    &quot;content&quot;: execute(block.name, block.input),
+                })
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: results})
+        if time.monotonic() - started &gt; max_seconds or out_tokens &gt; max_output_tokens_total:
+            return {&quot;status&quot;: &quot;budget_exceeded&quot;, &quot;steps&quot;: step + 1, &quot;messages&quot;: messages}
+    return {&quot;status&quot;: &quot;max_steps&quot;, &quot;messages&quot;: messages}</code></pre></div>
+<h2 id="23-anatomy-of-one-iteration-where-time-and-money-go-154" class="doc-heading doc-h2"><a href="#23-anatomy-of-one-iteration-where-time-and-money-go-154" class="heading-anchor">#</a> 2.3 Anatomy of One Iteration: Where Time and Money Go</h2>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text"> t0 ----- prefill (input tokens, cache-able) ----- t1 -- decode (output tokens) -- t2 -- tool exec -- t3
+          cost ~ input_tokens * p_in                     cost ~ out * p_out             latency of tool
+          latency ~ input/prefill_speed (fast)           latency ~ out/decode_speed (slow)</code></pre></div>
+<p class="doc-paragraph">Key mechanics:</p>
+<ul class="doc-list">
+<li><strong>Context grows monotonically</strong> unless you compact. Iteration <code>k</code> re-sends all prior turns, so naive total input cost is quadratic in steps: <code>Σ_k (S + k·Δ) ≈ nS + Δn²/2</code>.</li>
+<li><strong>Prompt caching</strong> (Anthropic <code>cache_control</code> breakpoints, OpenAI automatic prefix caching, Gemini implicit and explicit context caching) makes the stable prefix cheap: cached reads are typically ~10% of base input price, and also reduce time-to-first-token. Because the agent loop only <em>appends</em>, it is the ideal caching workload, provided you never mutate earlier content.</li>
+<li><strong>Decode dominates latency</strong>; output tokens are 3-5x the price of input and ~100x slower per token than prefill. Verbose reasoning in non-reasoning models (or large thinking budgets in reasoning models) is the main latency lever.</li>
+</ul>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Inserting a timestamp, a request ID, or a re-ordered tool list near the <em>top</em> of the prompt invalidates the cache for everything after it on every call. A single <code>Current time: 20:24:41</code> in the system prompt can multiply your input bill by 5-10x on long loops. Put volatile data at the end, in the latest user turn.</p>
+</div>
+</div>
+<h2 id="24-tool-results-as-the-primary-context-pollutant-171" class="doc-heading doc-h2"><a href="#24-tool-results-as-the-primary-context-pollutant-171" class="heading-anchor">#</a> 2.4 Tool Results as the Primary Context Pollutant</h2>
+<p class="doc-paragraph">In real traces, tool outputs typically account for 60-90% of context tokens. A web page, a log file or a SQL result set is far larger than the model's reasoning. Design tools to return <strong>decision-relevant, bounded</strong> output:</p>
+<ul class="doc-list">
+<li>Paginate and cap (<code>limit</code>, <code>cursor</code>), and say so in the description.</li>
+<li>Return stable IDs plus summaries; let the model fetch detail on demand.</li>
+<li>Return errors with <em>actionable</em> hints (&quot;No orders found for this email. Did you mean to search by order_id? Use get_order(order_id).&quot;).</li>
+<li>Strip HTML/boilerplate server-side.</li>
+</ul>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Treat tool design as <strong>agent-computer interface (ACI)</strong> design, a term Anthropic uses deliberately by analogy with HCI. Teams routinely get larger gains from rewriting tool names, descriptions and output shapes than from changing models. Poka-yoke your tools: make wrong usage hard (e.g., require absolute paths, enums instead of free strings).</p>
+</div>
+</div>
+<h1 id="3-reasoning-and-acting-architectures-183" class="doc-heading doc-h1"><a href="#3-reasoning-and-acting-architectures-183" class="heading-anchor">#</a> 3. Reasoning-and-Acting Architectures</h1>
+<p class="doc-paragraph">This section covers the canonical cognitive architectures from the research literature, what each actually changes in the loop, and where each earns its keep in production. Many were invented for 2022-2023 models that could not reliably reason without scaffolding; reasoning models have absorbed some of their benefits, and knowing <em>which</em> is a staff-level skill.</p>
+<h2 id="31-chain-of-thought-background-187" class="doc-heading doc-h2"><a href="#31-chain-of-thought-background-187" class="heading-anchor">#</a> 3.1 Chain-of-Thought (Background)</h2>
+<p class="doc-paragraph">Chain-of-Thought (Wei et al., 2022) showed that eliciting intermediate reasoning tokens improves multi-step problem solving. Mechanically, CoT gives the transformer more serial computation: each generated token is another forward pass that can condition on prior intermediate results. Every architecture below is a way to structure, branch, verify or ground that serial computation.</p>
+<h2 id="32-react-reason-act-191" class="doc-heading doc-h2"><a href="#32-react-reason-act-191" class="heading-anchor">#</a> 3.2 ReAct (Reason + Act)</h2>
+<p class="doc-paragraph"><strong>Paper</strong>: Yao et al., 2022, <em>ReAct: Synergizing Reasoning and Acting in Language Models</em>.</p>
+<p class="doc-paragraph"><strong>Mechanics</strong>: interleave <code>Thought -&gt; Action -&gt; Observation</code> steps. The thought lets the model plan and track progress; the action grounds it in external information; the observation corrects hallucination.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Thought: I need the user's latest order before I can check the refund policy.
+Action: search_orders{&quot;email&quot;: &quot;a@b.com&quot;}
+Observation: [{&quot;id&quot;: &quot;O-9&quot;, &quot;date&quot;: &quot;2026-11-20&quot;, &quot;status&quot;: &quot;delivered&quot;}]
+Thought: Delivered 5 days ago; policy window is 30 days. Check eligibility.
+Action: check_refund_eligibility{&quot;order_id&quot;: &quot;O-9&quot;}
+Observation: {&quot;eligible&quot;: true}
+Thought: I can answer now.
+Final Answer: ...</code></pre></div>
+<p class="doc-paragraph">In 2026, ReAct is not implemented with text parsing of &quot;Action:&quot; lines; native <strong>function calling</strong> replaces the parse step, and the &quot;Thought&quot; is either visible text preceding the tool call, or hidden reasoning in a reasoning model. The <em>pattern</em> is the default agent loop of every major SDK.</p>
+<p class="doc-paragraph"><strong>Strengths</strong>: simple, adaptive, grounded; each step can react to the last observation.</p>
+<p class="doc-paragraph"><strong>Weaknesses</strong>: greedy and myopic (no lookahead); one LLM call per tool call (latency); context accumulates; prone to loops when observations are ambiguous.</p>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Classic ReAct failure: <strong>repetition loops</strong>. The model calls <code>search(&quot;X&quot;)</code>, gets an unhelpful result, reasons &quot;let me search for X&quot;, and calls the same thing again. Mitigate with (1) duplicate-call detection that injects &quot;You already called this with identical arguments; result was ...&quot;, (2) step caps, (3) tool outputs that suggest alternatives on empty results.</p>
+</div>
+</div>
+<h2 id="33-plan-and-execute-217" class="doc-heading doc-h2"><a href="#33-plan-and-execute-217" class="heading-anchor">#</a> 3.3 Plan-and-Execute</h2>
+<p class="doc-paragraph"><strong>Mechanics</strong>: separate a <strong>planner</strong> (one call producing a multi-step plan) from an <strong>executor</strong> (which carries out each step, often with a cheaper model or a small ReAct loop), plus an optional <strong>replanner</strong> that revises the remaining plan after each step or on failure. Popularised by BabyAGI-style systems and the <em>Plan-and-Solve</em> prompting paper (Wang et al., 2023), and by LangGraph's plan-and-execute tutorials.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">           +---------+   plan[1..n]   +-----------+  result_i  +-----------+
+ goal ---&gt; | Planner | -------------&gt; | Executor  | ---------&gt; | Replanner | --+
+           +---------+                | (step i)  |            +-----------+   |
+                ^                     +-----------+                 |          |
+                |___________________ revised plan __________________|   done --+--&gt; answer</code></pre></div>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">from pydantic import BaseModel, Field
+
+class Step(BaseModel):
+    id: int
+    description: str
+    tool_hint: str | None = None
+    depends_on: list[int] = Field(default_factory=list)
+
+class Plan(BaseModel):
+    goal: str
+    steps: list[Step]
+
+class ReplanDecision(BaseModel):
+    action: str = Field(pattern=&quot;^(continue|revise|finish)$&quot;)
+    revised_steps: list[Step] | None = None
+    final_answer: str | None = None
+
+def plan_and_execute(goal, llm_big, llm_small, max_replans=3):
+    plan = llm_big.structured(Plan, f&quot;Make a minimal plan for: {goal}&quot;)
+    done: dict[int, str] = {}
+    replans = 0
+    while True:
+        ready = [s for s in plan.steps if s.id not in done and all(d in done for d in s.depends_on)]
+        if not ready:
+            break
+        step = ready[0]
+        done[step.id] = react_loop(llm_small, step.description, context=done, max_steps=6)
+        decision = llm_big.structured(ReplanDecision, render(goal, plan, done))
+        if decision.action == &quot;finish&quot;:
+            return decision.final_answer
+        if decision.action == &quot;revise&quot;:
+            replans += 1
+            if replans &gt; max_replans:
+                break
+            plan.steps = [s for s in plan.steps if s.id in done] + decision.revised_steps
+    return synthesize(llm_big, goal, done)</code></pre></div>
+<p class="doc-paragraph"><strong>Strengths</strong>: explicit global structure; the plan is inspectable (good for human-in-the-loop approval); cheaper models can execute; easier to parallelise independent steps.</p>
+<p class="doc-paragraph"><strong>Weaknesses</strong>: plans written before evidence is gathered are often wrong; replanning costs a big-model call per step; rigid plans fail on exploratory tasks.</p>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Show the plan to the user <em>before</em> executing irreversible steps. Plan approval is a far better HITL checkpoint than approving each tool call: humans can evaluate intent at plan level, while per-call approval produces rubber-stamping fatigue within minutes.</p>
+</div>
+</div>
+<h2 id="34-rewoo-reasoning-without-observation-275" class="doc-heading doc-h2"><a href="#34-rewoo-reasoning-without-observation-275" class="heading-anchor">#</a> 3.4 ReWOO (Reasoning WithOut Observation)</h2>
+<p class="doc-paragraph"><strong>Paper</strong>: Xu et al., 2023.</p>
+<p class="doc-paragraph"><strong>Mechanics</strong>: the planner writes the <em>entire</em> plan up front, including tool calls with <strong>variable placeholders</strong> referencing earlier results (<code>#E1</code>, <code>#E2</code>). A <strong>worker</strong> executes tool calls without any LLM involvement, substituting variables. A <strong>solver</strong> LLM gets the plan plus all evidence and writes the answer. Exactly two LLM calls regardless of number of tools.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Plan: Find the CEO of the company that acquired Figma's rival.
+#E1 = search[&quot;company that acquired &lt;rival&gt;&quot;]
+Plan: Extract the company name, then find its CEO.
+#E2 = llm_extract[&quot;company name from #E1&quot;]
+#E3 = search[&quot;CEO of #E2&quot;]
+Solver: given #E1..#E3, answer.</code></pre></div>
+<p class="doc-paragraph"><strong>Strengths</strong>: token-efficient (the paper reported roughly 5x fewer tokens than ReAct on HotpotQA); no observation re-prompting; tool calls can be batched.</p>
+<p class="doc-paragraph"><strong>Weaknesses</strong>: brittle when an early result invalidates the plan; no adaptivity mid-execution.</p>
+<h2 id="35-llm-compiler-294" class="doc-heading doc-h2"><a href="#35-llm-compiler-294" class="heading-anchor">#</a> 3.5 LLM Compiler</h2>
+<p class="doc-paragraph"><strong>Paper</strong>: Kim et al., 2023, <em>An LLM Compiler for Parallel Function Calling</em>.</p>
+<p class="doc-paragraph"><strong>Mechanics</strong>: generalises ReWOO into a <strong>DAG</strong> of tool calls. Three components: a <strong>Function Calling Planner</strong> that streams a task DAG with dependencies; a <strong>Task Fetching Unit</strong> that dispatches tasks as soon as their dependencies resolve (like an out-of-order CPU); an <strong>Executor</strong>. A <strong>Joiner</strong> decides whether to answer or replan.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">planner streams:   1. search(&quot;A&quot;)   2. search(&quot;B&quot;)   3. compare($1, $2)   4. join()
+scheduler:         [1]---+
+                   [2]---+--&gt; [3] --&gt; joiner --&gt; answer | replan</code></pre></div>
+<p class="doc-paragraph">Reported results: up to ~3.7x latency speedup and lower cost vs ReAct on parallelisable tasks.</p>
+<p class="doc-paragraph"><strong>Today</strong>: native <em>parallel tool calling</em> (multiple tool calls in one model turn, supported by OpenAI, Anthropic and Gemini) captures much of the benefit for flat fan-out. LLM Compiler remains valuable when there are <em>dependent</em> chains of tool calls that can be planned in advance and executed without round-tripping to the model.</p>
+<h2 id="36-comparison-react-vs-plan-and-execute-vs-rewoo-vs-llm-compiler-310" class="doc-heading doc-h2"><a href="#36-comparison-react-vs-plan-and-execute-vs-rewoo-vs-llm-compiler-310" class="heading-anchor">#</a> 3.6 Comparison: ReAct vs Plan-and-Execute vs ReWOO vs LLM Compiler</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Property</th>
+<th>ReAct</th>
+<th>Plan-and-Execute</th>
+<th>ReWOO</th>
+<th>LLM Compiler</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>LLM calls per task</td>
+<td>One per step</td>
+<td>Plan + per-step + replans</td>
+<td>2</td>
+<td>Plan + join (+ replans)</td>
+</tr>
+<tr>
+<td>Adaptivity to observations</td>
+<td>High</td>
+<td>Medium (via replanner)</td>
+<td>Low</td>
+<td>Medium (joiner)</td>
+</tr>
+<tr>
+<td>Parallelism</td>
+<td>Only native parallel calls</td>
+<td>Across independent steps</td>
+<td>Batched tool calls</td>
+<td>Full DAG scheduling</td>
+</tr>
+<tr>
+<td>Token efficiency</td>
+<td>Low (re-reads history)</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>High for long tasks</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Lowest when parallelisable</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Exploratory, interactive</td>
+<td>Long multi-stage tasks with HITL</td>
+<td>Predictable retrieval</td>
+<td>Many independent lookups</td>
+</tr>
+<tr>
+<td>Main failure</td>
+<td>Loops, myopia</td>
+<td>Stale plans</td>
+<td>Early-step invalidation</td>
+<td>Planner DAG errors</td>
+</tr>
+</tbody></table></div>
+<h2 id="37-self-refine-322" class="doc-heading doc-h2"><a href="#37-self-refine-322" class="heading-anchor">#</a> 3.7 Self-Refine</h2>
+<p class="doc-paragraph"><strong>Paper</strong>: Madaan et al., 2023.</p>
+<p class="doc-paragraph"><strong>Mechanics</strong>: the same model generates output, critiques it with feedback, then refines using the feedback, iterating until a stop condition. No training, no external signal.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">def self_refine(task, llm, max_iters=3):
+    draft = llm(f&quot;Task: {task}\nWrite your best answer.&quot;)
+    for _ in range(max_iters):
+        fb = llm(f&quot;Task: {task}\nAnswer:\n{draft}\n&quot;
+                 &quot;List concrete defects (correctness, completeness, format). &quot;
+                 &quot;If none, reply exactly: NO_ISSUES&quot;)
+        if fb.strip() == &quot;NO_ISSUES&quot;:
+            break
+        draft = llm(f&quot;Task: {task}\nAnswer:\n{draft}\nFeedback:\n{fb}\nRewrite fixing every point.&quot;)
+    return draft</code></pre></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Research (e.g., Huang et al., 2023, <em>Large Language Models Cannot Self-Correct Reasoning Yet</em>) showed that <strong>intrinsic</strong> self-correction without external feedback often fails to improve, and can degrade, reasoning accuracy: the model &quot;corrects&quot; right answers into wrong ones. Self-refinement works reliably for <em>style, format and completeness</em> criteria, and for reasoning only when grounded in an external signal (tests, compilers, validators, retrieval).</p>
+</div>
+</div>
+<h2 id="38-reflexion-344" class="doc-heading doc-h2"><a href="#38-reflexion-344" class="heading-anchor">#</a> 3.8 Reflexion</h2>
+<p class="doc-paragraph"><strong>Paper</strong>: Shinn et al., 2023, <em>Reflexion: Language Agents with Verbal Reinforcement Learning</em>.</p>
+<p class="doc-paragraph"><strong>Mechanics</strong>: across <em>trials</em>, an agent attempts a task, an <strong>evaluator</strong> (unit tests, exact-match, heuristic or LLM judge) scores it, and a <strong>self-reflection</strong> model writes a natural-language lesson (&quot;I failed because I assumed the list was sorted; next time check&quot;). Lessons are stored in <strong>episodic memory</strong> and prepended to the next trial. This is &quot;RL&quot; with the gradient replaced by text in the context window.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">trial 1 -&gt; evaluator: FAIL (test_empty_input) -&gt; reflection: &quot;handle empty input before indexing&quot;
+trial 2 (memory: [reflection_1]) -&gt; evaluator: PASS</code></pre></div>
+<p class="doc-paragraph">Reflexion's headline results came from coding (HumanEval) where the evaluator is <em>external and reliable</em> (test execution). This is the key insight: reflection is only as good as the feedback signal.</p>
+<p class="doc-paragraph"><strong>Production uses</strong>: coding agents that run tests and retry; data-pipeline agents that validate schemas; cross-session &quot;lessons learned&quot; memories (e.g., per-repo instruction files such as <code>CLAUDE.md</code>/<code>AGENTS.md</code> that accumulate corrections).</p>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Reflexion-style memory across <em>sessions</em> is powerful but dangerous: a wrong lesson persists and poisons future runs. Version lessons, attach provenance (which trial, which evaluator), expire them, and evaluate with and without memory to detect drift.</p>
+</div>
+</div>
+<h2 id="39-tree-of-thoughts-tot-362" class="doc-heading doc-h2"><a href="#39-tree-of-thoughts-tot-362" class="heading-anchor">#</a> 3.9 Tree-of-Thoughts (ToT)</h2>
+<p class="doc-paragraph"><strong>Paper</strong>: Yao et al., 2023.</p>
+<p class="doc-paragraph"><strong>Mechanics</strong>: treat reasoning as search over a tree whose nodes are partial solutions (&quot;thoughts&quot;). At each node: <strong>generate</strong> k candidate next thoughts; <strong>evaluate</strong> each (LLM value estimate: &quot;sure/likely/impossible&quot;, or a vote); <strong>search</strong> with BFS (keep top-b per level, beam search) or DFS with backtracking.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                     root
+          /           |           \
+       t1(0.8)     t2(0.3)      t3(0.7)        &lt;- generate k=3, evaluate
+       /    \                    /    \
+   t1a(.9) t1b(.2)          t3a(.4) t3b(.6)    &lt;- expand top b=2
+     |
+   solution</code></pre></div>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">def tree_of_thoughts(problem, llm, k=3, beam=2, depth=3):
+    frontier = [&quot;&quot;]
+    for _ in range(depth):
+        candidates = []
+        for partial in frontier:
+            for t in llm.sample_n(f&quot;{problem}\nSo far:{partial}\nNext step:&quot;, n=k, temperature=0.8):
+                cand = partial + &quot;\n&quot; + t
+                score = llm.score(f&quot;{problem}\nPartial solution:{cand}\n&quot;
+                                  &quot;Rate 0-10 how likely this leads to a correct solution.&quot;)
+                candidates.append((score, cand))
+        frontier = [c for _, c in sorted(candidates, reverse=True)[:beam]]
+    return llm(f&quot;{problem}\nBest reasoning:{frontier[0]}\nFinal answer:&quot;)</code></pre></div>
+<p class="doc-paragraph">Cost: roughly <code>depth × beam × k × 2</code> calls. On Game of 24, the paper reported GPT-4 success going from 4% (CoT) to 74% (ToT).</p>
+<p class="doc-paragraph"><strong>Today</strong>: reasoning models internalise much of this search in their hidden chain of thought (they backtrack, verify and try alternatives), so explicit ToT over a reasoning model rarely pays off for pure reasoning tasks. Explicit search remains valuable when <strong>evaluation is external</strong> (a compiler, a simulator, a proof checker, a test suite) or when you need <strong>diversity</strong> across candidates.</p>
+<h2 id="310-graph-of-thoughts-got-397" class="doc-heading doc-h2"><a href="#310-graph-of-thoughts-got-397" class="heading-anchor">#</a> 3.10 Graph-of-Thoughts (GoT)</h2>
+<p class="doc-paragraph"><strong>Paper</strong>: Besta et al., 2023.</p>
+<p class="doc-paragraph"><strong>Mechanics</strong>: generalises ToT from a tree to an arbitrary graph. Thoughts can be <strong>aggregated</strong> (merge several partial solutions into one), <strong>refined</strong> (self-loops) and <strong>generated</strong>. This models divide-and-conquer: e.g., sort subarrays independently, then merge them; summarise document chunks, then merge summaries.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text"> chunk1 -&gt; summary1 \
+ chunk2 -&gt; summary2  &gt;-- aggregate --&gt; refine --&gt; final
+ chunk3 -&gt; summary3 /</code></pre></div>
+<p class="doc-paragraph">In practice, GoT's practical descendant is the <strong>map-reduce / orchestrator-workers</strong> pattern with explicit merge steps, which you will implement as a graph in LangGraph or as fan-out/fan-in in Temporal far more often than via the GoT framework itself.</p>
+<h2 id="311-lats-language-agent-tree-search-411" class="doc-heading doc-h2"><a href="#311-lats-language-agent-tree-search-411" class="heading-anchor">#</a> 3.11 LATS (Language Agent Tree Search)</h2>
+<p class="doc-paragraph"><strong>Paper</strong>: Zhou et al., 2023, <em>Language Agent Tree Search Unifies Reasoning, Acting, and Planning</em>.</p>
+<p class="doc-paragraph"><strong>Mechanics</strong>: combines ReAct (acting in an environment), ToT (search), Reflexion (self-reflection on failures) and <strong>Monte Carlo Tree Search</strong>. Each node is an agent state (trajectory so far). The algorithm loops:</p>
+<ol class="doc-list-ordered">
+<li><strong>Select</strong> a node via UCT: <code>UCT(s) = V(s) + c·sqrt(ln N(parent) / N(s))</code>.</li>
+<li><strong>Expand</strong> by sampling n candidate actions from the LLM.</li>
+<li><strong>Evaluate</strong> new nodes with an LLM value function plus self-consistency.</li>
+<li><strong>Simulate</strong> to a terminal state.</li>
+<li><strong>Backpropagate</strong> the reward (environment reward if available, e.g. tests passing).</li>
+<li><strong>Reflect</strong> on failed trajectories; store reflections to guide future expansions.</li>
+</ol>
+<p class="doc-paragraph">Reported strong results on HumanEval and WebShop at the time, at large compute cost.</p>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>LATS and other environment-level search require the ability to <strong>reset or fork environment state</strong>. That is trivial for pure functions and code-in-sandbox, but impossible for real side effects (you cannot &quot;un-send&quot; an email to explore a sibling branch). Only apply tree search over actions that are side-effect-free, or over a simulated/sandboxed copy of the environment (snapshotted containers, database transactions rolled back, browser contexts cloned).</p>
+</div>
+</div>
+<h2 id="312-comparison-of-search-and-reflection-architectures-429" class="doc-heading doc-h2"><a href="#312-comparison-of-search-and-reflection-architectures-429" class="heading-anchor">#</a> 3.12 Comparison of Search and Reflection Architectures</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Architecture</th>
+<th>Structure</th>
+<th>Feedback source</th>
+<th>Relative cost</th>
+<th>Use in 2026 production</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>CoT</td>
+<td>Single chain</td>
+<td>None</td>
+<td>1x</td>
+<td>Subsumed by reasoning models</td>
+</tr>
+<tr>
+<td>Self-consistency</td>
+<td>N parallel chains, majority vote</td>
+<td>Agreement</td>
+<td>Nx</td>
+<td>Classification, math; cheap to parallelise</td>
+</tr>
+<tr>
+<td>Self-Refine</td>
+<td>Iterative chain</td>
+<td>Self-critique</td>
+<td>2-3x per iteration</td>
+<td>Format/style polish</td>
+</tr>
+<tr>
+<td>Reflexion</td>
+<td>Multi-trial with memory</td>
+<td>External evaluator</td>
+<td>Trials x base</td>
+<td>Coding with tests; cross-session lessons</td>
+</tr>
+<tr>
+<td>ToT</td>
+<td>Tree, BFS/DFS</td>
+<td>LLM value or external</td>
+<td>10-100x</td>
+<td>Niche; when external verifier exists</td>
+</tr>
+<tr>
+<td>GoT</td>
+<td>DAG with aggregation</td>
+<td>LLM or external</td>
+<td>Varies</td>
+<td>As map-reduce patterns</td>
+</tr>
+<tr>
+<td>LATS</td>
+<td>MCTS over actions</td>
+<td>Env reward + LLM value</td>
+<td>50-500x</td>
+<td>Offline: data generation, hard benchmarks</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>The most important staff-level heuristic about search architectures: <strong>search is only as good as the verifier</strong>. If you have a cheap, reliable verifier (tests, type checker, schema validator, exact-match, solver), best-of-N or tree search converts compute into accuracy almost linearly in log(N). If your only verifier is the same LLM judging itself, gains plateau quickly and can reverse. Invest in verifiers before search.</p>
+</div>
+</div>
+<h2 id="313-best-of-n-and-self-consistency-the-underrated-baseline-444" class="doc-heading doc-h2"><a href="#313-best-of-n-and-self-consistency-the-underrated-baseline-444" class="heading-anchor">#</a> 3.13 Best-of-N and Self-Consistency: The Underrated Baseline</h2>
+<p class="doc-paragraph">Before building elaborate trees, try sampling N independent full solutions in parallel and choosing via majority vote (self-consistency, Wang et al., 2022) or a verifier. It is embarrassingly parallel, so wall-clock latency barely increases, and it is often within a few points of complex search at a fraction of the engineering cost.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">import asyncio, collections
+
+async def best_of_n(prompt, llm, n=5, verifier=None):
+    outs = await asyncio.gather(*[llm.agenerate(prompt, temperature=0.9) for _ in range(n)])
+    if verifier:
+        scored = [(verifier(o), o) for o in outs]
+        return max(scored, key=lambda x: x[0])[1]
+    answers = [extract_final(o) for o in outs]
+    return collections.Counter(answers).most_common(1)[0][0]</code></pre></div>
+<h1 id="4-composable-workflow-patterns-461" class="doc-heading doc-h1"><a href="#4-composable-workflow-patterns-461" class="heading-anchor">#</a> 4. Composable Workflow Patterns</h1>
+<p class="doc-paragraph">Anthropic's <em>Building Effective Agents</em> identifies five workflow patterns that, combined with the autonomous agent loop, cover the vast majority of production systems. They are composable: an orchestrator's worker can itself be an evaluator-optimizer loop containing a router.</p>
+<h2 id="41-prompt-chaining-465" class="doc-heading doc-h2"><a href="#41-prompt-chaining-465" class="heading-anchor">#</a> 4.1 Prompt Chaining</h2>
+<p class="doc-paragraph"><strong>Mechanics</strong>: decompose a task into a fixed sequence of LLM calls, each consuming the previous output. Insert programmatic <strong>gates</strong> (validation checks) between steps.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">input -&gt; [LLM: outline] -&gt; gate(outline valid?) -&gt; [LLM: draft] -&gt; [LLM: translate] -&gt; output
+                               | fail
+                               v
+                            retry / abort</code></pre></div>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">def chain(doc: str) -&gt; str:
+    outline = llm.structured(Outline, f&quot;Outline this doc:\n{doc}&quot;)
+    if len(outline.sections) &lt; 3:                     # programmatic gate
+        raise ValueError(&quot;Outline too thin&quot;)
+    draft = llm(f&quot;Write marketing copy from outline:\n{outline.model_dump_json()}&quot;)
+    if contains_banned_claims(draft):                 # policy gate
+        draft = llm(f&quot;Remove unverifiable claims:\n{draft}&quot;)
+    return llm(f&quot;Translate to German, keep formatting:\n{draft}&quot;)</code></pre></div>
+<p class="doc-paragraph"><strong>Why it works</strong>: each call has a narrower job, so it is easier to prompt, test and swap models per step. You trade latency for accuracy.</p>
+<h2 id="42-routing-489" class="doc-heading doc-h2"><a href="#42-routing-489" class="heading-anchor">#</a> 4.2 Routing</h2>
+<p class="doc-paragraph"><strong>Mechanics</strong>: classify the input and dispatch to a specialised downstream prompt, tool set or model. Separation of concerns: optimising one route does not regress others.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">from typing import Literal
+from pydantic import BaseModel
+
+class Route(BaseModel):
+    intent: Literal[&quot;billing&quot;, &quot;technical&quot;, &quot;account&quot;, &quot;other&quot;]
+    complexity: Literal[&quot;simple&quot;, &quot;complex&quot;]
+    confidence: float
+
+def route(query: str):
+    r = small_llm.structured(Route, f&quot;Classify:\n{query}&quot;)
+    if r.confidence &lt; 0.6:
+        return generalist_agent(query)
+    model = &quot;small&quot; if r.complexity == &quot;simple&quot; else &quot;frontier&quot;
+    return HANDLERS[r.intent](query, model=model)</code></pre></div>
+<p class="doc-paragraph"><strong>Model routing</strong> (send easy queries to cheap models, hard to frontier/reasoning models) is one of the highest-ROI cost optimisations: a well-calibrated router frequently cuts spend 40-70% with negligible quality loss.</p>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Routers fail silently. A misrouted query gets a confident answer from the wrong specialist. Log router decisions with confidence, sample misroutes into your eval set weekly, and always include an <code>other</code>/fallback class. Routers trained or prompted months ago drift as product surface grows.</p>
+</div>
+</div>
+<h2 id="43-parallelization-515" class="doc-heading doc-h2"><a href="#43-parallelization-515" class="heading-anchor">#</a> 4.3 Parallelization</h2>
+<p class="doc-paragraph">Two variants:</p>
+<ul class="doc-list">
+<li><strong>Sectioning</strong>: split a task into independent subtasks run in parallel (e.g., one call screens for policy violations while another answers the query; guardrails in parallel with generation).</li>
+<li><strong>Voting</strong>: run the same task N times for diverse outputs or confidence (e.g., several vulnerability reviewers; flag if any flags).</li>
+</ul>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">async def answer_with_guardrail(q):
+    answer_t = asyncio.create_task(main_llm.agenerate(q))
+    safe_t = asyncio.create_task(guard_llm.aclassify(q))
+    safe = await safe_t
+    if not safe.ok:
+        answer_t.cancel()
+        return REFUSAL
+    return await answer_t</code></pre></div>
+<p class="doc-paragraph">The OpenAI Agents SDK's <strong>input guardrails</strong> follow this pattern: they run concurrently with the agent and raise a tripwire exception that halts the run if violated.</p>
+<h2 id="44-orchestrator-workers-535" class="doc-heading doc-h2"><a href="#44-orchestrator-workers-535" class="heading-anchor">#</a> 4.4 Orchestrator-Workers</h2>
+<p class="doc-paragraph"><strong>Mechanics</strong>: a central LLM dynamically decomposes the task, delegates subtasks to worker LLMs (often with their own tools and fresh contexts), and synthesises results. Unlike parallelization, subtasks are <em>not predefined</em>; the orchestrator decides them per input.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                 +--------------+
+     goal -----&gt; | Orchestrator | ---- synthesize ----&gt; answer
+                 +--------------+
+                  /     |      \        (dynamic number of subtasks)
+          +--------+ +--------+ +--------+
+          |Worker 1| |Worker 2| |Worker k|   each: own context, tools, budget
+          +--------+ +--------+ +--------+</code></pre></div>
+<p class="doc-paragraph">Anthropic's multi-agent Research system (described in their June 2025 engineering post) is the canonical example: a lead agent plans, spawns parallel subagents that each search independently with clean contexts, and condenses their findings. They reported large gains on breadth-first research tasks, and also that multi-agent runs consumed roughly 15x the tokens of chat interactions, and that token usage explained most of the performance variance.</p>
+<p class="doc-paragraph">Key mechanism: <strong>context isolation</strong>. Each worker spends many tokens exploring but returns a compact summary, so the orchestrator's context stays clean. Multi-agent is primarily a <em>context-management</em> technique and a <em>parallelism</em> technique, not a &quot;team of personalities&quot; technique.</p>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Use orchestrator-workers when work is <strong>breadth-first and parallelisable</strong> with low inter-worker dependency (research, codebase-wide analysis, many-file migrations). Avoid it for tightly coupled tasks (most single-feature coding), where workers need each other's evolving context and coordination costs dominate. Cognition's widely discussed &quot;Don't Build Multi-Agents&quot; essay makes the counterpoint: share full traces, and prefer a single-threaded agent when decisions are interdependent.</p>
+</div>
+</div>
+<h2 id="45-evaluator-optimizer-556" class="doc-heading doc-h2"><a href="#45-evaluator-optimizer-556" class="heading-anchor">#</a> 4.5 Evaluator-Optimizer</h2>
+<p class="doc-paragraph"><strong>Mechanics</strong>: one LLM generates; another evaluates against explicit criteria and returns feedback; loop until accepted or budget exhausted. This is Self-Refine with a separated (often differently prompted or different-model) critic, ideally augmented with deterministic checks.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">class Verdict(BaseModel):
+    accept: bool
+    issues: list[str]
+    score: int  # 1-10
+
+def evaluator_optimizer(task, gen, judge, max_rounds=4, threshold=8):
+    out, history = gen(task), []
+    for r in range(max_rounds):
+        checks = run_deterministic_checks(out)           # lint, schema, tests
+        v = judge.structured(Verdict, rubric_prompt(task, out, checks))
+        history.append(v)
+        if v.accept and v.score &gt;= threshold and checks.ok:
+            return out, history
+        if r &gt; 0 and v.score &lt;= history[-2].score:      # no improvement -&gt; stop early
+            break
+        out = gen(task, previous=out, feedback=v.issues + checks.errors)
+    return best_by_score(history), history</code></pre></div>
+<p class="doc-paragraph"><strong>When it fits</strong>: clear evaluation criteria exist, and iterative refinement measurably helps (literary translation, code that must pass tests, SQL that must execute, documents with compliance rubrics).</p>
+<h2 id="46-pattern-selection-matrix-582" class="doc-heading doc-h2"><a href="#46-pattern-selection-matrix-582" class="heading-anchor">#</a> 4.6 Pattern Selection Matrix</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Pattern</th>
+<th>Control flow decided by</th>
+<th>Latency</th>
+<th>Cost</th>
+<th>Best signal it fits</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Prompt chaining</td>
+<td>Code</td>
+<td>Sum of steps</td>
+<td>Low-medium</td>
+<td>Task naturally decomposes into fixed stages</td>
+</tr>
+<tr>
+<td>Routing</td>
+<td>Classifier LLM, then code</td>
+<td>+1 small call</td>
+<td>Can reduce cost</td>
+<td>Distinct input categories with different handling</td>
+</tr>
+<tr>
+<td>Parallelization</td>
+<td>Code</td>
+<td>Max of branches</td>
+<td>N x</td>
+<td>Independent aspects or need for confidence</td>
+</tr>
+<tr>
+<td>Orchestrator-workers</td>
+<td>LLM</td>
+<td>Plan + max(workers) + synth</td>
+<td>High</td>
+<td>Unpredictable subtask set, breadth-first</td>
+</tr>
+<tr>
+<td>Evaluator-optimizer</td>
+<td>Code loop with LLM judge</td>
+<td>Rounds x (gen + eval)</td>
+<td>Medium-high</td>
+<td>Clear rubric; iteration improves output</td>
+</tr>
+<tr>
+<td>Autonomous agent</td>
+<td>LLM</td>
+<td>Unbounded (capped)</td>
+<td>Unbounded (capped)</td>
+<td>Open-ended, many steps, environment feedback</td>
+</tr>
+</tbody></table></div>
+<h1 id="5-state-machine-and-graph-based-control-593" class="doc-heading doc-h1"><a href="#5-state-machine-and-graph-based-control-593" class="heading-anchor">#</a> 5. State-Machine and Graph-Based Control</h1>
+<h2 id="51-why-graphs-595" class="doc-heading doc-h2"><a href="#51-why-graphs-595" class="heading-anchor">#</a> 5.1 Why Graphs</h2>
+<p class="doc-paragraph">Once an agentic system has more than one loop, conditional branches, human approvals and retries, ad-hoc <code>while</code> loops become unmaintainable. The industry converged on modelling agents as <strong>explicit state machines / graphs</strong>:</p>
+<ul class="doc-list">
+<li><strong>Nodes</strong> are units of work (an LLM call, a tool execution, a sub-agent, a human approval).</li>
+<li><strong>Edges</strong> are transitions, either fixed or <strong>conditional</strong> (a function of state, possibly of the LLM's output).</li>
+<li><strong>State</strong> is a typed object passed and reduced across nodes.</li>
+<li><strong>Checkpoints</strong> persist state after each step, enabling resume, time-travel debugging and human-in-the-loop interrupts.</li>
+</ul>
+<p class="doc-paragraph">LangGraph is the most prominent library built on this model (inspired by Pregel/BSP: nodes run in &quot;super-steps&quot;, writing to state channels with reducer functions). Google ADK offers <code>SequentialAgent</code>, <code>ParallelAgent</code> and <code>LoopAgent</code> workflow agents composed with <code>LlmAgent</code>s. The OpenAI Agents SDK takes a lighter approach (agents plus <strong>handoffs</strong> plus agents-as-tools) with control flow emerging from the model; you write graph logic in plain Python around it. Temporal provides durable execution for the same structures at the infrastructure level.</p>
+<h2 id="52-a-langgraph-example-606" class="doc-heading doc-h2"><a href="#52-a-langgraph-example-606" class="heading-anchor">#</a> 5.2 A LangGraph Example</h2>
+<p class="doc-paragraph">The following uses LangGraph's <code>StateGraph</code> API (stable since 1.0). It implements a ReAct agent with a human-approval gate before sensitive tools.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">from typing import Annotated, TypedDict
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langgraph.prebuilt import ToolNode
+from langgraph.checkpoint.memory import InMemorySaver   # use a Postgres saver in prod
+from langgraph.types import interrupt
+
+class State(TypedDict):
+    messages: Annotated[list, add_messages]   # reducer: append
+    steps: int
+
+SENSITIVE = {&quot;issue_refund&quot;, &quot;delete_account&quot;}
+
+def call_model(state: State):
+    resp = model_with_tools.invoke(state[&quot;messages&quot;])
+    return {&quot;messages&quot;: [resp], &quot;steps&quot;: state[&quot;steps&quot;] + 1}
+
+def route_after_model(state: State):
+    last = state[&quot;messages&quot;][-1]
+    if state[&quot;steps&quot;] &gt;= 15:
+        return END
+    if not getattr(last, &quot;tool_calls&quot;, None):
+        return END
+    if any(tc[&quot;name&quot;] in SENSITIVE for tc in last.tool_calls):
+        return &quot;approve&quot;
+    return &quot;tools&quot;
+
+def approve(state: State):
+    last = state[&quot;messages&quot;][-1]
+    decision = interrupt({&quot;pending_calls&quot;: last.tool_calls})  # pauses; resumes with human input
+    if decision != &quot;approve&quot;:
+        return {&quot;messages&quot;: [rejection_tool_messages(last, decision)]}
+    return {}
+
+def route_after_approval(state: State):
+    return &quot;model&quot; if is_rejection(state[&quot;messages&quot;][-1]) else &quot;tools&quot;
+
+g = StateGraph(State)
+g.add_node(&quot;model&quot;, call_model)
+g.add_node(&quot;tools&quot;, ToolNode(TOOLS))
+g.add_node(&quot;approve&quot;, approve)
+g.add_edge(START, &quot;model&quot;)
+g.add_conditional_edges(&quot;model&quot;, route_after_model, [&quot;tools&quot;, &quot;approve&quot;, END])
+g.add_conditional_edges(&quot;approve&quot;, route_after_approval, [&quot;tools&quot;, &quot;model&quot;])
+g.add_edge(&quot;tools&quot;, &quot;model&quot;)
+app = g.compile(checkpointer=InMemorySaver())
+
+config = {&quot;configurable&quot;: {&quot;thread_id&quot;: &quot;ticket-123&quot;}}
+app.invoke({&quot;messages&quot;: [(&quot;user&quot;, &quot;Refund order O-9&quot;)], &quot;steps&quot;: 0}, config)
+# ...later, after human review: app.invoke(Command(resume=&quot;approve&quot;), config)</code></pre></div>
+<h2 id="53-explicit-fsm-without-a-framework-663" class="doc-heading doc-h2"><a href="#53-explicit-fsm-without-a-framework-663" class="heading-anchor">#</a> 5.3 Explicit FSM Without a Framework</h2>
+<p class="doc-paragraph">For many teams, a small typed state machine in plain code is clearer than a framework and easier to run inside Temporal activities or a queue worker.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">from enum import Enum, auto
+
+class S(Enum):
+    TRIAGE = auto(); GATHER = auto(); PROPOSE = auto(); APPROVAL = auto()
+    EXECUTE = auto(); VERIFY = auto(); DONE = auto(); ESCALATE = auto()
+
+TRANSITIONS = {
+    S.TRIAGE:   {S.GATHER, S.ESCALATE},
+    S.GATHER:   {S.GATHER, S.PROPOSE, S.ESCALATE},
+    S.PROPOSE:  {S.APPROVAL, S.EXECUTE},
+    S.APPROVAL: {S.EXECUTE, S.PROPOSE, S.ESCALATE},
+    S.EXECUTE:  {S.VERIFY},
+    S.VERIFY:   {S.DONE, S.PROPOSE, S.ESCALATE},
+}
+
+def step(ctx):
+    nxt = HANDLERS[ctx.state](ctx)          # handler may call an LLM to choose
+    if nxt not in TRANSITIONS[ctx.state]:
+        raise IllegalTransition(ctx.state, nxt)   # LLM cannot jump to EXECUTE from TRIAGE
+    ctx.visits[nxt] += 1
+    if ctx.visits[nxt] &gt; MAX_VISITS[nxt]:
+        nxt = S.ESCALATE
+    ctx.state = nxt
+    checkpoint(ctx)</code></pre></div>
+<p class="doc-paragraph">The key property: the LLM chooses <em>among allowed transitions</em>; the graph encodes the invariants (no execution without proposal; verify after every execute). This is &quot;constrained agency&quot; and is how regulated industries deploy agents.</p>
+<h2 id="54-durable-execution-696" class="doc-heading doc-h2"><a href="#54-durable-execution-696" class="heading-anchor">#</a> 5.4 Durable Execution</h2>
+<p class="doc-paragraph">Agent runs that last minutes to days, wait for humans, or call flaky APIs need <strong>durable execution</strong>: if the process dies, the run resumes from the last completed step without re-executing side effects. Options:</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Approach</th>
+<th>Mechanism</th>
+<th>Strengths</th>
+<th>Weaknesses</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>LangGraph checkpointer</td>
+<td>Persist state per super-step (Postgres/Redis)</td>
+<td>Native HITL interrupts, time travel</td>
+<td>Side-effect idempotency is on you</td>
+</tr>
+<tr>
+<td>Temporal</td>
+<td>Event-sourced workflow history; activities retried; deterministic replay</td>
+<td>Battle-tested, retries, timers, signals; official integrations with OpenAI Agents SDK</td>
+<td>Determinism constraints on workflow code; ops overhead</td>
+</tr>
+<tr>
+<td>Queue + DB state</td>
+<td>Each step a job; state row updated transactionally</td>
+<td>Simple, familiar</td>
+<td>You rebuild retries, timers, visibility</td>
+</tr>
+<tr>
+<td>Provider-hosted (e.g., OpenAI Responses with stored state, managed agent runtimes)</td>
+<td>Server-side conversation state</td>
+<td>Least code</td>
+<td>Vendor lock-in, limited control</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>LLM calls are nondeterministic. In Temporal, LLM calls and tool executions <strong>must</strong> be activities, never inline in workflow code, otherwise replay produces different decisions and the workflow fails with nondeterminism errors. Equally, make every side-effecting tool idempotent (idempotency keys derived from run ID + step ID), because retries <em>will</em> happen.</p>
+</div>
+</div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>A graph is also your <strong>observability schema</strong>. Name nodes meaningfully and emit a span per node (OpenTelemetry GenAI semantic conventions are now broadly supported by LangSmith, Langfuse, Arize Phoenix, Logfire and the major SDKs). When an incident happens, &quot;40% of runs loop between VERIFY and PROPOSE&quot; is actionable; &quot;the agent got confused&quot; is not.</p>
+</div>
+</div>
+<h1 id="6-reasoning-models-vs-non-reasoning-models-713" class="doc-heading doc-h1"><a href="#6-reasoning-models-vs-non-reasoning-models-713" class="heading-anchor">#</a> 6. Reasoning Models vs Non-Reasoning Models</h1>
+<h2 id="61-what-a-reasoning-model-is-715" class="doc-heading doc-h2"><a href="#61-what-a-reasoning-model-is-715" class="heading-anchor">#</a> 6.1 What a Reasoning Model Is</h2>
+<p class="doc-paragraph">A <strong>reasoning model</strong> is trained, typically with large-scale reinforcement learning on verifiable rewards, to produce an extended internal chain of thought before its answer, and to use that chain productively: decomposing, checking, backtracking and trying alternatives. Lineage:</p>
+<ul class="doc-list">
+<li><strong>OpenAI o-series</strong> (o1 in late 2024, then o3, o4-mini) and the GPT-5 family, where reasoning is controlled with a <code>reasoning.effort</code> parameter (<code>minimal</code>/<code>low</code>/<code>medium</code>/<code>high</code> in the Responses API, with the exact enum varying by model). Raw reasoning tokens are hidden; summaries can be requested.</li>
+<li><strong>Anthropic Claude extended thinking</strong> (from Claude 3.7 Sonnet, through Claude 4.x): enabled with <code>thinking={&quot;type&quot;: &quot;enabled&quot;, &quot;budget_tokens&quot;: N}</code>; returns <code>thinking</code> content blocks (summarised in Claude 4 models) with cryptographic signatures that must be passed back unmodified in multi-turn tool use.</li>
+<li><strong>Google Gemini thinking</strong> (Gemini 2.5 Pro/Flash, Gemini 3): controlled via <code>thinking_config</code> (a <code>thinking_budget</code> token count on 2.5 models, where <code>0</code> disables thinking on Flash and <code>-1</code> requests dynamic budgeting; newer models expose a coarser <code>thinking_level</code>). Thought summaries are optional via <code>include_thoughts</code>.</li>
+<li><strong>Open-weight</strong>: DeepSeek-R1 (January 2025) publicly demonstrated that GRPO-based RL on verifiable rewards could produce o1-class reasoning, followed by Qwen3 thinking modes, and others; these expose raw reasoning tokens.</li>
+</ul>
+<h2 id="62-how-they-are-trained-why-they-behave-as-they-do-724" class="doc-heading doc-h2"><a href="#62-how-they-are-trained-why-they-behave-as-they-do-724" class="heading-anchor">#</a> 6.2 How They Are Trained (Why They Behave as They Do)</h2>
+<p class="doc-paragraph">The core recipe, popularised by DeepSeek-R1 and widely replicated:</p>
+<ol class="doc-list-ordered">
+<li>Start from a strong pretrained base (optionally a cold-start SFT on long CoT examples for readability).</li>
+<li><strong>RLVR (Reinforcement Learning from Verifiable Rewards)</strong>: sample many solutions to problems with automatically checkable answers (math with known results, code with unit tests, formatted outputs). Reward = correctness (+ format).</li>
+<li><strong>GRPO (Group Relative Policy Optimization)</strong>: for each prompt, sample a group of G outputs, compute each reward, and use the group-normalised advantage <code>A_i = (r_i - mean(r)) / std(r)</code> instead of a learned value critic. This removes the critic model from PPO and makes RL at scale cheaper.</li>
+<li>Emergent behaviours appear: longer reasoning on harder problems, self-verification, &quot;wait, let me reconsider&quot; backtracking.</li>
+<li>Further RL for helpfulness/harmlessness, plus, increasingly, <strong>agentic RL</strong> in tool environments (browsing, code execution, terminals) so the model learns to interleave thought with tool calls.</li>
+</ol>
+<p class="doc-paragraph">Consequences for engineers:</p>
+<ul class="doc-list">
+<li>Reasoning models are strongest on domains resembling their RL environments: math, code, logic, structured analysis, multi-step tool use.</li>
+<li>They tend to <strong>ignore or fight micro-managing prompts</strong> (&quot;think step by step&quot;, rigid CoT templates); the guidance from OpenAI and Anthropic is to give high-level goals and constraints and let the model reason.</li>
+<li>They can <strong>overthink</strong> simple tasks: spending thousands of tokens on a classification.</li>
+</ul>
+<h2 id="63-test-time-compute-and-scaling-740" class="doc-heading doc-h2"><a href="#63-test-time-compute-and-scaling-740" class="heading-anchor">#</a> 6.3 Test-Time Compute and Scaling</h2>
+<p class="doc-paragraph">The central idea: accuracy can be bought at inference time, not only at training time. There are two orthogonal axes:</p>
+<ul class="doc-list">
+<li><strong>Sequential (depth)</strong>: longer single reasoning chains (thinking budget, effort level). Improves with roughly log-linear returns on hard problems, then plateaus.</li>
+<li><strong>Parallel (breadth)</strong>: sample N chains, select via vote or verifier (best-of-N, self-consistency, tree search). Also roughly log-linear, conditional on verifier quality.</li>
+</ul>
+<p class="doc-paragraph">Snell et al. (2024, <em>Scaling LLM Test-Time Compute Optimally...</em>) showed that the <strong>compute-optimal</strong> allocation depends on problem difficulty: easy problems benefit from sequential revision, hard ones from parallel search with a good verifier, and adaptive allocation can beat a 14x larger model in FLOPs-matched comparisons on some tasks.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">accuracy
+   ^                                 ___________  plateau (model capability ceiling)
+   |                         _______/
+   |                 _______/
+   |         _______/
+   |  ______/
+   +------------------------------------------------&gt; log(thinking tokens or N samples)
+      cheap tasks saturate here ^         hard tasks still gaining ^</code></pre></div>
+<h2 id="64-choosing-reasoning-vs-non-reasoning-760" class="doc-heading doc-h2"><a href="#64-choosing-reasoning-vs-non-reasoning-760" class="heading-anchor">#</a> 6.4 Choosing: Reasoning vs Non-Reasoning</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Dimension</th>
+<th>Non-reasoning (or thinking off)</th>
+<th>Reasoning (thinking on)</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Time-to-first-visible-token</td>
+<td>Low (hundreds of ms)</td>
+<td>High (seconds to minutes)</td>
+</tr>
+<tr>
+<td>Cost per task</td>
+<td>Low</td>
+<td>2-20x higher (thinking tokens billed as output)</td>
+</tr>
+<tr>
+<td>Multi-step logic, math, code</td>
+<td>Weaker; needs scaffolding</td>
+<td>Strong</td>
+</tr>
+<tr>
+<td>Instruction following on simple formats</td>
+<td>Strong, predictable</td>
+<td>Strong, sometimes over-elaborates</td>
+</tr>
+<tr>
+<td>Planning in agents</td>
+<td>Needs explicit planner patterns</td>
+<td>Plans implicitly; fewer scaffolds needed</td>
+</tr>
+<tr>
+<td>Prompt style</td>
+<td>Detailed, step-by-step OK</td>
+<td>High-level goals; avoid prescribing CoT</td>
+</tr>
+<tr>
+<td>Few-shot examples</td>
+<td>Very effective</td>
+<td>Helpful for format; can constrain reasoning</td>
+</tr>
+<tr>
+<td>Best roles</td>
+<td>Router, extractor, summariser, high-QPS chat</td>
+<td>Planner, orchestrator, hard tool-use, code, analysis, judge</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>The dominant 2026 architecture is <strong>heterogeneous</strong>: a reasoning model (or high effort setting) as the planner/orchestrator and for hard decision points, with fast non-reasoning or low-effort models as workers, extractors and routers. Many frontier models are now <em>hybrid</em> (one model, thinking toggled per request), so &quot;which model&quot; often becomes &quot;which effort level per node&quot;, which you can tune per graph node against evals.</p>
+</div>
+</div>
+<h2 id="65-thinking-budgets-776" class="doc-heading doc-h2"><a href="#65-thinking-budgets-776" class="heading-anchor">#</a> 6.5 Thinking Budgets</h2>
+<p class="doc-paragraph">Budgets cap reasoning tokens. Mechanics differ by provider and must be checked against current docs, but the patterns are stable.</p>
+<p class="doc-paragraph"><strong>Anthropic</strong> (extended thinking, Messages API):</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">resp = client.messages.create(
+    model=&quot;claude-sonnet-4-5&quot;,
+    max_tokens=16000,                                  # must exceed budget_tokens
+    thinking={&quot;type&quot;: &quot;enabled&quot;, &quot;budget_tokens&quot;: 8000},  # minimum 1024
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: problem}],
+)
+for block in resp.content:
+    if block.type == &quot;thinking&quot;:
+        log_reasoning(block.thinking)                  # summarised on Claude 4-family models
+    elif block.type == &quot;text&quot;:
+        answer = block.text</code></pre></div>
+<p class="doc-paragraph"><strong>OpenAI</strong> (Responses API):</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">resp = openai_client.responses.create(
+    model=&quot;o4-mini&quot;,                         # or a GPT-5-family model
+    reasoning={&quot;effort&quot;: &quot;medium&quot;, &quot;summary&quot;: &quot;auto&quot;},
+    input=problem,
+)
+print(resp.output_text)
+print(resp.usage.output_tokens_details.reasoning_tokens)</code></pre></div>
+<p class="doc-paragraph"><strong>Google Gemini</strong> (google-genai SDK):</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">from google.genai import types
+resp = genai_client.models.generate_content(
+    model=&quot;gemini-2.5-flash&quot;,
+    contents=problem,
+    config=types.GenerateContentConfig(
+        thinking_config=types.ThinkingConfig(thinking_budget=4096, include_thoughts=True)
+    ),
+)</code></pre></div>
+<p class="doc-paragraph">Operational rules:</p>
+<ul class="doc-list">
+<li>Thinking tokens are <strong>billed as output tokens</strong> and count against latency, even when hidden or summarised.</li>
+<li>With temperature/top-p, many providers restrict sampling parameters when thinking is enabled; check before you rely on them.</li>
+<li>Budgets are <em>ceilings and hints</em>, not exact targets; models often use less on easy problems.</li>
+<li>Budget selection should be <strong>empirical</strong>: sweep budgets on your eval set and plot accuracy vs cost and p95 latency; pick the knee.</li>
+</ul>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Truncated thinking is worse than no thinking. If <code>max_tokens</code> (or the output cap) is too close to the thinking budget, the model can exhaust its output allowance mid-reasoning and return an empty or partial answer (<code>stop_reason == &quot;max_tokens&quot;</code>, OpenAI <code>status: incomplete</code>). Always leave generous headroom for the final answer and handle the incomplete case explicitly (retry with a higher cap or lower effort).</p>
+</div>
+</div>
+<h2 id="66-interleaved-thinking-with-tool-use-831" class="doc-heading doc-h2"><a href="#66-interleaved-thinking-with-tool-use-831" class="heading-anchor">#</a> 6.6 Interleaved Thinking with Tool Use</h2>
+<p class="doc-paragraph">Early reasoning models thought once, then answered. Agentic use requires <strong>interleaved thinking</strong>: reasoning <em>between</em> tool calls, about each observation.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">user goal
+  -&gt; [think] plan: need A and B
+  -&gt; tool_call(A)
+  &lt;- result A (surprising)
+  -&gt; [think] A contradicts assumption; check C before B     &lt;- interleaved reasoning
+  -&gt; tool_call(C)
+  &lt;- result C
+  -&gt; [think] synthesize
+  -&gt; final answer</code></pre></div>
+<p class="doc-paragraph">Provider mechanics (verify against current docs):</p>
+<ul class="doc-list">
+<li><strong>Anthropic</strong>: Claude 4-family models support interleaved thinking (initially via the beta header <code>interleaved-thinking-2025-05-14</code>). Critically, you must pass the previous assistant turn's <code>thinking</code> blocks back <strong>unmodified</strong> (including signatures) with the tool results, or the API rejects the request or reasoning continuity is lost.</li>
+<li><strong>OpenAI</strong>: o3/o4-mini and GPT-5 models call tools within their chain of thought. In the Responses API, reasoning items are carried across turns either via <code>previous_response_id</code> (server-side state) or by passing back encrypted reasoning items (<code>include=[&quot;reasoning.encrypted_content&quot;]</code>) for stateless/zero-data-retention setups.</li>
+<li><strong>Gemini</strong>: thinking models return thought signatures that should be preserved across function-calling turns to maintain reasoning context.</li>
+</ul>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>A very common production bug: a framework or custom middleware &quot;cleans&quot; message history by stripping thinking/reasoning blocks to save tokens, or re-serialises them. This silently degrades multi-step tool-use quality (the model loses its plan) or causes API validation errors. Treat reasoning items as opaque, signed artefacts: store and replay them verbatim within a tool-use turn. (Providers may drop thinking from <em>earlier completed turns</em> automatically; follow their rules rather than inventing your own.)</p>
+</div>
+</div>
+<h2 id="67-reasoning-models-change-which-scaffolds-pay-off-856" class="doc-heading doc-h2"><a href="#67-reasoning-models-change-which-scaffolds-pay-off-856" class="heading-anchor">#</a> 6.7 Reasoning Models Change Which Scaffolds Pay Off</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Scaffold</th>
+<th>With non-reasoning model</th>
+<th>With reasoning model</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>&quot;Think step by step&quot; prompts</td>
+<td>Helps</td>
+<td>Redundant, sometimes harmful</td>
+</tr>
+<tr>
+<td>Explicit planner node</td>
+<td>Often essential</td>
+<td>Often unnecessary for short tasks; still useful for HITL plan review and long horizons</td>
+</tr>
+<tr>
+<td>ToT / LATS for reasoning</td>
+<td>Large gains</td>
+<td>Small gains unless external verifier</td>
+</tr>
+<tr>
+<td>Self-Refine for logic</td>
+<td>Unreliable</td>
+<td>Somewhat better, still prefer external checks</td>
+</tr>
+<tr>
+<td>Best-of-N with verifier</td>
+<td>Large gains</td>
+<td>Still gains; very effective with tests</td>
+</tr>
+<tr>
+<td>Few-shot reasoning traces</td>
+<td>Helps</td>
+<td>Can anchor the model to worse strategies</td>
+</tr>
+<tr>
+<td>Structured output schemas</td>
+<td>Essential</td>
+<td>Essential</td>
+</tr>
+<tr>
+<td>External verifiers (tests, validators)</td>
+<td>Essential</td>
+<td>Essential</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph">The general lesson, consistent with Sutton's &quot;bitter lesson&quot;: scaffolds that substitute for model capability decay as models improve; scaffolds that add <strong>information</strong> (tools, retrieval, verifiers, environment feedback) or <strong>control</strong> (budgets, permissions, approvals) remain valuable. Design accordingly, and re-evaluate your scaffolds with every model upgrade.</p>
+
+
+            <div class="doc-footer">
+                <span>Agentic AI Study Material · Production Engineering</span>
+                <a href="#top">↑ Back to top</a>
+            </div>
+        </article>
+
+        <!-- Right In-Page TOC Rail -->
+        <aside class="toc-rail">
+            <nav class="toc-nav"><div class="toc-header">On This Page</div><ul class="toc-list">
+<li class="toc-level-1"><a href="#1-what-makes-a-system-agentic-2">1. What Makes a System Agentic</a></li>
+<li class="toc-level-2"><a href="#11-a-first-principles-definition-4">1.1 A First-Principles Definition</a></li>
+<li class="toc-level-2"><a href="#12-the-autonomy-spectrum-17">1.2 The Autonomy Spectrum</a></li>
+<li class="toc-level-2"><a href="#13-workflows-vs-agents-when-to-choose-which-38">1.3 Workflows vs Agents: When to Choose Which</a></li>
+<li class="toc-level-2"><a href="#14-the-building-blocks-the-augmented-llm-55">1.4 The Building Blocks: The Augmented LLM</a></li>
+<li class="toc-level-1"><a href="#2-the-agent-loop-73">2. The Agent Loop</a></li>
+<li class="toc-level-2"><a href="#21-mechanics-75">2.1 Mechanics</a></li>
+<li class="toc-level-2"><a href="#22-a-minimal-production-shaped-implementation-95">2.2 A Minimal, Production-Shaped Implementation</a></li>
+<li class="toc-level-2"><a href="#23-anatomy-of-one-iteration-where-time-and-money-go-154">2.3 Anatomy of One Iteration: Where Time and Money Go</a></li>
+<li class="toc-level-2"><a href="#24-tool-results-as-the-primary-context-pollutant-171">2.4 Tool Results as the Primary Context Pollutant</a></li>
+<li class="toc-level-1"><a href="#3-reasoning-and-acting-architectures-183">3. Reasoning-and-Acting Architectures</a></li>
+<li class="toc-level-2"><a href="#31-chain-of-thought-background-187">3.1 Chain-of-Thought (Background)</a></li>
+<li class="toc-level-2"><a href="#32-react-reason-act-191">3.2 ReAct (Reason + Act)</a></li>
+<li class="toc-level-2"><a href="#33-plan-and-execute-217">3.3 Plan-and-Execute</a></li>
+<li class="toc-level-2"><a href="#34-rewoo-reasoning-without-observation-275">3.4 ReWOO (Reasoning WithOut Observation)</a></li>
+<li class="toc-level-2"><a href="#35-llm-compiler-294">3.5 LLM Compiler</a></li>
+<li class="toc-level-2"><a href="#36-comparison-react-vs-plan-and-execute-vs-rewoo-vs-llm-compiler-310">3.6 Comparison: ReAct vs Plan-and-Execute vs ReWOO vs LLM Compiler</a></li>
+<li class="toc-level-2"><a href="#37-self-refine-322">3.7 Self-Refine</a></li>
+<li class="toc-level-2"><a href="#38-reflexion-344">3.8 Reflexion</a></li>
+<li class="toc-level-2"><a href="#39-tree-of-thoughts-tot-362">3.9 Tree-of-Thoughts (ToT)</a></li>
+<li class="toc-level-2"><a href="#310-graph-of-thoughts-got-397">3.10 Graph-of-Thoughts (GoT)</a></li>
+<li class="toc-level-2"><a href="#311-lats-language-agent-tree-search-411">3.11 LATS (Language Agent Tree Search)</a></li>
+<li class="toc-level-2"><a href="#312-comparison-of-search-and-reflection-architectures-429">3.12 Comparison of Search and Reflection Architectures</a></li>
+<li class="toc-level-2"><a href="#313-best-of-n-and-self-consistency-the-underrated-baseline-444">3.13 Best-of-N and Self-Consistency: The Underrated Baseline</a></li>
+<li class="toc-level-1"><a href="#4-composable-workflow-patterns-461">4. Composable Workflow Patterns</a></li>
+<li class="toc-level-2"><a href="#41-prompt-chaining-465">4.1 Prompt Chaining</a></li>
+<li class="toc-level-2"><a href="#42-routing-489">4.2 Routing</a></li>
+<li class="toc-level-2"><a href="#43-parallelization-515">4.3 Parallelization</a></li>
+<li class="toc-level-2"><a href="#44-orchestrator-workers-535">4.4 Orchestrator-Workers</a></li>
+<li class="toc-level-2"><a href="#45-evaluator-optimizer-556">4.5 Evaluator-Optimizer</a></li>
+<li class="toc-level-2"><a href="#46-pattern-selection-matrix-582">4.6 Pattern Selection Matrix</a></li>
+<li class="toc-level-1"><a href="#5-state-machine-and-graph-based-control-593">5. State-Machine and Graph-Based Control</a></li>
+<li class="toc-level-2"><a href="#51-why-graphs-595">5.1 Why Graphs</a></li>
+<li class="toc-level-2"><a href="#52-a-langgraph-example-606">5.2 A LangGraph Example</a></li>
+<li class="toc-level-2"><a href="#53-explicit-fsm-without-a-framework-663">5.3 Explicit FSM Without a Framework</a></li>
+<li class="toc-level-2"><a href="#54-durable-execution-696">5.4 Durable Execution</a></li>
+<li class="toc-level-1"><a href="#6-reasoning-models-vs-non-reasoning-models-713">6. Reasoning Models vs Non-Reasoning Models</a></li>
+<li class="toc-level-2"><a href="#61-what-a-reasoning-model-is-715">6.1 What a Reasoning Model Is</a></li>
+<li class="toc-level-2"><a href="#62-how-they-are-trained-why-they-behave-as-they-do-724">6.2 How They Are Trained (Why They Behave as They Do)</a></li>
+<li class="toc-level-2"><a href="#63-test-time-compute-and-scaling-740">6.3 Test-Time Compute and Scaling</a></li>
+<li class="toc-level-2"><a href="#64-choosing-reasoning-vs-non-reasoning-760">6.4 Choosing: Reasoning vs Non-Reasoning</a></li>
+<li class="toc-level-2"><a href="#65-thinking-budgets-776">6.5 Thinking Budgets</a></li>
+<li class="toc-level-2"><a href="#66-interleaved-thinking-with-tool-use-831">6.6 Interleaved Thinking with Tool Use</a></li>
+<li class="toc-level-2"><a href="#67-reasoning-models-change-which-scaffolds-pay-off-856">6.7 Reasoning Models Change Which Scaffolds Pay Off</a></li>
+</ul></nav>
+
+        </aside>
+    </main>
+
+    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <!-- Prism Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Render Math with KaTeX
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '', right: '', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false,
+                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+                });
+            }
+        });
+
+        // Copy Code Functionality
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const code = pre.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#10b981';
+                button.style.color = '#fff';
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '';
+                    button.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // Filter Nav Links in Sidebar
+        function filterNav() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const lis = document.querySelectorAll('.nav-links li');
+            lis.forEach(li => {
+                const text = li.innerText.toLowerCase();
+                if (text.includes(filter)) {
+                    li.style.display = '';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }
+
+        // Theme Toggle (Dark/Light)
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('agentic_study_theme', isLight ? 'light' : 'dark');
+        }
+        if (localStorage.getItem('agentic_study_theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+    </script>
+</body>
+</html>

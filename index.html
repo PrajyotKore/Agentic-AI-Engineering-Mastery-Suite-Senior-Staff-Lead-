@@ -1,0 +1,618 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI Engineering Mastery Portal | Senior & Staff Study Suite</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1d;
+            --bg-secondary: #111827;
+            --bg-card: #1e293b;
+            --bg-card-hover: #283548;
+            --border: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.25);
+            --badge-green: #10b981;
+            --badge-purple: #a855f7;
+            --badge-amber: #f59e0b;
+        }
+
+        body.light-theme {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #f1f5f9;
+            --bg-card-hover: #e2e8f0;
+            --border: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --accent: #0284c7;
+            --accent-glow: rgba(2, 132, 199, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header & Navigation */
+        header.top-header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand-icon {
+            font-size: 26px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .brand-tag {
+            font-size: 11px;
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .theme-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .theme-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+
+        /* Hero Section */
+        section.hero {
+            padding: 60px 40px 40px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .hero-title {
+            font-size: 44px;
+            font-weight: 800;
+            letter-spacing: -1.2px;
+            line-height: 1.15;
+            margin-bottom: 18px;
+            background: linear-gradient(135deg, #ffffff 40%, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        body.light-theme .hero-title {
+            background: linear-gradient(135deg, #0f172a 40%, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-desc {
+            font-size: 17px;
+            color: var(--text-secondary);
+            max-width: 820px;
+            margin: 0 auto 36px auto;
+            font-weight: 400;
+        }
+
+        /* Metric Highlights Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            max-width: 1100px;
+            margin: 0 auto 48px auto;
+        }
+        .metric-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+        .metric-val {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -1px;
+            margin-bottom: 4px;
+        }
+        .metric-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Search Filter */
+        .filter-section {
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+            display: flex;
+            gap: 12px;
+        }
+        .filter-input {
+            flex: 1;
+            padding: 12px 18px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .filter-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+        /* Document Cards Grid */
+        section.documents-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 80px 40px;
+            flex: 1;
+        }
+        .section-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+        }
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 22px;
+        }
+        .doc-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .doc-card:hover {
+            border-color: var(--accent);
+            background-color: var(--bg-card);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .card-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-core { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .badge-hard { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .badge-special { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+        .card-icon { font-size: 28px; }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.35;
+            margin-bottom: 10px;
+        }
+        .card-desc {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.55;
+            margin-bottom: 18px;
+            flex: 1;
+        }
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .tag-pill {
+            font-size: 11.5px;
+            font-family: 'Fira Code', monospace;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 2px 7px;
+            border-radius: 4px;
+            color: var(--text-muted);
+        }
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+        .btn-launch {
+            flex: 1;
+            background-color: var(--accent);
+            color: #000;
+            text-align: center;
+            padding: 9px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .btn-launch:hover { background-color: #0ea5e9; text-decoration: none; }
+        .btn-docx {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 9px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-docx:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
+        /* Footer */
+        footer.portal-footer {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 24px 40px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <header class="top-header">
+        <div class="brand">
+            <span class="brand-icon">âš¡</span>
+            <span class="brand-title">Agentic AI Mastery Suite</span>
+            <span class="brand-tag">Staff / Lead Level</span>
+        </div>
+        <div class="header-actions">
+            <button class="theme-btn" onclick="toggleTheme()">ðŸŒ“ Dark / Light</button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1 class="hero-title">The Complete Curriculum for Staff &amp; Lead Agentic AI Engineers</h1>
+        <p class="hero-desc">An empirical, production-hardened knowledge base synthesized from <strong>75 real-world job profiles</strong> across Frontier AI Labs, Hyperscalers, and AI-Native Startups. Fully rendered with KaTeX LaTeX math formulas, Prism syntax-highlighted code, and dual HTML + Word formats.</p>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-val">75</div>
+                <div class="metric-label">Analyzed Job Profiles</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-val">50+</div>
+                <div class="metric-label">Frequency-Ranked Topics</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-val">8</div>
+                <div class="metric-label">Deep-Dive Core Volumes</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-val">120</div>
+                <div class="metric-label">Hard Staff-Level Questions</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <input type="text" id="docFilter" class="filter-input" placeholder="Search volumes by topic (e.g. MCP, LangGraph, RAG, Evals, Firecracker, Security)..." onkeyup="filterDocs()">
+        </div>
+    </section>
+
+    <section class="documents-container">
+        <div class="section-header">ðŸ“š Learning Materials &amp; Question Bank (10 Modules)</div>
+
+        <div class="doc-grid" id="docGrid">
+            <!-- Card 00 -->
+            <div class="doc-card" data-tags="market syllabus hiring jobs frontier hyperscalers interview loops compensation">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-special">Volume 00</span>
+                        <span class="card-icon">ðŸ“Š</span>
+                    </div>
+                    <h2 class="card-title">Job Market Analysis &amp; Master Syllabus</h2>
+                    <p class="card-desc">Comprehensive catalog of 75 Senior/Staff job profiles across 5 tiers, 50+ topic frequency matrix, hiring filters, soft/leadership expectations, and 8â€“10 week study sequence.</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">75 Profiles</span>
+                        <span class="tag-pill">Skills Matrix</span>
+                        <span class="tag-pill">Interview Loops</span>
+                        <span class="tag-pill">Study Plan</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/00_Agentic_AI_Job_Market_Analysis_and_Master_Syllabus.html" class="btn-launch">Read Online</a>
+                    <a href="out/00_Agentic_AI_Job_Market_Analysis_and_Master_Syllabus.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+
+            <!-- Card 01 -->
+            <div class="doc-card" data-tags="foundations react reflexion plan execute reasoning thinking test-time compute loops state machines">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-core">Volume 01</span>
+                        <span class="card-icon">ðŸ§ </span>
+                    </div>
+                    <h2 class="card-title">Agent Foundations &amp; Cognitive Architectures</h2>
+                    <p class="card-desc">First-principles mechanics of agent loops, ReAct, Plan-and-Execute, ReWOO, Reflexion, LATS, State Machines, Reasoning models (o3, Claude Thinking), and test-time compute trade-offs.</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">ReAct</span>
+                        <span class="tag-pill">Reflexion</span>
+                        <span class="tag-pill">Reasoning Models</span>
+                        <span class="tag-pill">Thinking Budgets</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/01_Agent_Foundations_and_Cognitive_Architectures.html" class="btn-launch">Read Online</a>
+                    <a href="out/01_Agent_Foundations_and_Cognitive_Architectures.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+
+            <!-- Card 02 -->
+            <div class="doc-card" data-tags="tools mcp model context protocol a2a function calling codeact sandboxes docker gvisor browser computer-use">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-core">Volume 02</span>
+                        <span class="card-icon">ðŸ”Œ</span>
+                    </div>
+                    <h2 class="card-title">Tool Use, Function Calling &amp; Protocols</h2>
+                    <p class="card-desc">Grammar-constrained decoding, Agent-Computer Interface (ACI), Model Context Protocol (MCP host/client/server, stdio/HTTP), Agent2Agent (A2A), CodeAct, and sandboxed execution.</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">Model Context Protocol</span>
+                        <span class="tag-pill">FastMCP</span>
+                        <span class="tag-pill">A2A</span>
+                        <span class="tag-pill">Firecracker</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/02_Tool_Use_Function_Calling_and_Protocols.html" class="btn-launch">Read Online</a>
+                    <a href="out/02_Tool_Use_Function_Calling_and_Protocols.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+
+            <!-- Card 03 -->
+            <div class="doc-card" data-tags="memory context rag self-rag crag graphrag kv-cache prompt caching memgpt letta hybrid search bm25 acls">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-core">Volume 03</span>
+                        <span class="card-icon">ðŸ’¾</span>
+                    </div>
+                    <h2 class="card-title">Memory, Context Engineering &amp; Agentic RAG</h2>
+                    <p class="card-desc">Lost-in-the-middle mitigations, Letta/MemGPT hierarchical memory, prompt-caching layout for 95%+ hit rates, Hybrid Search (Dense+BM25 with RRF), Self-RAG, CRAG, GraphRAG, and ACLs.</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">Letta / MemGPT</span>
+                        <span class="tag-pill">Prompt Caching</span>
+                        <span class="tag-pill">GraphRAG</span>
+                        <span class="tag-pill">Cross-Encoders</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/03_Memory_Context_Engineering_and_Agentic_RAG.html" class="btn-launch">Read Online</a>
+                    <a href="out/03_Memory_Context_Engineering_and_Agentic_RAG.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+
+            <!-- Card 04 -->
+            <div class="doc-card" data-tags="multi-agent swarm orchestration langgraph temporal hitl human-in-the-loop sagas crewai autogen">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-core">Volume 04</span>
+                        <span class="card-icon">ðŸ¤–</span>
+                    </div>
+                    <h2 class="card-title">Multi-Agent Systems &amp; Orchestration</h2>
+                    <p class="card-desc">Justifying multi-agent architectures, Supervisor vs Swarms, durable execution &amp; checkpoints (LangGraph, Temporal), Human-in-the-Loop interrupts, Sagas, and state reducers.</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">LangGraph</span>
+                        <span class="tag-pill">Temporal</span>
+                        <span class="tag-pill">HITL Interrupts</span>
+                        <span class="tag-pill">Saga Pattern</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/04_Multi_Agent_Systems_and_Orchestration.html" class="btn-launch">Read Online</a>
+                    <a href="out/04_Multi_Agent_Systems_and_Orchestration.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+
+            <!-- Card 05 -->
+            <div class="doc-card" data-tags="evals observability reliability llm-as-a-judge golden datasets swe-bench tau-bench opentelemetry tracing slo">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-core">Volume 05</span>
+                        <span class="card-icon">ðŸ“ˆ</span>
+                    </div>
+                    <h2 class="card-title">Evaluation, Observability &amp; Reliability</h2>
+                    <p class="card-desc">Trajectory vs outcome evals, golden datasets, LLM-as-a-judge calibration (Cohen's kappa), pass@k vs pass^k, SWE-bench/Tau-bench, OpenTelemetry GenAI semantic conventions, and SLOs.</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">LLM-as-a-Judge</span>
+                        <span class="tag-pill">OpenTelemetry</span>
+                        <span class="tag-pill">pass@k / pass^k</span>
+                        <span class="tag-pill">SWE-bench</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/05_Evaluation_Observability_and_Reliability.html" class="btn-launch">Read Online</a>
+                    <a href="out/05_Evaluation_Observability_and_Reliability.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+
+            <!-- Card 06 -->
+            <div class="doc-card" data-tags="security prompt injection lethal trifecta dual-llm camel taint tracking pii dlp guardrails llama guard eu ai act">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-core">Volume 06</span>
+                        <span class="card-icon">ðŸ›¡ï¸</span>
+                    </div>
+                    <h2 class="card-title">Security, Guardrails &amp; Enterprise Governance</h2>
+                    <p class="card-desc">OWASP Agentic Top 10, the Lethal Trifecta, indirect prompt injection, Dual-LLM pattern, CaMeL taint tracking, MCP security, OAuth 2.1 RFC 8693 token exchange, and EU AI Act compliance.</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">Prompt Injection</span>
+                        <span class="tag-pill">Dual-LLM</span>
+                        <span class="tag-pill">CaMeL</span>
+                        <span class="tag-pill">RFC 8693</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/06_Security_Guardrails_and_Enterprise_Governance.html" class="btn-launch">Read Online</a>
+                    <a href="out/06_Security_Guardrails_and_Enterprise_Governance.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+
+            <!-- Card 07 -->
+            <div class="doc-card" data-tags="production architecture llmops streaming sse vllm sglang finops cost post-training sft rlvr grpo">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-core">Volume 07</span>
+                        <span class="card-icon">âš™ï¸</span>
+                    </div>
+                    <h2 class="card-title">Production Architecture, Deployment &amp; LLMOps</h2>
+                    <p class="card-desc">Reference enterprise architecture, Kafka event-driven agents, SSE token streaming, model cascades, worked FinOps math, self-hosted vLLM/SGLang, and post-training (SFT, RLVR, GRPO).</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">vLLM / SGLang</span>
+                        <span class="tag-pill">FinOps Math</span>
+                        <span class="tag-pill">SSE Streaming</span>
+                        <span class="tag-pill">RLVR / GRPO</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/07_Production_Architecture_Deployment_and_LLMOps.html" class="btn-launch">Read Online</a>
+                    <a href="out/07_Production_Architecture_Deployment_and_LLMOps.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+
+            <!-- Card 08 -->
+            <div class="doc-card" data-tags="system design case studies coding agent enterprise rag support research computer use compliance interview">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-core">Volume 08</span>
+                        <span class="card-icon">ðŸ“</span>
+                    </div>
+                    <h2 class="card-title">System Design Blueprints &amp; Case Studies</h2>
+                    <p class="card-desc">7 complete Staff-level system design blueprints (Coding Agent, 50M-Doc ACL RAG, Financial Support, Deep Research, Computer Use, 1000-Team MCP Platform, Compliance Agent) + 8-step interview answering framework.</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">7 Blueprint Cases</span>
+                        <span class="tag-pill">ASCII Architectures</span>
+                        <span class="tag-pill">Token Budgets</span>
+                        <span class="tag-pill">Interview Guide</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/08_System_Design_Blueprints_and_Case_Studies.html" class="btn-launch">Read Online</a>
+                    <a href="out/08_System_Design_Blueprints_and_Case_Studies.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+
+            <!-- Card 09 -->
+            <div class="doc-card" data-tags="questions interview question bank postmortem failure modes trade-offs staff answers 120">
+                <div>
+                    <div class="card-top">
+                        <span class="card-badge badge-hard">Volume 09 Â· Benchmark</span>
+                        <span class="card-icon">ðŸŽ¯</span>
+                    </div>
+                    <h2 class="card-title">Hard-Level Question Bank &amp; Solutions (120 Questions)</h2>
+                    <p class="card-desc">The ultimate interview benchmark: 120 multi-part hard and very hard questions with comprehensive Staff-level model answers, production pitfalls, and interviewer follow-up probes across all 8 domains.</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">120 Questions</span>
+                        <span class="tag-pill">Staff Model Answers</span>
+                        <span class="tag-pill">Incident Postmortems</span>
+                        <span class="tag-pill">Follow-up Probes</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a href="html/09_Agentic_AI_Hard_Question_Bank_and_Solutions.html" class="btn-launch">Open Question Bank</a>
+                    <a href="out/09_Agentic_AI_Hard_Question_Bank_and_Solutions.docx" class="btn-docx">Word .docx</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="portal-footer">
+        <p>Agentic AI Engineering Mastery Suite Â· Empirically Synthesized for Senior, Staff, and Lead AI Engineers</p>
+    </footer>
+
+    <script>
+        function filterDocs() {
+            const input = document.getElementById('docFilter');
+            const filter = input.value.toLowerCase();
+            const cards = document.querySelectorAll('.doc-card');
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                const tags = card.getAttribute('data-tags') || '';
+                if (text.includes(filter) || tags.includes(filter)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('agentic_portal_theme', isLight ? 'light' : 'dark');
+        }
+        if (localStorage.getItem('agentic_portal_theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+    </script>
+</body>
+</html>

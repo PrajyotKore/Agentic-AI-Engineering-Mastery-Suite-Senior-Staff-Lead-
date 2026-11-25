@@ -1,0 +1,1156 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04: Multi-Agent Systems &amp; Orchestration | Agentic AI Study Suite</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- Prism Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border: #334155;
+            --code-bg: #090d16;
+            --callout-warn-bg: rgba(245, 158, 11, 0.12);
+            --callout-warn-border: #f59e0b;
+            --callout-tip-bg: rgba(16, 185, 129, 0.12);
+            --callout-tip-border: #10b981;
+            --callout-imp-bg: rgba(168, 85, 247, 0.12);
+            --callout-imp-border: #a855f7;
+            --callout-note-bg: rgba(56, 189, 248, 0.12);
+            --callout-note-border: #38bdf8;
+            --sidebar-width: 290px;
+            --toc-width: 250px;
+        }
+
+        body.light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --callout-warn-bg: #fffbeb;
+            --callout-tip-bg: #ecfdf5;
+            --callout-imp-bg: #faf5ff;
+            --callout-note-bg: #f0f9ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.68;
+            font-size: 15px;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        aside.sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-header {
+            padding: 20px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.3px;
+        }
+        .sidebar-header p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .sidebar-search {
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-search input {
+            width: 100%;
+            padding: 7px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+        }
+        .sidebar-search input:focus {
+            border-color: var(--accent);
+        }
+        nav.nav-container {
+            padding: 12px 8px;
+            flex: 1;
+        }
+        .nav-links { list-style: none; }
+        .nav-links li { margin-bottom: 3px; }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .nav-links a:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .nav-links li.active a {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .sidebar-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Main Content Layout */
+        main.main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 40px 48px 80px 48px;
+            max-width: 1500px;
+        }
+        article.content-area {
+            flex: 1;
+            max-width: 860px;
+            min-width: 0;
+        }
+
+        /* In-Page TOC (Right rail) */
+        aside.toc-rail {
+            width: var(--toc-width);
+            margin-left: 40px;
+            position: sticky;
+            top: 40px;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            font-size: 12px;
+            border-left: 1px solid var(--border);
+            padding-left: 16px;
+            display: none;
+        }
+        @media (min-width: 1240px) {
+            aside.toc-rail { display: block; }
+        }
+        .toc-header {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+        .toc-list { list-style: none; }
+        .toc-list li { margin-bottom: 6px; }
+        .toc-list a {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: block;
+            line-height: 1.4;
+            transition: color 0.15s;
+        }
+        .toc-list a:hover { color: var(--accent); }
+        .toc-level-1 { font-weight: 600; color: var(--text-secondary); }
+        .toc-level-2 { padding-left: 10px; }
+        .toc-level-3 { padding-left: 20px; font-size: 11px; }
+
+        /* Typography */
+        h1.doc-title {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -0.7px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        .doc-subtitle {
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .doc-heading {
+            color: var(--text-primary);
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            position: relative;
+        }
+        .doc-h1 { font-size: 24px; margin-top: 48px; margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .doc-h2 { font-size: 19px; margin-top: 36px; margin-bottom: 14px; color: var(--accent); }
+        .doc-h3 { font-size: 16px; margin-top: 26px; margin-bottom: 10px; }
+        .doc-h4 { font-size: 14px; margin-top: 20px; margin-bottom: 8px; color: var(--text-secondary); }
+        .heading-anchor {
+            position: absolute;
+            left: -18px;
+            color: var(--text-muted);
+            opacity: 0;
+            text-decoration: none;
+            font-weight: 400;
+        }
+        .doc-heading:hover .heading-anchor { opacity: 0.8; }
+        p.doc-paragraph { margin-bottom: 16px; color: var(--text-secondary); }
+        strong { color: var(--text-primary); font-weight: 600; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        hr.doc-divider { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+
+        /* Lists */
+        ul.doc-list, ol.doc-list-ordered {
+            margin-bottom: 18px;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+        ul.doc-list li, ol.doc-list-ordered li { margin-bottom: 6px; }
+
+        /* Code Blocks */
+        .code-container {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .code-header {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            padding: 6px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-family: 'Fira Code', monospace;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            padding: 2px 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .copy-btn:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        pre {
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        code {
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 13px;
+        }
+        p code, li code, td code {
+            background-color: var(--bg-tertiary);
+            color: #f43f5e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12.5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Callouts */
+        .callout {
+            border-left: 4px solid;
+            border-radius: 6px;
+            padding: 16px 18px;
+            margin: 22px 0;
+            font-size: 14px;
+        }
+        .callout-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+        .callout-warning { background-color: var(--callout-warn-bg); border-color: var(--callout-warn-border); }
+        .callout-warning .callout-title { color: var(--callout-warn-border); }
+        .callout-tip { background-color: var(--callout-tip-bg); border-color: var(--callout-tip-border); }
+        .callout-tip .callout-title { color: var(--callout-tip-border); }
+        .callout-important { background-color: var(--callout-imp-bg); border-color: var(--callout-imp-border); }
+        .callout-important .callout-title { color: var(--callout-imp-border); }
+        .callout-note { background-color: var(--callout-note-bg); border-color: var(--callout-note-border); }
+        .callout-note .callout-title { color: var(--callout-note-border); }
+        .callout-content p { margin-bottom: 6px; color: var(--text-secondary); }
+        .callout-content p:last-child { margin-bottom: 0; }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 24px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        table.doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            text-align: left;
+        }
+        table.doc-table th {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        table.doc-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        table.doc-table tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.015); }
+        table.doc-table tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+        /* Math Styling */
+        .math-block {
+            overflow-x: auto;
+            padding: 14px 18px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .math-display {
+            display: block;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        /* Footer */
+        .doc-footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../index.html" style="text-decoration:none; color:inherit;">
+                <h2>⚡ Agentic AI Suite</h2>
+                <p>Senior · Staff · Lead Mastery &larr; Home</p>
+            </a>
+        </div>
+        <div class="sidebar-search">
+            <input type="text" id="searchInput" placeholder="Filter volumes..." onkeyup="filterNav()">
+        </div>
+        <nav class="nav-container">
+            <ul class="nav-links">
+                <li><a href="../index.html"><span class="nav-icon">🏠</span> <span class="nav-title">Home Portal</span></a></li>
+            </ul>
+            <ul class="nav-links">
+<li class=""><a href="00_Agentic_AI_Job_Market_Analysis_and_Master_Syllabus.html"><span class="nav-icon">📊</span> <span class="nav-title">00. Market Analysis & Syllabus</span></a></li>
+<li class=""><a href="01_Agent_Foundations_and_Cognitive_Architectures.html"><span class="nav-icon">🧠</span> <span class="nav-title">01. Foundations & Architectures</span></a></li>
+<li class=""><a href="02_Tool_Use_Function_Calling_and_Protocols.html"><span class="nav-icon">🔌</span> <span class="nav-title">02. Tool Use, MCP & Protocols</span></a></li>
+<li class=""><a href="03_Memory_Context_Engineering_and_Agentic_RAG.html"><span class="nav-icon">💾</span> <span class="nav-title">03. Memory & Agentic RAG</span></a></li>
+<li class="active"><a href="04_Multi_Agent_Systems_and_Orchestration.html"><span class="nav-icon">🤖</span> <span class="nav-title">04. Multi-Agent Orchestration</span></a></li>
+<li class=""><a href="05_Evaluation_Observability_and_Reliability.html"><span class="nav-icon">📈</span> <span class="nav-title">05. Evals & Observability</span></a></li>
+<li class=""><a href="06_Security_Guardrails_and_Enterprise_Governance.html"><span class="nav-icon">🛡️</span> <span class="nav-title">06. Security & Governance</span></a></li>
+<li class=""><a href="07_Production_Architecture_Deployment_and_LLMOps.html"><span class="nav-icon">⚙️</span> <span class="nav-title">07. Production & LLMOps</span></a></li>
+<li class=""><a href="08_System_Design_Blueprints_and_Case_Studies.html"><span class="nav-icon">📐</span> <span class="nav-title">08. System Design Case Studies</span></a></li>
+<li class=""><a href="09_Agentic_AI_Hard_Question_Bank_and_Solutions.html"><span class="nav-icon">🎯</span> <span class="nav-title">09. Hard Question Bank (120 Qs)</span></a></li>
+</ul>
+
+        </nav>
+        <div class="sidebar-footer">
+            <span>Suite v2.5</span>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+        <article class="content-area">
+            <div class="doc-header">
+                <div class="doc-subtitle">Senior / Staff / Lead Agentic AI Engineer Study Suite</div>
+                <h1 class="doc-title">04: Multi-Agent Systems &amp; Orchestration</h1>
+            </div>
+
+            <h1 id="part-4-overview-multi-agent-systems-and-orchestration-2" class="doc-heading doc-h1"><a href="#part-4-overview-multi-agent-systems-and-orchestration-2" class="heading-anchor">#</a> Part 4 Overview: Multi-Agent Systems and Orchestration</h1>
+<p class="doc-paragraph">This part of the suite is about the hardest architectural question in agentic engineering: <strong>when should one model loop become several, and once it does, how do you keep the whole system correct, observable, affordable, and recoverable?</strong> Interviewers at Senior/Staff/Lead level rarely want a recital of framework APIs. They want to see that you can reason from first principles about context, cost, failure, and state, and that you know when &quot;multi-agent&quot; is an anti-pattern dressed up as sophistication.</p>
+<p class="doc-paragraph">The material is organized as follows:</p>
+<ul class="doc-list">
+<li><strong>Justification.</strong> The economics and information theory of splitting work across agents, the Anthropic multi-agent research system lessons, and Cognition's &quot;Don't Build Multi-Agents&quot; counter-argument, reconciled into one decision rule.</li>
+<li><strong>Patterns.</strong> Supervisor, hierarchical, swarm/handoffs, sequential pipelines, debate/critic, blackboard, map-reduce. For each: mechanics, data flow, code, failure modes, trade-offs.</li>
+<li><strong>State and context.</strong> Shared state schemas, reducers, context passing strategies, memory scoping, and the &quot;telephone game&quot; problem.</li>
+<li><strong>Reliability engineering.</strong> Durable execution, checkpointing, deterministic replay, Temporal-style workflows, human-in-the-loop interrupts, idempotency and effectively-once side effects, retries, timeouts, sagas and compensation, concurrency and races.</li>
+<li><strong>Frameworks.</strong> LangGraph, OpenAI Agents SDK, Claude Agent SDK, Google ADK, CrewAI, AutoGen/AG2, and framework-less designs, with code sketches and an honest comparison.</li>
+<li><strong>Decision matrix and interview drills.</strong></li>
+</ul>
+<div class="callout callout-note">
+<div class="callout-header"><span class="callout-icon">ℹ️</span> <span class="callout-title">NOTE</span></div>
+<div class="callout-content">
+<p>Terminology used throughout: an <strong>agent</strong> is an LLM running in a loop with tools, a system prompt, and a termination condition. A <strong>workflow</strong> is a predetermined code path that calls LLMs at fixed points. An <strong>orchestrator</strong> is whatever decides what runs next; it may be code (deterministic) or an LLM (dynamic). Most production &quot;multi-agent systems&quot; are actually workflows with a few agentic nodes, and that is usually the right answer.</p>
+</div>
+</div>
+<h2 id="the-core-mental-model-agents-are-context-boundaries-18" class="doc-heading doc-h2"><a href="#the-core-mental-model-agents-are-context-boundaries-18" class="heading-anchor">#</a> The Core Mental Model: Agents Are Context Boundaries</h2>
+<p class="doc-paragraph">The single most useful mental model for multi-agent design is this: <strong>an agent is a context window with a purpose.</strong> Splitting work into multiple agents is fundamentally a decision about how to partition information across context windows. Everything else (roles, personas, &quot;teams&quot;) is secondary.</p>
+<p class="doc-paragraph">That reframing produces three immediate consequences:</p>
+<ol class="doc-list-ordered">
+<li><strong>Splitting buys you parallelism and context isolation.</strong> Each sub-agent gets a fresh, focused window. It can burn 100K tokens exploring and return a 2K-token distillate. The parent never sees the noise.</li>
+<li><strong>Splitting costs you shared understanding.</strong> Every boundary is a lossy compression step. Decisions made implicitly inside one agent's context (style choices, assumptions, rejected hypotheses) do not cross the boundary unless explicitly serialized.</li>
+<li><strong>Splitting multiplies tokens.</strong> Each agent re-reads its system prompt, tool definitions, and task framing, and every handoff re-encodes context. Multi-agent systems routinely consume 4x to 15x the tokens of a single-agent approach.</li>
+</ol>
+<p class="doc-paragraph">So the design question is never &quot;how many agents would be elegant?&quot; It is: <strong>is the information this task needs naturally partitionable, such that sub-units can work with minimal shared context and return compressed results?</strong> If yes, multi-agent can win. If the sub-units need to constantly agree on fine-grained, evolving decisions, a single agent with good context management almost always wins.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Single agent                         Orchestrator + workers
++---------------------------+        +-------------------+
+| system + tools            |        | lead context      |
+| task                      |        |  plan             |
+| step1 obs (noise+signal)  |        |  summary_A (2K)   |
+| step2 obs                 |        |  summary_B (2K)   |
+| ... grows to 200K         |        |  summary_C (2K)   |
+| context rot / degradation |        +---------+---------+
++---------------------------+           /      |      \
+                                   [A 80K] [B 60K] [C 90K]   &lt;- isolated, discarded
+Total tokens: ~200K                Total tokens: ~240K+ but lead stays sharp</code></pre></div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>In a Staff interview, open any multi-agent design answer with &quot;What is the context partitioning?&quot; before you mention roles. It signals you understand that the unit of design is information flow, not anthropomorphic job titles. &quot;Researcher agent, writer agent, editor agent&quot; is a smell unless you can explain why those contexts must be separate.</p>
+</div>
+</div>
+<h1 id="when-multi-agent-is-and-is-not-justified-47" class="doc-heading doc-h1"><a href="#when-multi-agent-is-and-is-not-justified-47" class="heading-anchor">#</a> When Multi-Agent Is (and Is Not) Justified</h1>
+<h2 id="the-token-cost-multiplier-49" class="doc-heading doc-h2"><a href="#the-token-cost-multiplier-49" class="heading-anchor">#</a> The Token Cost Multiplier</h2>
+<p class="doc-paragraph">Let us quantify cost first, because it dominates most decisions.</p>
+<p class="doc-paragraph">For a single agent running N turns with system prompt S, tool schema T, and accumulated history H_i at turn i, input tokens are roughly the sum over turns of (S + T + H_i). History grows each turn, so cost is roughly quadratic in turns without compaction, which prompt caching makes far cheaper (cached prefix reads are typically billed at around 10% of the base input rate on major providers) but not free.</p>
+<p class="doc-paragraph">For an orchestrator with K workers, you pay:</p>
+<ul class="doc-list">
+<li>Orchestrator planning turns, including reading all worker results.</li>
+<li>For each worker: its own (S_w + T_w) prefix on every turn, plus its own growing history.</li>
+<li>Serialization overhead: task briefs going down, summaries coming up.</li>
+<li>Retries and verification passes, which multiply per worker.</li>
+</ul>
+<p class="doc-paragraph">Anthropic publicly reported that in their internal evaluations agents use about 4x more tokens than chat interactions, and multi-agent systems about 15x more than chat. They also found that token usage by itself explained the large majority of performance variance on their browsing evaluation (they cited roughly 80%), with number of tool calls and model choice explaining most of the rest. The implication is subtle and important: <strong>a large part of why multi-agent research systems perform better is that they spend more tokens, in parallel, in clean contexts.</strong> Multi-agent is in part a mechanism for spending more compute without wrecking any single context window.</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Architecture</th>
+<th>Typical token multiple vs chat</th>
+<th>Latency profile</th>
+<th>Where it pays off</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Single LLM call</td>
+<td>1x</td>
+<td>Lowest</td>
+<td>Classification, extraction, rewriting</td>
+</tr>
+<tr>
+<td>Single agent loop</td>
+<td>~4x</td>
+<td>Sequential tool calls</td>
+<td>Coding, most tasks with coupled decisions</td>
+</tr>
+<tr>
+<td>Orchestrator + parallel workers</td>
+<td>~10x to 15x</td>
+<td>Wall-clock reduced by parallelism</td>
+<td>Breadth-first research, independent subtasks</td>
+</tr>
+<tr>
+<td>Debate / multi-critic</td>
+<td>2x to 5x of base per round</td>
+<td>Rounds add latency</td>
+<td>High-stakes verification where errors are expensive</td>
+</tr>
+<tr>
+<td>Unbounded agent chatrooms</td>
+<td>Unbounded</td>
+<td>Unpredictable</td>
+<td>Almost never in production</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>The most common production failure of multi-agent systems is economic, not technical: a demo that costs &amp;#36;0.40 per run becomes &amp;#36;6 per run once retries, verifier passes, and long-tail tasks are counted, and the product's unit economics never close. Always model the p95 token cost per task, not the median, before committing to an architecture.</p>
+</div>
+</div>
+<h2 id="the-anthropic-multi-agent-research-system-lessons-75" class="doc-heading doc-h2"><a href="#the-anthropic-multi-agent-research-system-lessons-75" class="heading-anchor">#</a> The Anthropic Multi-Agent Research System: Lessons</h2>
+<p class="doc-paragraph">Anthropic's engineering write-up on their Research feature (2025) is the canonical positive case study. Architecture: a <strong>lead agent</strong> (orchestrator-worker pattern) analyzes the query, develops a strategy, and spawns <strong>subagents</strong> that search in parallel, each with its own context window, then returns condensed findings to the lead, which synthesizes and optionally spawns more. A separate <strong>citation agent</strong> pass attributes claims to sources at the end.</p>
+<p class="doc-paragraph">Key lessons worth knowing cold:</p>
+<ol class="doc-list-ordered">
+<li><strong>Breadth-first, parallelizable queries are the sweet spot.</strong> Their multi-agent configuration (Opus lead with Sonnet subagents) outperformed single-agent Opus by about 90% on their internal research eval, especially on queries like &quot;find all board members of the IT companies in the S&amp;P 500&quot; that decompose into independent lookups.</li>
+<li><strong>Teach the orchestrator how to delegate.</strong> Early versions spawned 50 subagents for simple queries, or gave vague briefs (&quot;research the semiconductor shortage&quot;) so subagents duplicated work. Fix: each subagent brief must include an objective, an output format, guidance on tools and sources, and clear task boundaries.</li>
+<li><strong>Scale effort to query complexity.</strong> Embed explicit heuristics in the prompt: simple fact-finding uses 1 agent with 3 to 10 tool calls; direct comparisons use 2 to 4 subagents; complex research uses 10+ subagents with clearly divided responsibilities.</li>
+<li><strong>Tool design and descriptions matter enormously.</strong> Agents picking the wrong tool, or a bad tool description, sends whole subtrees off course. They even used a model to rewrite tool descriptions after observing failures, cutting task completion time substantially.</li>
+<li><strong>Start wide, then narrow.</strong> Prompt subagents to begin with short, broad queries and progressively narrow, mirroring expert human search.</li>
+<li><strong>Extended thinking as a controllable scratchpad.</strong> The lead uses thinking to plan; subagents use interleaved thinking after tool results to evaluate quality and decide next steps.</li>
+<li><strong>Parallel tool calling at two levels.</strong> The lead spins up 3 to 5 subagents in parallel; subagents use 3+ tools in parallel. This cut research time by up to 90% for complex queries.</li>
+<li><strong>Evaluation: start small, use LLM-as-judge with a rubric, keep humans in the loop.</strong> Early on, effect sizes are huge, so 20 representative queries are enough to see changes. Judges scored factual accuracy, citation accuracy, completeness, source quality, and tool efficiency.</li>
+<li><strong>Production reliability is the hard part.</strong> Agents are stateful and errors compound. They built resumption from checkpoints rather than restart, let the model know when a tool fails so it can adapt, and used <strong>rainbow deployments</strong> so in-flight long-running agents were not broken by code changes mid-run.</li>
+<li><strong>Synchronous execution is a bottleneck.</strong> The lead waits for each batch of subagents to finish. Asynchronous execution would add parallelism but also adds coordination, state consistency, and error propagation complexity, which they explicitly deferred.</li>
+<li><strong>Subagent output to filesystem.</strong> To reduce the &quot;game of telephone,&quot; subagents can write artifacts to external storage and pass lightweight references back to the lead, instead of routing everything through the lead's context.</li>
+</ol>
+<div class="callout callout-important">
+<div class="callout-header"><span class="callout-icon">📌</span> <span class="callout-title">KEY INSIGHT</span></div>
+<div class="callout-content">
+<p>Anthropic also stated explicitly that multi-agent systems are a poor fit for domains where all agents need the same context or where there are many dependencies between agents, citing <strong>most coding tasks</strong> as an example of less parallelizable work. This is the bridge to Cognition's argument; the two positions are much closer than the blog titles suggest.</p>
+</div>
+</div>
+<h2 id="cognition-dont-build-multi-agents-96" class="doc-heading doc-h2"><a href="#cognition-dont-build-multi-agents-96" class="heading-anchor">#</a> Cognition: &quot;Don't Build Multi-Agents&quot;</h2>
+<p class="doc-paragraph">Cognition (makers of Devin) published &quot;Don't Build Multi-Agents&quot; (June 2025), arguing that most multi-agent architectures are fragile. Their argument rests on two principles of <strong>context engineering</strong>:</p>
+<ul class="doc-list">
+<li><strong>Principle 1: Share context, and share full agent traces, not just individual messages.</strong> A subagent given only a task string lacks the decisions, constraints, and reasoning accumulated by the parent.</li>
+<li><strong>Principle 2: Actions carry implicit decisions, and conflicting decisions carry bad results.</strong> When two agents act in parallel on overlapping concerns, each makes implicit choices (style, assumptions, interfaces) that conflict.</li>
+</ul>
+<p class="doc-paragraph">Their canonical example: task &quot;build a Flappy Bird clone,&quot; split into &quot;make the background with pipes&quot; and &quot;make the bird.&quot; Subagent 1 builds a Super Mario style background; subagent 2 builds a bird that does not look or move like a Flappy Bird asset. The final combiner must reconcile two incompatible sets of implicit decisions. Even if you pass the full original task to both, they still cannot see each other's in-progress decisions.</p>
+<p class="doc-paragraph">Their recommendations:</p>
+<ul class="doc-list">
+<li>Default to a <strong>single-threaded linear agent</strong> where context is continuous.</li>
+<li>For very long tasks, introduce a dedicated <strong>context compression</strong> model/step that summarizes history into key details, events, and decisions, instead of fanning out.</li>
+<li>If you use sub-tasks, keep them <strong>read-only or question-answering</strong> in nature (e.g., &quot;find where X is defined&quot;), so they do not make conflicting writes. They noted Claude Code's subagents at the time were used for answering questions, not writing code in parallel.</li>
+</ul>
+<h2 id="reconciling-the-two-positions-111" class="doc-heading doc-h2"><a href="#reconciling-the-two-positions-111" class="heading-anchor">#</a> Reconciling the Two Positions</h2>
+<p class="doc-paragraph">The positions are compatible once you see the governing variable: <strong>coupling of implicit decisions across subtasks.</strong></p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Task property</th>
+<th>Favors single agent</th>
+<th>Favors multi-agent</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Decision coupling</td>
+<td>High: outputs must cohere (code, prose voice, design)</td>
+<td>Low: subtasks independent (lookups, per-document analysis)</td>
+</tr>
+<tr>
+<td>Output type of subtask</td>
+<td>Writes / mutations to shared artifacts</td>
+<td>Reads / information gathering / summaries</td>
+</tr>
+<tr>
+<td>Context needed per subtask</td>
+<td>Most of the global context</td>
+<td>Small slice of global context</td>
+</tr>
+<tr>
+<td>Breadth vs depth</td>
+<td>Deep, sequential reasoning</td>
+<td>Wide, parallel exploration</td>
+</tr>
+<tr>
+<td>Value per task</td>
+<td>Low or moderate</td>
+<td>High enough to absorb 10x tokens</td>
+</tr>
+<tr>
+<td>Latency requirement</td>
+<td>Interactive, tight</td>
+<td>Wall-clock matters but tokens are cheap relative to value</td>
+</tr>
+<tr>
+<td>Verification</td>
+<td>Hard to verify parts independently</td>
+<td>Parts verifiable independently</td>
+</tr>
+</tbody></table></div>
+<p class="doc-paragraph"><strong>Decision rule:</strong> Fan out for <strong>reads</strong>, converge for <strong>writes</strong>. Parallelize information gathering into isolated contexts; keep all decisions that must cohere inside one context (one agent, or one synthesizer with authority). This is exactly what the Anthropic research system does (subagents gather, lead synthesizes, citation agent only annotates) and exactly what Cognition endorses (subagents answer questions; one thread writes).</p>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>A crisp Staff-level summary: &quot;Multi-agent is a context-scaling and parallelism technique, not an organizational metaphor. I use it when the task is read-heavy and decomposes into low-coupling slices, when the value per task absorbs a ~10x token multiplier, and when I can verify slices independently. For coupled write tasks I use a single agent with compaction, and at most delegate read-only investigations to subagents.&quot;</p>
+</div>
+</div>
+<h2 id="other-legitimate-reasons-to-split-130" class="doc-heading doc-h2"><a href="#other-legitimate-reasons-to-split-130" class="heading-anchor">#</a> Other Legitimate Reasons to Split</h2>
+<p class="doc-paragraph">Beyond parallel breadth, there are good non-parallelism reasons for multiple agents:</p>
+<ul class="doc-list">
+<li><strong>Security and privilege separation.</strong> A browsing agent that reads untrusted web content should not hold the credentials to send email. Splitting into a quarantined reader and a privileged actor that only sees sanitized, structured output is a prompt-injection defense (the &quot;dual LLM&quot; / CaMeL-style pattern). This is often the strongest justification of all.</li>
+<li><strong>Tool-count limits.</strong> Tool selection accuracy degrades as tool count grows into the many dozens. Routing to specialist agents, each with 5 to 15 tools, keeps selection accurate. (Tool search / deferred tool loading features are an alternative.)</li>
+<li><strong>Model heterogeneity.</strong> A cheap fast model for triage and extraction, a reasoning model for planning, a vision model for computer use. Different agents let you pick per-step cost/quality points.</li>
+<li><strong>Organizational ownership.</strong> Different teams own different agents behind stable contracts (this is where A2A shines). This is Conway's law, and it is a real reason, but it should map to service boundaries rather than prompt boundaries.</li>
+<li><strong>Independent verification.</strong> A critic with a different prompt, different model, or no access to the generator's reasoning reduces correlated errors.</li>
+<li><strong>Context-window relief on long tasks.</strong> A subagent can perform a noisy sub-investigation (read 40 files, run 15 test commands) and return only the conclusion.</li>
+</ul>
+<h2 id="anti-signals-when-not-to-go-multi-agent-141" class="doc-heading doc-h2"><a href="#anti-signals-when-not-to-go-multi-agent-141" class="heading-anchor">#</a> Anti-Signals: When Not to Go Multi-Agent</h2>
+<ul class="doc-list">
+<li>You cannot write down the interface (input schema, output schema) between agents. If the contract is &quot;they chat until done,&quot; you have not designed a system.</li>
+<li>Most agents need the full conversation to do their job.</li>
+<li>The &quot;agents&quot; differ only by persona text (&quot;You are a senior QA engineer&quot;) and share the same tools and model. That is a prompt, not an architecture.</li>
+<li>You have no evaluation harness yet. Multi-agent amplifies variance; without evals you cannot tell if a change helped.</li>
+<li>The task is latency-critical and sequential. Handoffs add round trips with no parallelism gain.</li>
+<li>The single-agent baseline has not been tried and measured. Always build the baseline first.</li>
+</ul>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>&quot;Agent chatrooms&quot; where N role-played agents converse freely in a group chat until someone says TERMINATE are the classic research-demo-to-production failure. Symptoms: loops of politeness (&quot;Great point! Building on that...&quot;), premature termination, unbounded cost, and non-reproducible outcomes. If you use group-chat style orchestration, bound it with a deterministic speaker selector, max turns, and a structured termination check.</p>
+</div>
+</div>
+<h1 id="multi-agent-patterns-153" class="doc-heading doc-h1"><a href="#multi-agent-patterns-153" class="heading-anchor">#</a> Multi-Agent Patterns</h1>
+<p class="doc-paragraph">This section covers the main topologies. For each, think about four things: <strong>who decides control flow, what state is shared, how context crosses boundaries, and how failures propagate.</strong></p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Control-flow authority spectrum
+
+Deterministic code ------------------------------------------- LLM decides
+  sequential     map-reduce     supervisor (router)   swarm/handoffs   group chat
+  pipeline       (fan-out)      hierarchical          (peer-to-peer)   (emergent)
+
+  more predictable, testable, cheap  &lt;-------&gt;  more adaptive, costly, fragile</code></pre></div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Push control-flow authority as far left as the task allows. Every decision you move from an LLM into code is one fewer source of variance, one more thing unit-testable, and one fewer token-consuming turn. The art is to use LLM-decided routing only where the branching truly depends on semantic content you cannot classify cheaply.</p>
+</div>
+</div>
+<h2 id="pattern-1-supervisor-orchestrator-worker-170" class="doc-heading doc-h2"><a href="#pattern-1-supervisor-orchestrator-worker-170" class="heading-anchor">#</a> Pattern 1: Supervisor (Orchestrator-Worker)</h2>
+<p class="doc-paragraph"><strong>Mechanics.</strong> A central supervisor agent receives the task, decides which worker(s) to invoke, gives each a brief, receives results, and decides whether to invoke more workers or finish. Workers do not talk to each other; all communication is hub-and-spoke through the supervisor.</p>
+<p class="doc-paragraph">There are two implementation flavors:</p>
+<ol class="doc-list-ordered">
+<li><strong>Agents-as-tools.</strong> Workers are exposed to the supervisor as tools (<code>research(query) -&gt; summary</code>). The supervisor's conversation stays continuous; worker runs are nested and ephemeral. Control always returns to the supervisor.</li>
+<li><strong>Graph supervisor.</strong> The supervisor is a node in a graph that emits a routing decision (<code>next = &quot;coder&quot;</code>), and edges route state to the chosen worker node, which then routes back to the supervisor. State is shared via a graph state object.</li>
+</ol>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">              +-------------+
+   task ----&gt; | Supervisor  | &lt;-----------------+
+              +------+------+                   |
+          brief /    | brief   \ brief          | results (compressed)
+               v     v          v               |
+          [Worker A] [Worker B] [Worker C] -----+
+          own ctx    own ctx    own ctx</code></pre></div>
+<p class="doc-paragraph"><strong>Agents-as-tools sketch (framework-agnostic pseudocode):</strong></p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Framework-agnostic pseudocode
+from dataclasses import dataclass
+
+@dataclass
+class Brief:
+    objective: str
+    output_format: str
+    boundaries: str          # what NOT to do, to avoid overlap
+    tool_hints: list[str]
+    budget_tool_calls: int
+
+def run_worker(brief: Brief, worker_cfg) -&gt; dict:
+    &quot;&quot;&quot;Runs an isolated agent loop; returns a structured, compressed result.&quot;&quot;&quot;
+    messages = [
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: worker_cfg.system_prompt},
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: render_brief(brief)},
+    ]
+    result = agent_loop(messages, tools=worker_cfg.tools,
+                        max_steps=brief.budget_tool_calls,
+                        output_schema=worker_cfg.output_schema)
+    return result  # e.g. {&quot;findings&quot;: [...], &quot;sources&quot;: [...], &quot;confidence&quot;: 0.7}
+
+SUPERVISOR_TOOLS = [
+    tool_from_fn(&quot;delegate_research&quot;, lambda **kw: run_worker(Brief(**kw), RESEARCHER)),
+    tool_from_fn(&quot;delegate_data_analysis&quot;, lambda **kw: run_worker(Brief(**kw), ANALYST)),
+]</code></pre></div>
+<p class="doc-paragraph"><strong>Strengths.</strong> Single point of control makes it easy to reason about termination, budget, and final output quality. Workers are stateless relative to each other, which simplifies retries. Naturally supports parallel fan-out when the supervisor emits multiple tool calls in one turn.</p>
+<p class="doc-paragraph"><strong>Weaknesses.</strong> The supervisor is a bottleneck for context: every worker result passes through its window. With many workers or verbose results, the supervisor itself suffers context rot. It is also a single point of reasoning failure: a bad plan sends all workers in the wrong direction.</p>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p><strong>Supervisor paraphrase loss.</strong> When the supervisor rewrites a worker's answer for the user, it can silently drop caveats, numbers, or citations. LangChain's own benchmarking of supervisor architectures found that letting workers' final responses be forwarded directly (instead of re-generated by the supervisor) measurably improved results. Provide a &quot;forward_message&quot; path for outputs that should reach the user verbatim.</p>
+</div>
+</div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p><strong>Brief underspecification.</strong> &quot;Look into competitor pricing&quot; yields duplicated work across workers and inconsistent formats. Enforce briefs through a schema (objective, output format, boundaries, budget) and validate it before spawning. Treat a brief like an API request, not a chat message.</p>
+</div>
+</div>
+<h2 id="pattern-2-hierarchical-supervisor-of-supervisors-230" class="doc-heading doc-h2"><a href="#pattern-2-hierarchical-supervisor-of-supervisors-230" class="heading-anchor">#</a> Pattern 2: Hierarchical (Supervisor of Supervisors)</h2>
+<p class="doc-paragraph"><strong>Mechanics.</strong> Supervisors manage teams, and a top-level supervisor manages team leads. This mirrors org charts and is used when the number of specialists exceeds what one supervisor can route among reliably, or when teams have distinct tool sets and evaluation criteria.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                    [Top Supervisor]
+                    /               \
+          [Research Lead]        [Engineering Lead]
+          /     |      \           /         \
+     [Web]  [Papers] [Internal]  [Coder]   [Tester]</code></pre></div>
+<p class="doc-paragraph"><strong>When justified.</strong> Tool counts or domain breadth too large for one router; teams with genuinely different SLAs (e.g., a compliance sub-team that must use a specific approved model); or separately deployed agent services where each lead is an A2A endpoint owned by a different team.</p>
+<p class="doc-paragraph"><strong>Costs.</strong> Each level adds a compression step and a round trip. Three levels deep, the leaf worker is executing an instruction that is a summary of a summary of the user's request. Latency stacks; token costs stack; error attribution becomes hard.</p>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Limit hierarchies to two levels in most designs. If you think you need three, check whether the middle layer is doing real decision-making or just routing that a deterministic classifier could do. Replacing an LLM &quot;team lead&quot; with a code router plus a typed contract usually improves both reliability and cost.</p>
+</div>
+</div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p><strong>Goal drift through layers.</strong> Constraints stated by the user (&quot;must use only 2025 data&quot;, &quot;no external APIs&quot;) frequently disappear two levels down. Carry a structured, immutable <code>constraints</code> object through every level in state, and have leaf agents receive it verbatim rather than paraphrased.</p>
+</div>
+</div>
+<h2 id="pattern-3-swarm-with-handoffs-peer-to-peer-252" class="doc-heading doc-h2"><a href="#pattern-3-swarm-with-handoffs-peer-to-peer-252" class="heading-anchor">#</a> Pattern 3: Swarm with Handoffs (Peer-to-Peer)</h2>
+<p class="doc-paragraph"><strong>Mechanics.</strong> There is no central supervisor. Each agent can transfer control to another agent via a handoff (typically modeled as a tool call such as <code>transfer_to_billing</code>). The active agent owns the conversation until it hands off. The conversation history (or a filtered version) moves with the handoff. OpenAI's experimental Swarm library popularized this, and the OpenAI Agents SDK productionized it as <code>handoffs</code>. LangGraph provides <code>langgraph-swarm</code>, and AutoGen AgentChat has a <code>Swarm</code> team built on <code>HandoffMessage</code>.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">user &lt;-&gt; [Triage] --handoff--&gt; [Billing] --handoff--&gt; [Refunds]
+                \--handoff--&gt; [Tech Support] --handoff--&gt; [Triage]
+   (only one agent is &quot;active&quot; at a time; history travels with control)</code></pre></div>
+<p class="doc-paragraph"><strong>Key distinction from agents-as-tools:</strong> with a handoff, the receiving agent takes over the conversation and responds to the user directly; control does not automatically return. With agents-as-tools, the callee returns a result to the caller, who remains in charge.</p>
+<p class="doc-paragraph"><strong>Strengths.</strong> Very natural for customer-service style routing, where the specialist should talk directly to the user. Avoids supervisor paraphrase loss. Each agent has a small, focused tool set and prompt.</p>
+<p class="doc-paragraph"><strong>Weaknesses.</strong></p>
+<ul class="doc-list">
+<li><strong>Ping-pong loops.</strong> Agent A hands to B, B decides it is A's job, hands back.</li>
+<li><strong>Global invariants have no owner.</strong> Nobody is accountable for &quot;the whole conversation.&quot;</li>
+<li><strong>History bloat.</strong> Passing full history on every handoff means the 5th agent carries everything.</li>
+<li><strong>Hard to evaluate.</strong> Paths vary per conversation.</li>
+</ul>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p>Always bound handoffs: a max-handoff counter in state, a rule that an agent cannot hand back to its immediate predecessor without new information, and a fallback &quot;human escalation&quot; agent. Log the handoff graph per conversation and alert on cycles.</p>
+</div>
+</div>
+<p class="doc-paragraph"><strong>Mitigations for history bloat.</strong> Use input filters on handoff (strip tool calls, keep only user-visible messages, or summarize). The OpenAI Agents SDK supports an <code>input_filter</code> on a handoff, and ships helpers such as <code>handoff_filters.remove_all_tools</code>. Alternatively, pass a structured handoff payload (reason, customer_id, issue summary) as handoff input data validated against a schema.</p>
+<h2 id="pattern-4-sequential-pipeline-prompt-chaining-278" class="doc-heading doc-h2"><a href="#pattern-4-sequential-pipeline-prompt-chaining-278" class="heading-anchor">#</a> Pattern 4: Sequential Pipeline (Prompt Chaining)</h2>
+<p class="doc-paragraph"><strong>Mechanics.</strong> A fixed sequence of steps, each an LLM call or agent, where the output of step i is the input of step i+1. Control flow is entirely in code. Gates between steps validate outputs and can short-circuit.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">input -&gt; [Extract] -&gt; gate(schema ok?) -&gt; [Enrich] -&gt; gate -&gt; [Draft] -&gt; [Review] -&gt; output
+                         |fail                                  |fail
+                         v                                      v
+                    retry/repair                           loop back to Draft (max 2)</code></pre></div>
+<p class="doc-paragraph">This is the &quot;workflow&quot; end of the spectrum and is the right default whenever the steps are known in advance. Anthropic's &quot;Building Effective Agents&quot; guidance explicitly recommends starting here (prompt chaining, routing, parallelization) before reaching for autonomous agents.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Plain Python pipeline with typed gates
+from pydantic import BaseModel, ValidationError
+
+class Extracted(BaseModel):
+    company: str
+    fiscal_year: int
+    revenue_usd: float | None
+
+class Draft(BaseModel):
+    summary: str
+    claims: list[str]
+
+def extract(doc: str) -&gt; Extracted:
+    raw = llm_json(prompt=EXTRACT_PROMPT.format(doc=doc), schema=Extracted)
+    return Extracted.model_validate(raw)
+
+def draft(e: Extracted) -&gt; Draft:
+    return Draft.model_validate(llm_json(DRAFT_PROMPT.format(**e.model_dump()), schema=Draft))
+
+def review(d: Draft, source: str) -&gt; list[str]:
+    # returns list of unsupported claims
+    return llm_json(REVIEW_PROMPT.format(claims=d.claims, source=source), schema=list[str])
+
+def pipeline(doc: str) -&gt; Draft:
+    e = with_retries(lambda: extract(doc), on=(ValidationError,), attempts=3)
+    d = draft(e)
+    for _ in range(2):
+        unsupported = review(d, doc)
+        if not unsupported:
+            return d
+        d = draft_with_feedback(e, d, unsupported)
+    raise NeedsHumanReview(d, unsupported)</code></pre></div>
+<p class="doc-paragraph"><strong>Strengths.</strong> Predictable, cheap, testable step by step, easy to cache, easy to trace. Each step can use the cheapest adequate model.</p>
+<p class="doc-paragraph"><strong>Weaknesses.</strong> Rigid; cannot adapt when inputs fall outside the anticipated shape. Errors in early steps propagate (mitigate with gates).</p>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Many systems marketed as &quot;multi-agent&quot; would be strictly better as a pipeline with one agentic node. Ask: &quot;Does any step need to decide which step runs next based on semantics?&quot; If no, it is a pipeline. If only one place does, use a router node there and keep the rest deterministic.</p>
+</div>
+</div>
+<h2 id="pattern-5-debate-critic-and-evaluator-optimizer-333" class="doc-heading doc-h2"><a href="#pattern-5-debate-critic-and-evaluator-optimizer-333" class="heading-anchor">#</a> Pattern 5: Debate, Critic, and Evaluator-Optimizer</h2>
+<p class="doc-paragraph"><strong>Mechanics.</strong> One agent generates; another critiques; the generator revises. Variants:</p>
+<ul class="doc-list">
+<li><strong>Evaluator-optimizer loop:</strong> generator plus a rubric-driven evaluator, iterate until pass or budget.</li>
+<li><strong>Multi-agent debate:</strong> N agents propose answers independently, read each other's answers, and revise over rounds; a judge or majority aggregates. Research (e.g., Du et al. 2023) showed gains on reasoning and factuality benchmarks.</li>
+<li><strong>Independent verifier:</strong> a separate agent with different context (and ideally different model) checks the output against sources or tests.</li>
+</ul>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">          +-----------+     draft      +-----------+
+ task --&gt; | Generator | ------------&gt;  | Evaluator | -- pass --&gt; output
+          +-----------+ &lt;------------  +-----------+
+                         critique+score     |
+                                            +-- budget exhausted --&gt; best-so-far + flag</code></pre></div>
+<p class="doc-paragraph"><strong>What the evidence actually says (as of 2026).</strong> Gains from debate are real but smaller than early papers suggested once you control for compute: several follow-up studies found that self-consistency (sampling N answers and voting) with the same token budget matches or beats debate on many reasoning tasks. With strong reasoning models that already do internal deliberation, naive debate often adds cost for marginal gain. Critics are most valuable when they have <strong>information or capabilities the generator lacks</strong>: running tests, executing code, checking citations against retrieved sources, or seeing the rubric.</p>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Verification approach</th>
+<th>Cost</th>
+<th>Catches</th>
+<th>Weakness</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Self-critique (same model, same context)</td>
+<td>Low</td>
+<td>Formatting, obvious slips</td>
+<td>Correlated errors; sycophancy toward own output</td>
+</tr>
+<tr>
+<td>Separate critic, same model, fresh context</td>
+<td>Medium</td>
+<td>Reasoning gaps, missing requirements</td>
+<td>Still correlated priors</td>
+</tr>
+<tr>
+<td>Critic with different model family</td>
+<td>Medium</td>
+<td>Some model-specific blind spots</td>
+<td>Integration cost, calibration differences</td>
+</tr>
+<tr>
+<td>Tool-grounded verifier (tests, execution, retrieval)</td>
+<td>Varies</td>
+<td>Factual and functional errors</td>
+<td>Requires verifiable signal</td>
+</tr>
+<tr>
+<td>Self-consistency vote</td>
+<td>N x base</td>
+<td>Random reasoning errors</td>
+<td>Not systematic errors</td>
+</tr>
+<tr>
+<td>Multi-agent debate</td>
+<td>N x rounds x base</td>
+<td>Some reasoning errors</td>
+<td>Conformity, cost, persuasive-wrong agents</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p><strong>Sycophantic convergence.</strong> In debate, agents tend to converge on the most confident-sounding answer rather than the correct one, and critics often approve after one revision because the generator &quot;addressed the feedback.&quot; Mitigate by making critics score against an explicit rubric with required evidence, hiding the generator's reasoning from the critic, and capping rounds.</p>
+</div>
+</div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>The highest-ROI critic is a deterministic one. Unit tests, schema validators, link checkers, SQL EXPLAIN, policy engines. Use an LLM critic only for properties you cannot check in code, and make it output structured verdicts (pass/fail per rubric item plus evidence span) rather than prose.</p>
+</div>
+</div>
+<h2 id="pattern-6-blackboard-366" class="doc-heading doc-h2"><a href="#pattern-6-blackboard-366" class="heading-anchor">#</a> Pattern 6: Blackboard</h2>
+<p class="doc-paragraph"><strong>Mechanics.</strong> A shared, structured workspace (the blackboard) holds the current state of the problem: hypotheses, partial solutions, open questions. Independent specialist agents (knowledge sources) watch the blackboard and contribute when they can make progress. A control component decides which contributor runs next, based on blackboard state. This is a classic AI architecture (Hearsay-II, 1970s) that maps well onto LLM agents with a shared state store.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">          +--------------------------------------------+
+          |                BLACKBOARD                  |
+          | facts: [...]   hypotheses: [...]           |
+          | open_questions: [...]  artifacts: {...}    |
+          +----^-----------^-------------^-------------+
+               | r/w       | r/w         | r/w
+         [Retriever]  [Analyst]     [Verifier]
+               \           |             /
+                +---- Controller --------+   (picks next contributor based on state)</code></pre></div>
+<p class="doc-paragraph"><strong>Compared to supervisor:</strong> the supervisor holds the state in its own context; in blackboard, the state is external and structured, and agents read only the slice they need. This reduces the context bottleneck and makes state inspectable and checkpointable.</p>
+<p class="doc-paragraph"><strong>Implementation notes.</strong></p>
+<ul class="doc-list">
+<li>Store the blackboard in a database or a graph state object with typed sections.</li>
+<li>Each entry has provenance (which agent, which step, which sources) and status (proposed, verified, rejected).</li>
+<li>Use optimistic concurrency (version numbers) for writes.</li>
+<li>The controller can be code (rules on state: &quot;if any hypothesis is unverified, run Verifier&quot;) or an LLM.</li>
+</ul>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Blackboard entry schema
+from pydantic import BaseModel, Field
+from typing import Literal
+from datetime import datetime
+
+class Entry(BaseModel):
+    id: str
+    kind: Literal[&quot;fact&quot;, &quot;hypothesis&quot;, &quot;question&quot;, &quot;artifact&quot;]
+    content: str
+    sources: list[str] = []
+    author_agent: str
+    status: Literal[&quot;proposed&quot;, &quot;verified&quot;, &quot;rejected&quot;] = &quot;proposed&quot;
+    version: int = 1
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+def controller(bb) -&gt; str | None:
+    if bb.any(kind=&quot;question&quot;, status=&quot;proposed&quot;):
+        return &quot;retriever&quot;
+    if bb.any(kind=&quot;hypothesis&quot;, status=&quot;proposed&quot;):
+        return &quot;verifier&quot;
+    if bb.coverage_score() &lt; 0.8:
+        return &quot;analyst&quot;
+    return None  # done</code></pre></div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>The blackboard is the pattern hiding inside most good &quot;shared memory&quot; multi-agent designs, and it is the bridge to Cognition's concern: a shared, structured decision log lets parallel agents see each other's implicit decisions. If you must parallelize writes, have every agent record its design decisions to the blackboard before acting, and have others read that log first.</p>
+</div>
+</div>
+<h2 id="pattern-7-map-reduce-parallel-fan-out-fan-in-420" class="doc-heading doc-h2"><a href="#pattern-7-map-reduce-parallel-fan-out-fan-in-420" class="heading-anchor">#</a> Pattern 7: Map-Reduce (Parallel Fan-Out / Fan-In)</h2>
+<p class="doc-paragraph"><strong>Mechanics.</strong> Split input into N chunks (map), process each independently in parallel with an identical or parameterized agent, then aggregate (reduce). Splitting can be deterministic (per document, per row) or LLM-driven (planner emits subtasks). LangGraph implements dynamic fan-out with the <code>Send</code> API; Google ADK has <code>ParallelAgent</code>; plain Python uses <code>asyncio.gather</code> with a semaphore.</p>
+<div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                 +--&gt; [worker(chunk1)] --+
+ input -&gt; split -+--&gt; [worker(chunk2)] --+--&gt; reduce -&gt; output
+                 +--&gt; [worker(chunkN)] --+
+                       (bounded concurrency, per-item retries)</code></pre></div>
+<div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">import asyncio
+
+SEM = asyncio.Semaphore(8)  # respect provider rate limits
+
+async def map_one(item, attempt_budget=3):
+    async with SEM:
+        for attempt in range(attempt_budget):
+            try:
+                return {&quot;id&quot;: item.id, &quot;ok&quot;: True, &quot;result&quot;: await analyze(item)}
+            except TransientError:
+                await asyncio.sleep(min(2 ** attempt, 20) + jitter())
+        return {&quot;id&quot;: item.id, &quot;ok&quot;: False, &quot;error&quot;: &quot;exhausted&quot;}
+
+async def map_reduce(items):
+    results = await asyncio.gather(*(map_one(i) for i in items))
+    ok = [r for r in results if r[&quot;ok&quot;]]
+    failed = [r for r in results if not r[&quot;ok&quot;]]
+    if len(failed) / max(len(results), 1) &gt; 0.1:
+        raise PartialFailure(failed)       # policy: &gt;10% failure aborts
+    return await reduce_hierarchically(ok, fan_in=10)</code></pre></div>
+<p class="doc-paragraph"><strong>Reduce design matters more than map.</strong> If the reducer receives 200 summaries in one prompt, you recreate the context problem. Use <strong>hierarchical reduction</strong> (reduce in groups of 10, then reduce the reductions), and make map outputs structured so the reducer can do much of the work in code (dedupe, count, sort) before the LLM synthesizes.</p>
+<div class="callout callout-warning">
+<div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
+<div class="callout-content">
+<p><strong>Partial failure semantics</strong> must be decided up front: does one failed chunk fail the job, get retried, get skipped with a flag, or get handled by a fallback model? Silent dropping of failed chunks is a classic source of confidently incomplete answers (&quot;I analyzed all contracts&quot; when 7 of 120 timed out).</p>
+</div>
+</div>
+<h2 id="pattern-comparison-table-459" class="doc-heading doc-h2"><a href="#pattern-comparison-table-459" class="heading-anchor">#</a> Pattern Comparison Table</h2>
+<div class="table-responsive"><table class="doc-table">
+<thead><tr>
+<th>Pattern</th>
+<th>Control authority</th>
+<th>Shared state</th>
+<th>Parallelism</th>
+<th>Best for</th>
+<th>Main risk</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Supervisor</td>
+<td>LLM hub</td>
+<td>Supervisor context or graph state</td>
+<td>Yes, via parallel delegation</td>
+<td>Dynamic decomposition, research</td>
+<td>Hub context bottleneck, paraphrase loss</td>
+</tr>
+<tr>
+<td>Hierarchical</td>
+<td>LLM tree</td>
+<td>Per-team plus top state</td>
+<td>Yes</td>
+<td>Large domain breadth, multi-team ownership</td>
+<td>Goal drift, latency stacking</td>
+</tr>
+<tr>
+<td>Swarm / handoffs</td>
+<td>Active agent</td>
+<td>Conversation history</td>
+<td>No (one active)</td>
+<td>Customer-facing routing</td>
+<td>Ping-pong, no global owner</td>
+</tr>
+<tr>
+<td>Sequential pipeline</td>
+<td>Code</td>
+<td>Typed step outputs</td>
+<td>No (or per-step)</td>
+<td>Known procedures, ETL-like tasks</td>
+<td>Rigidity</td>
+</tr>
+<tr>
+<td>Debate / critic</td>
+<td>Code loop plus LLM judge</td>
+<td>Drafts and critiques</td>
+<td>Optional</td>
+<td>High-stakes quality</td>
+<td>Sycophancy, cost</td>
+</tr>
+<tr>
+<td>Blackboard</td>
+<td>Controller (code or LLM)</td>
+<td>External structured store</td>
+<td>Yes</td>
+<td>Open-ended problem solving, shared decisions</td>
+<td>Write conflicts, controller complexity</td>
+</tr>
+<tr>
+<td>Map-reduce</td>
+<td>Code</td>
+<td>Chunk results</td>
+<td>Massive</td>
+<td>Bulk independent items</td>
+<td>Reduce overload, partial failure</td>
+</tr>
+</tbody></table></div>
+<div class="callout callout-tip">
+<div class="callout-header"><span class="callout-icon">💡</span> <span class="callout-title">STAFF-LEVEL TIP</span></div>
+<div class="callout-content">
+<p>Real systems compose patterns. A typical high-quality research product: a sequential outer pipeline (clarify, plan, research, write, cite), whose &quot;research&quot; step is a supervisor doing map-reduce over subagents, whose &quot;write&quot; step is an evaluator-optimizer loop, all over a blackboard-style state store with checkpoints. Name the composition explicitly in interviews.</p>
+</div>
+</div>
+
+
+            <div class="doc-footer">
+                <span>Agentic AI Study Material · Production Engineering</span>
+                <a href="#top">↑ Back to top</a>
+            </div>
+        </article>
+
+        <!-- Right In-Page TOC Rail -->
+        <aside class="toc-rail">
+            <nav class="toc-nav"><div class="toc-header">On This Page</div><ul class="toc-list">
+<li class="toc-level-1"><a href="#part-4-overview-multi-agent-systems-and-orchestration-2">Part 4 Overview: Multi-Agent Systems and Orchestration</a></li>
+<li class="toc-level-2"><a href="#the-core-mental-model-agents-are-context-boundaries-18">The Core Mental Model: Agents Are Context Boundaries</a></li>
+<li class="toc-level-1"><a href="#when-multi-agent-is-and-is-not-justified-47">When Multi-Agent Is (and Is Not) Justified</a></li>
+<li class="toc-level-2"><a href="#the-token-cost-multiplier-49">The Token Cost Multiplier</a></li>
+<li class="toc-level-2"><a href="#the-anthropic-multi-agent-research-system-lessons-75">The Anthropic Multi-Agent Research System: Lessons</a></li>
+<li class="toc-level-2"><a href="#cognition-dont-build-multi-agents-96">Cognition: &quot;Don't Build Multi-Agents&quot;</a></li>
+<li class="toc-level-2"><a href="#reconciling-the-two-positions-111">Reconciling the Two Positions</a></li>
+<li class="toc-level-2"><a href="#other-legitimate-reasons-to-split-130">Other Legitimate Reasons to Split</a></li>
+<li class="toc-level-2"><a href="#anti-signals-when-not-to-go-multi-agent-141">Anti-Signals: When Not to Go Multi-Agent</a></li>
+<li class="toc-level-1"><a href="#multi-agent-patterns-153">Multi-Agent Patterns</a></li>
+<li class="toc-level-2"><a href="#pattern-1-supervisor-orchestrator-worker-170">Pattern 1: Supervisor (Orchestrator-Worker)</a></li>
+<li class="toc-level-2"><a href="#pattern-2-hierarchical-supervisor-of-supervisors-230">Pattern 2: Hierarchical (Supervisor of Supervisors)</a></li>
+<li class="toc-level-2"><a href="#pattern-3-swarm-with-handoffs-peer-to-peer-252">Pattern 3: Swarm with Handoffs (Peer-to-Peer)</a></li>
+<li class="toc-level-2"><a href="#pattern-4-sequential-pipeline-prompt-chaining-278">Pattern 4: Sequential Pipeline (Prompt Chaining)</a></li>
+<li class="toc-level-2"><a href="#pattern-5-debate-critic-and-evaluator-optimizer-333">Pattern 5: Debate, Critic, and Evaluator-Optimizer</a></li>
+<li class="toc-level-2"><a href="#pattern-6-blackboard-366">Pattern 6: Blackboard</a></li>
+<li class="toc-level-2"><a href="#pattern-7-map-reduce-parallel-fan-out-fan-in-420">Pattern 7: Map-Reduce (Parallel Fan-Out / Fan-In)</a></li>
+<li class="toc-level-2"><a href="#pattern-comparison-table-459">Pattern Comparison Table</a></li>
+</ul></nav>
+
+        </aside>
+    </main>
+
+    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <!-- Prism Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Render Math with KaTeX
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '', right: '', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false,
+                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+                });
+            }
+        });
+
+        // Copy Code Functionality
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const code = pre.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#10b981';
+                button.style.color = '#fff';
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '';
+                    button.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // Filter Nav Links in Sidebar
+        function filterNav() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const lis = document.querySelectorAll('.nav-links li');
+            lis.forEach(li => {
+                const text = li.innerText.toLowerCase();
+                if (text.includes(filter)) {
+                    li.style.display = '';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }
+
+        // Theme Toggle (Dark/Light)
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('agentic_study_theme', isLight ? 'light' : 'dark');
+        }
+        if (localStorage.getItem('agentic_study_theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+    </script>
+</body>
+</html>
