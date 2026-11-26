@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>05: Evaluation, Observability &amp; Reliability | Agentic AI Study Suite</title>
-    <!-- Fonts -->
+    <!-- Fonts (lean weights, non-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- KaTeX CSS for LaTeX Math Formulas -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- Prism Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" media="print" onload="this.media='all'">
+    <!-- Prism Syntax Highlighting (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" media="print" onload="this.media='all'">
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -77,6 +77,12 @@
             display: flex;
             flex-direction: column;
             z-index: 100;
+            contain: layout style paint;
+        }
+        /* Virtualize off-screen sections for 60fps scrolling */
+        .doc-section {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 500px;
         }
         .sidebar-header {
             padding: 20px 18px;
@@ -189,6 +195,7 @@
             border-left: 1px solid var(--border);
             padding-left: 16px;
             display: none;
+            contain: layout style paint;
         }
         @media (min-width: 1240px) {
             aside.toc-rail { display: block; }
@@ -453,8 +460,11 @@
                 <h1 class="doc-title">05: Evaluation, Observability &amp; Reliability</h1>
             </div>
 
-            <h1 id="part-1-why-agent-evaluation-is-hard-2" class="doc-heading doc-h1"><a href="#part-1-why-agent-evaluation-is-hard-2" class="heading-anchor">#</a> Part 1: Why Agent Evaluation Is Hard</h1>
+            <section class="doc-section">
+<h1 id="part-1-why-agent-evaluation-is-hard-2" class="doc-heading doc-h1"><a href="#part-1-why-agent-evaluation-is-hard-2" class="heading-anchor">#</a> Part 1: Why Agent Evaluation Is Hard</h1>
 <p class="doc-paragraph">Evaluating a single LLM completion is already difficult: outputs are open-ended, many answers are equally correct, and quality is partly subjective. Evaluating an <em>agent</em> is harder by at least an order of magnitude, because an agent is a stochastic program that makes a sequence of decisions, calls external tools with side effects, reads an environment that changes, and may take dozens or hundreds of steps before producing an outcome. This part builds the mental model you need before choosing any metric or tool.</p>
+</section>
+<section class="doc-section">
 <h2 id="the-agent-as-a-stochastic-policy-over-an-environment-6" class="doc-heading doc-h2"><a href="#the-agent-as-a-stochastic-policy-over-an-environment-6" class="heading-anchor">#</a> The Agent as a Stochastic Policy Over an Environment</h2>
 <p class="doc-paragraph">The cleanest first-principles framing is reinforcement-learning vocabulary. An agent is a policy <code>pi(action | history)</code> implemented by an LLM plus scaffolding (system prompt, tool schemas, memory, planner). It interacts with an environment <code>E</code> (APIs, filesystem, browser, a user) that returns observations. A run produces a <strong>trajectory</strong>:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">tau = (s0, a1, o1, a2, o2, ..., aT, oT, final_answer)
@@ -470,6 +480,8 @@
 <li><strong>Safety</strong>: Did it ever do something it must never do, even once?</li>
 </ul>
 <p class="doc-paragraph">Because the policy is sampled (temperature, nondeterministic batching on inference servers, tool-result variance), every one of these is a random variable. A single run tells you almost nothing.</p>
+</section>
+<section class="doc-section">
 <h2 id="sources-of-difficulty-27" class="doc-heading doc-h2"><a href="#sources-of-difficulty-27" class="heading-anchor">#</a> Sources of Difficulty</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -524,6 +536,8 @@
 <td>Pin model versions; re-baseline on every upgrade</td>
 </tr>
 </tbody></table></div>
+</section>
+<section class="doc-section">
 <h2 id="compounding-error-the-core-arithmetic-41" class="doc-heading doc-h2"><a href="#compounding-error-the-core-arithmetic-41" class="heading-anchor">#</a> Compounding Error: The Core Arithmetic</h2>
 <p class="doc-paragraph">If each step of an agent independently succeeds with probability <code>p</code>, a task requiring <code>n</code> correct steps succeeds with roughly <code>p^n</code>. At <code>p = 0.98</code> and <code>n = 30</code>, success is about 0.55. At <code>p = 0.95</code>, it is 0.21. This is why a model that scores 95% on single tool-call benchmarks can still be useless on 30-step workflows, and why small per-step improvements produce dramatic end-to-end gains. Real agents are not independent per step (they can recover from errors, which raises success; or errors can cascade, which lowers it), but the arithmetic explains why <strong>recovery behavior</strong> is a first-class thing to evaluate.</p>
 <div class="callout callout-tip">
@@ -532,6 +546,8 @@
 <p>When a stakeholder asks &quot;why is the agent only 60% on end-to-end when the model is 97% on function calling?&quot;, show the <code>p^n</code> curve. Then pivot to the two levers that actually matter: reduce <code>n</code> (better tools that do more per call, deterministic workflow code for the known parts) and increase recovery (validation, self-check, retries on tool errors). Staff engineers win this argument by changing the architecture, not by asking for a better model.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="the-evaluation-driven-development-loop-48" class="doc-heading doc-h2"><a href="#the-evaluation-driven-development-loop-48" class="heading-anchor">#</a> The Evaluation-Driven Development Loop</h2>
 <p class="doc-paragraph">Mature teams treat evals as the specification of the agent. The loop:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">   +-------------------+       +------------------+
@@ -557,6 +573,8 @@
 <p>&quot;Vibe checking&quot; a prompt change on a handful of examples is the most common source of agent regressions. A change that fixes the three cases you looked at frequently breaks 8% of cases you didn't. Without a suite of at least a few hundred representative tasks run with multiple trials, you cannot distinguish a real improvement from noise.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="part-2-the-evaluation-taxonomy-76" class="doc-heading doc-h1"><a href="#part-2-the-evaluation-taxonomy-76" class="heading-anchor">#</a> Part 2: The Evaluation Taxonomy</h1>
 <p class="doc-paragraph">There is no single &quot;agent accuracy&quot; number. You need a layered taxonomy, analogous to the test pyramid in classical software: many cheap, fast, narrow tests at the bottom and fewer expensive, realistic tests at the top.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                 /\
@@ -570,6 +588,8 @@
          /----------------\
         /                  \ Component evals (retriever, router, extractor, prompt units)
        /--------------------\</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="component-evals-94" class="doc-heading doc-h2"><a href="#component-evals-94" class="heading-anchor">#</a> Component Evals</h2>
 <p class="doc-paragraph">Components are the deterministic-ish building blocks: a retriever, a query rewriter, an intent classifier/router, a structured extractor, a summarizer, a guardrail classifier. These can be evaluated with classical ML metrics.</p>
 <div class="table-responsive"><table class="doc-table">
@@ -611,6 +631,8 @@
 </tr>
 </tbody></table></div>
 <p class="doc-paragraph">Component evals are cheap and pinpoint regressions, but they do not guarantee the agent works: a perfect retriever is useless if the agent never calls it.</p>
+</section>
+<section class="doc-section">
 <h2 id="tool-call-accuracy-109" class="doc-heading doc-h2"><a href="#tool-call-accuracy-109" class="heading-anchor">#</a> Tool-Call Accuracy</h2>
 <p class="doc-paragraph">For a given state, did the agent pick the right tool and fill the arguments correctly? This decomposes into:</p>
 <ul class="doc-list">
@@ -664,6 +686,8 @@ exp = ExpectedCall(
 <p>Single-step tool-call evals are usually run by replaying a fixed conversation prefix and checking the <em>next</em> call. This hides compounding effects and also hides cases where the model would have taken a different (valid) path earlier. Use them as unit tests for tool schemas and descriptions, not as a proxy for task success.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="trajectory-process-evals-164" class="doc-heading doc-h2"><a href="#trajectory-process-evals-164" class="heading-anchor">#</a> Trajectory (Process) Evals</h2>
 <p class="doc-paragraph">Trajectory evals grade the <em>path</em>. Typical checks:</p>
 <ul class="doc-list">
@@ -729,6 +753,8 @@ check_precedence(
 <p>Grade outcomes first, process second. Anthropic's and OpenAI's public guidance on agent evals both converge on this: agents frequently discover valid paths the eval author didn't anticipate, and over-specified trajectory checks punish creativity and become brittle. Reserve strict process checks for things that are <em>policy</em> (security, compliance, irreversible actions), and leave the rest to outcome and efficiency metrics.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="end-to-end-outcome-evals-206" class="doc-heading doc-h2"><a href="#end-to-end-outcome-evals-206" class="heading-anchor">#</a> End-to-End Outcome Evals</h2>
 <p class="doc-paragraph">The gold standard: put the agent in a realistic, resettable environment, give it the task, let it run to completion, and then check the <strong>final environment state</strong> with a programmatic verifier.</p>
 <ul class="doc-list">
@@ -795,6 +821,8 @@ async def run_suite(tasks, k, **kw):
 <p>Always separate <strong>infrastructure failures</strong> (sandbox crashed, rate-limited, provider 500) from <strong>agent failures</strong>. If you count a 429 as a task failure, your success rate measures your rate limiter. Record <code>status</code> distinctly, retry infra errors at the harness level, and report the infra failure rate as its own metric.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="online-vs-offline-evaluation-277" class="doc-heading doc-h2"><a href="#online-vs-offline-evaluation-277" class="heading-anchor">#</a> Online vs Offline Evaluation</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -853,8 +881,12 @@ async def run_suite(tasks, k, **kw):
 <p>Shadow mode is the most underused deployment tool for agents. Run the new version on mirrored production inputs with all side-effecting tools stubbed to &quot;dry run&quot;, then compare its proposed actions against the live version's actual actions with a pairwise judge. You get real-distribution evaluation with zero user risk. The limitation: you can only shadow the first divergent step faithfully, because after that the observations differ.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="part-3-datasets-golden-synthetic-and-production-derived-300" class="doc-heading doc-h1"><a href="#part-3-datasets-golden-synthetic-and-production-derived-300" class="heading-anchor">#</a> Part 3: Datasets — Golden, Synthetic, and Production-Derived</h1>
 <p class="doc-paragraph">An eval is only as good as its dataset. The dataset is a model of your production distribution; if it is wrong, every metric downstream is wrong with high confidence.</p>
+</section>
+<section class="doc-section">
 <h2 id="golden-datasets-304" class="doc-heading doc-h2"><a href="#golden-datasets-304" class="heading-anchor">#</a> Golden Datasets</h2>
 <p class="doc-paragraph">A golden dataset is a curated, versioned set of tasks with trusted expected outcomes, owned like code.</p>
 <p class="doc-paragraph">A good golden example record:</p>
@@ -897,6 +929,8 @@ async def run_suite(tasks, k, **kw):
 <p>Goodhart's law hits eval sets hard. If engineers iterate on prompts while watching the dev-set score, the prompt overfits to those examples (often by sneaking example-specific hints into the system prompt). Keep a held-out set that only the CI pipeline sees, and rotate fresh production-derived cases in every month.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="synthetic-data-generation-349" class="doc-heading doc-h2"><a href="#synthetic-data-generation-349" class="heading-anchor">#</a> Synthetic Data Generation</h2>
 <p class="doc-paragraph">Synthetic data fills coverage gaps cheaply, but it inherits the biases of the generating model. Use it to <em>expand</em> a seed set grounded in reality, never as the sole source.</p>
 <p class="doc-paragraph">Common techniques:</p>
@@ -939,6 +973,8 @@ def generate(llm, db_excerpt):
 <p>Synthetic tasks generated by model family X are systematically easier for model family X (shared phrasing, shared assumptions about what is &quot;reasonable&quot;). If you compare vendors on a synthetic set generated by one vendor's model, you have a biased benchmark. Use mixed generators and validate a sample against human-written tasks.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="production-derived-datasets-393" class="doc-heading doc-h2"><a href="#production-derived-datasets-393" class="heading-anchor">#</a> Production-Derived Datasets</h2>
 <p class="doc-paragraph">The highest-value source of eval cases is production traces, especially failures.</p>
 <p class="doc-paragraph">Mining pipeline:</p>
@@ -954,6 +990,8 @@ def generate(llm, db_excerpt):
 <p>Production traces contain personal data. Before a trace becomes an eval case, run PII detection and redaction, confirm the data-processing basis permits use for testing, and record provenance. Eval datasets frequently end up being shared with vendors or copied to laptops; treat them as production data.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="dataset-trade-offs-407" class="doc-heading doc-h2"><a href="#dataset-trade-offs-407" class="heading-anchor">#</a> Dataset Trade-offs</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -998,8 +1036,12 @@ def generate(llm, db_excerpt):
 <td>High</td>
 </tr>
 </tbody></table></div>
+</section>
+<section class="doc-section">
 <h1 id="part-4-llm-as-a-judge-416" class="doc-heading doc-h1"><a href="#part-4-llm-as-a-judge-416" class="heading-anchor">#</a> Part 4: LLM-as-a-Judge</h1>
 <p class="doc-paragraph">When no programmatic oracle exists, an LLM grades the output. Used well, judges scale human judgment; used naively, they produce confident nonsense that correlates with length and style instead of quality.</p>
+</section>
+<section class="doc-section">
 <h2 id="mechanics-420" class="doc-heading doc-h2"><a href="#mechanics-420" class="heading-anchor">#</a> Mechanics</h2>
 <p class="doc-paragraph">A judge is a prompt plus a model that maps <code>(input, output, optional reference, rubric) -&gt; score + rationale</code>. Key design dimensions:</p>
 <ul class="doc-list">
@@ -1009,6 +1051,8 @@ def generate(llm, db_excerpt):
 <li><strong>Reference-free</strong>: judge relies on its own knowledge; weakest, use only for style/tone or with strong rubrics.</li>
 <li><strong>Trajectory judge</strong>: judge sees the whole trace (tool calls and results) and grades process against a policy.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="rubric-design-430" class="doc-heading doc-h2"><a href="#rubric-design-430" class="heading-anchor">#</a> Rubric Design</h2>
 <p class="doc-paragraph">Rubrics are the single biggest lever on judge quality.</p>
 <ol class="doc-list-ordered">
@@ -1046,6 +1090,8 @@ JUDGE_SCHEMA = {
     &quot;required&quot;: [&quot;reasoning&quot;, &quot;verdict&quot;],
     &quot;additionalProperties&quot;: False,
 }</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="pointwise-vs-pairwise-471" class="doc-heading doc-h2"><a href="#pointwise-vs-pairwise-471" class="heading-anchor">#</a> Pointwise vs Pairwise</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1090,6 +1136,8 @@ JUDGE_SCHEMA = {
 <td>Needs a fixed baseline to compare against</td>
 </tr>
 </tbody></table></div>
+</section>
+<section class="doc-section">
 <h2 id="known-judge-biases-483" class="doc-heading doc-h2"><a href="#known-judge-biases-483" class="heading-anchor">#</a> Known Judge Biases</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1145,6 +1193,8 @@ JUDGE_SCHEMA = {
 <p>A judge prompted with only the agent's final message will happily pass an answer that says &quot;I've refunded your order&quot; even when the trace shows the refund tool returned an error. Always give trajectory judges the raw tool results, and prefer verifying state programmatically over asking a judge whether something happened.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="calibrating-judges-against-human-labels-499" class="doc-heading doc-h2"><a href="#calibrating-judges-against-human-labels-499" class="heading-anchor">#</a> Calibrating Judges Against Human Labels</h2>
 <p class="doc-paragraph">A judge is a measurement instrument; you must validate it before trusting it.</p>
 <p class="doc-paragraph">Procedure:</p>
@@ -1206,6 +1256,8 @@ print(classification_report(human, judge, labels=[&quot;FAIL&quot;, &quot;PASS&q
 </div>
 <h3 id="correcting-aggregate-metrics-for-judge-error-553" class="doc-heading doc-h3"><a href="#correcting-aggregate-metrics-for-judge-error-553" class="heading-anchor">#</a> Correcting Aggregate Metrics for Judge Error</h3>
 <p class="doc-paragraph">If you know the judge's true positive rate and false positive rate (from calibration), you can correct an observed pass rate. Let <code>q</code> be the observed judge-pass rate, <code>TPR = P(judge PASS | truly PASS)</code>, <code>FPR = P(judge PASS | truly FAIL)</code>. Then the estimated true pass rate is <code>(q - FPR) / (TPR - FPR)</code> (the Rogan-Gladen estimator). This matters when comparing two agents whose error profiles may be judged differently, and when reporting absolute rates to leadership.</p>
+</section>
+<section class="doc-section">
 <h2 id="judge-ensembles-and-cost-557" class="doc-heading doc-h2"><a href="#judge-ensembles-and-cost-557" class="heading-anchor">#</a> Judge Ensembles and Cost</h2>
 <ul class="doc-list">
 <li><strong>Panels</strong>: majority vote of three judges from different families reduces self-preference and variance. Research on &quot;juries&quot; of smaller models has shown they can match a single large judge at lower cost.</li>
@@ -1219,7 +1271,11 @@ print(classification_report(human, judge, labels=[&quot;FAIL&quot;, &quot;PASS&q
 <p>Before reaching for any judge, ask: &quot;Can I turn this into a programmatic check?&quot; Many apparent judgment calls are really state checks (did the DB change?), regexes (does the reply contain the tracking number?), or schema checks. Programmatic checks are free, deterministic, and unbiased. A good suite is often 70% code-based graders and 30% judges.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="part-5-metrics-and-statistics-passk-passk-and-significance-567" class="doc-heading doc-h1"><a href="#part-5-metrics-and-statistics-passk-passk-and-significance-567" class="heading-anchor">#</a> Part 5: Metrics and Statistics — pass@k, pass^k, and Significance</h1>
+</section>
+<section class="doc-section">
 <h2 id="passk-vs-passk-569" class="doc-heading doc-h2"><a href="#passk-vs-passk-569" class="heading-anchor">#</a> pass@k vs pass^k</h2>
 <p class="doc-paragraph">These two metrics answer opposite questions.</p>
 <ul class="doc-list">
@@ -1285,6 +1341,8 @@ for k in (1, 2, 4, 8):
 <p>Which metric to report is a product decision. A coding assistant with a test-runner verifier and a human reviewer can legitimately be evaluated on pass@k. An agent that processes insurance claims unattended must be evaluated on pass^k, because users experience every run, not the best run.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="why-statistics-matter-so-much-for-agents-611" class="doc-heading doc-h2"><a href="#why-statistics-matter-so-much-for-agents-611" class="heading-anchor">#</a> Why Statistics Matter So Much for Agents</h2>
 <p class="doc-paragraph">Agent evals combine two sources of variance: <strong>task sampling</strong> (your dataset is a sample of possible tasks) and <strong>trial sampling</strong> (each task's outcome is random). Small suites plus single trials produce error bars far wider than the differences teams argue about.</p>
 <p class="doc-paragraph">For a binary success metric over <code>N</code> independent tasks with observed rate <code>p_hat</code>, the standard error is <code>sqrt(p_hat(1-p_hat)/N)</code>. With <code>N = 100</code>, <code>p_hat = 0.6</code>: SE is about 0.049, so a 95% interval is roughly plus or minus 9.6 points. A &quot;3-point improvement&quot; on a 100-task suite is noise.</p>
@@ -1307,6 +1365,8 @@ def paired_bootstrap_diff(a: list[float], b: list[float], iters=10_000, seed=0):
     boots = d[idx].mean(axis=1)
     p_two_sided = 2 * min((boots &lt;= 0).mean(), (boots &gt;= 0).mean())
     return d.mean(), np.quantile(boots, [0.025, 0.975]), p_two_sided</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="paired-comparisons-640" class="doc-heading doc-h2"><a href="#paired-comparisons-640" class="heading-anchor">#</a> Paired Comparisons</h2>
 <p class="doc-paragraph">When comparing version A vs B, run both on the <strong>same tasks</strong> and analyze per-task differences. Pairing removes between-task variance (some tasks are just hard), dramatically tightening intervals.</p>
 <ul class="doc-list">
@@ -1314,6 +1374,8 @@ def paired_bootstrap_diff(a: list[float], b: list[float], iters=10_000, seed=0):
 <li>Multiple trials per task: paired bootstrap on per-task means, or a mixed-effects logistic regression with a random intercept per task.</li>
 <li>Many comparisons (many criteria, many strata): correct for multiple testing (Holm-Bonferroni) or you will &quot;find&quot; regressions that are noise.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="power-and-sample-size-648" class="doc-heading doc-h2"><a href="#power-and-sample-size-648" class="heading-anchor">#</a> Power and Sample Size</h2>
 <p class="doc-paragraph">Before running an expensive eval, decide the <strong>minimum detectable effect</strong> (MDE). For a paired binary comparison, the number of tasks needed scales roughly with <code>(z_alpha + z_beta)^2 * variance_of_difference / MDE^2</code>. Rules of thumb for independent proportions near 0.5 at 95% confidence and 80% power: detecting a 10-point difference needs about 400 tasks per arm; a 5-point difference needs about 1,500. Pairing and multiple trials reduce this considerably, which is why you should always pair.</p>
 <div class="callout callout-tip">
@@ -1328,6 +1390,8 @@ def paired_bootstrap_diff(a: list[float], b: list[float], iters=10_000, seed=0):
 <p>Temperature 0 does not make evals deterministic and does not remove the need for multiple trials. Providers' inference stacks are nondeterministic across batches, and reasoning models often do not allow temperature control at all. Lowering temperature in eval but not in production also means you are measuring a different system than you ship.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="beyond-success-the-metric-set-658" class="doc-heading doc-h2"><a href="#beyond-success-the-metric-set-658" class="heading-anchor">#</a> Beyond Success: The Metric Set</h2>
 <p class="doc-paragraph">A production agent scorecard typically includes:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -1371,6 +1435,7 @@ def paired_bootstrap_diff(a: list[float], b: list[float], iters=10_000, seed=0):
 <p>&quot;Cost per successful task&quot; is the efficiency metric that matters, not cost per run. A cheaper model that fails twice as often and triggers retries or human escalations is more expensive. Compute it as total spend (including retries and escalation cost) divided by successes.</p>
 </div>
 </div>
+</section>
 
 
             <div class="doc-footer">
@@ -1404,8 +1469,6 @@ def paired_bootstrap_diff(a: list[float], b: list[float], iters=10_000, seed=0):
 <li class="toc-level-2"><a href="#pointwise-vs-pairwise-471">Pointwise vs Pairwise</a></li>
 <li class="toc-level-2"><a href="#known-judge-biases-483">Known Judge Biases</a></li>
 <li class="toc-level-2"><a href="#calibrating-judges-against-human-labels-499">Calibrating Judges Against Human Labels</a></li>
-<li class="toc-level-3"><a href="#cohens-kappa-from-first-principles-512">Cohen's Kappa from First Principles</a></li>
-<li class="toc-level-3"><a href="#correcting-aggregate-metrics-for-judge-error-553">Correcting Aggregate Metrics for Judge Error</a></li>
 <li class="toc-level-2"><a href="#judge-ensembles-and-cost-557">Judge Ensembles and Cost</a></li>
 <li class="toc-level-1"><a href="#part-5-metrics-and-statistics-passk-passk-and-significance-567">Part 5: Metrics and Statistics — pass@k, pass^k, and Significance</a></li>
 <li class="toc-level-2"><a href="#passk-vs-passk-569">pass@k vs pass^k</a></li>
@@ -1418,30 +1481,65 @@ def paired_bootstrap_diff(a: list[float], b: list[float], iters=10_000, seed=0):
         </aside>
     </main>
 
-    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <!-- KaTeX Scripts (deferred, lazy per-element rendering) -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-    <!-- Prism Syntax Highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <!-- Prism Syntax Highlighting (deferred + manual lazy highlighting) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Render Math with KaTeX
-            if (typeof renderMathInElement !== 'undefined') {
-                renderMathInElement(document.body, {
-                    delimiters: [
-                        {left: '', right: '', display: true},
-                        {left: '$', right: '$', display: false},
-                        {left: '\\(', right: '\\)', display: false},
-                        {left: '\\[', right: '\\]', display: true}
-                    ],
-                    throwOnError: false,
-                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+            const katexOpts = {
+                delimiters: [
+                    {left: '', right: '', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            };
+
+            function renderMathEl(el) {
+                if (el.dataset.mathDone || typeof renderMathInElement === 'undefined') return;
+                el.dataset.mathDone = '1';
+                renderMathInElement(el, katexOpts);
+            }
+
+            function highlightCodeEl(el) {
+                if (el.dataset.prismDone || typeof Prism === 'undefined') return;
+                if (el.classList.contains('language-text')) return;
+                el.dataset.prismDone = '1';
+                Prism.highlightElement(el);
+            }
+
+            const mathEls = document.querySelectorAll('.math-block, .math-display, .math-inline');
+            const codeEls = document.querySelectorAll('pre code[class*="language-"]');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) return;
+                        const el = entry.target;
+                        if (el.tagName === 'CODE') {
+                            highlightCodeEl(el);
+                        } else {
+                            renderMathEl(el);
+                        }
+                        obs.unobserve(el);
+                    });
+                }, { rootMargin: '500px 0px' });
+
+                mathEls.forEach(el => observer.observe(el));
+                codeEls.forEach(el => {
+                    if (!el.classList.contains('language-text')) observer.observe(el);
                 });
+            } else {
+                mathEls.forEach(renderMathEl);
+                codeEls.forEach(highlightCodeEl);
             }
         });
 

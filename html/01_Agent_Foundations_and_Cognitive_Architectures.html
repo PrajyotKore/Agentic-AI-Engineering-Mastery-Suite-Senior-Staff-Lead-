@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>01: Foundations &amp; Cognitive Architectures | Agentic AI Study Suite</title>
-    <!-- Fonts -->
+    <!-- Fonts (lean weights, non-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- KaTeX CSS for LaTeX Math Formulas -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- Prism Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" media="print" onload="this.media='all'">
+    <!-- Prism Syntax Highlighting (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" media="print" onload="this.media='all'">
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -77,6 +77,12 @@
             display: flex;
             flex-direction: column;
             z-index: 100;
+            contain: layout style paint;
+        }
+        /* Virtualize off-screen sections for 60fps scrolling */
+        .doc-section {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 500px;
         }
         .sidebar-header {
             padding: 20px 18px;
@@ -189,6 +195,7 @@
             border-left: 1px solid var(--border);
             padding-left: 16px;
             display: none;
+            contain: layout style paint;
         }
         @media (min-width: 1240px) {
             aside.toc-rail { display: block; }
@@ -453,7 +460,10 @@
                 <h1 class="doc-title">01: Foundations &amp; Cognitive Architectures</h1>
             </div>
 
-            <h1 id="1-what-makes-a-system-agentic-2" class="doc-heading doc-h1"><a href="#1-what-makes-a-system-agentic-2" class="heading-anchor">#</a> 1. What Makes a System Agentic</h1>
+            <section class="doc-section">
+<h1 id="1-what-makes-a-system-agentic-2" class="doc-heading doc-h1"><a href="#1-what-makes-a-system-agentic-2" class="heading-anchor">#</a> 1. What Makes a System Agentic</h1>
+</section>
+<section class="doc-section">
 <h2 id="11-a-first-principles-definition-4" class="doc-heading doc-h2"><a href="#11-a-first-principles-definition-4" class="heading-anchor">#</a> 1.1 A First-Principles Definition</h2>
 <p class="doc-paragraph">An <strong>agent</strong> is a system in which a language model <em>decides the control flow</em> of a program at runtime: which action to take next, which tool to call, with which arguments, and when to stop. Everything else (memory, tools, planning, reflection) is an elaboration of that one property. A program where the developer hard-codes the sequence of LLM calls is a <strong>workflow</strong>, however sophisticated its prompts are.</p>
 <p class="doc-paragraph">This framing comes directly from Anthropic's <em>Building Effective Agents</em> (December 2024), which remains the most widely cited taxonomy in industry:</p>
@@ -463,6 +473,8 @@
 </ul>
 <p class="doc-paragraph">Both are &quot;agentic systems&quot;. The distinction matters because it determines how you test, observe, bound cost and reason about failure. A workflow has an enumerable set of execution paths; an agent has an unbounded one.</p>
 <p class="doc-paragraph">A useful formalism: treat the agent as a policy <code>π(a_t | s_t)</code> where the state <code>s_t</code> is the context window (system prompt + history + tool results) and the action <code>a_t</code> is either a tool call, a message to the user, or a terminate signal. The environment executes the action and returns an observation <code>o_t</code>, and <code>s_{t+1} = f(s_t, a_t, o_t)</code>. The function <code>f</code> is <strong>context engineering</strong>: what you keep, summarise, drop or retrieve. Most production quality problems live in <code>f</code>, not in <code>π</code>.</p>
+</section>
+<section class="doc-section">
 <h2 id="12-the-autonomy-spectrum-17" class="doc-heading doc-h2"><a href="#12-the-autonomy-spectrum-17" class="heading-anchor">#</a> 1.2 The Autonomy Spectrum</h2>
 <p class="doc-paragraph">Agency is not binary. Think of it as a ladder where each rung hands one more decision to the model.</p>
 <div class="table-responsive"><table class="doc-table">
@@ -528,6 +540,8 @@
 <p>Staff-level framing for design reviews: &quot;What is the lowest rung on the autonomy ladder that solves this problem?&quot; Every rung up buys flexibility at the cost of testability, latency and spend. Anthropic's own guidance is to start with the simplest solution and add agency only when it demonstrably improves outcomes on your eval set.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="13-workflows-vs-agents-when-to-choose-which-38" class="doc-heading doc-h2"><a href="#13-workflows-vs-agents-when-to-choose-which-38" class="heading-anchor">#</a> 1.3 Workflows vs Agents: When to Choose Which</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -579,6 +593,8 @@
 <p>&quot;Agent-washing&quot; a deterministic process is a common and expensive mistake. If your agent calls the same five tools in the same order 98% of the time (check your traces), you are paying for a model to rediscover a fixed workflow on every request, with added nondeterminism. Compile it into a workflow and keep an agentic fallback for the remaining 2%.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="14-the-building-blocks-the-augmented-llm-55" class="doc-heading doc-h2"><a href="#14-the-building-blocks-the-augmented-llm-55" class="heading-anchor">#</a> 1.4 The Building Blocks: The Augmented LLM</h2>
 <p class="doc-paragraph">Anthropic's taxonomy starts with the <strong>augmented LLM</strong>: a model with access to retrieval, tools and memory. Every pattern in this document composes augmented LLM calls.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                +----------------------------------+
@@ -591,7 +607,11 @@
                 |         +--------------+         |
                 +----------------------------------+</code></pre></div>
 <p class="doc-paragraph">In 2026 the tool interface is largely standardised by the <strong>Model Context Protocol (MCP)</strong>, which exposes tools, resources and prompts from servers to any compliant client; agent-to-agent delegation across organisational boundaries increasingly uses <strong>A2A</strong> (Agent2Agent, now under the Linux Foundation). Those protocols are covered in a later part of this suite; here the important point is that the <em>cognitive architecture</em> (how the model decides) is independent of the <em>transport</em> (how tools are reached).</p>
+</section>
+<section class="doc-section">
 <h1 id="2-the-agent-loop-73" class="doc-heading doc-h1"><a href="#2-the-agent-loop-73" class="heading-anchor">#</a> 2. The Agent Loop</h1>
+</section>
+<section class="doc-section">
 <h2 id="21-mechanics-75" class="doc-heading doc-h2"><a href="#21-mechanics-75" class="heading-anchor">#</a> 2.1 Mechanics</h2>
 <p class="doc-paragraph">Every tool-using agent, whatever the framework, reduces to this loop:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">messages = [system, user_goal]
@@ -606,6 +626,8 @@ loop:
         return response.final_text                # model chose to stop
     enforce_budgets()                             # steps, tokens, wall-clock, $ </code></pre></div>
 <p class="doc-paragraph">The model &quot;stops&quot; by emitting a turn with no tool calls (in Anthropic's Messages API, <code>stop_reason == &quot;end_turn&quot;</code> vs <code>&quot;tool_use&quot;</code>; in OpenAI's APIs, absence of function calls in the output). Frameworks such as the <strong>OpenAI Agents SDK</strong> (<code>Runner.run</code>), <strong>Claude Agent SDK</strong> (the harness behind Claude Code), <strong>Google ADK</strong> (<code>LlmAgent</code> executed by a <code>Runner</code>), <strong>LangGraph</strong> (<code>create_react_agent</code> or a hand-built graph) and <strong>CrewAI/AG2</strong> all wrap exactly this loop, adding tracing, guardrails, handoffs and persistence.</p>
+</section>
+<section class="doc-section">
 <h2 id="22-a-minimal-production-shaped-implementation-95" class="doc-heading doc-h2"><a href="#22-a-minimal-production-shaped-implementation-95" class="heading-anchor">#</a> 2.2 A Minimal, Production-Shaped Implementation</h2>
 <p class="doc-paragraph">The following uses the Anthropic Python SDK's Messages API, which is stable and well documented. Note the explicit budgets and error-as-observation handling.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">import json, time
@@ -660,6 +682,8 @@ def run_agent(goal: str, max_steps=12, max_seconds=90, max_output_tokens_total=2
         if time.monotonic() - started &gt; max_seconds or out_tokens &gt; max_output_tokens_total:
             return {&quot;status&quot;: &quot;budget_exceeded&quot;, &quot;steps&quot;: step + 1, &quot;messages&quot;: messages}
     return {&quot;status&quot;: &quot;max_steps&quot;, &quot;messages&quot;: messages}</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="23-anatomy-of-one-iteration-where-time-and-money-go-154" class="doc-heading doc-h2"><a href="#23-anatomy-of-one-iteration-where-time-and-money-go-154" class="heading-anchor">#</a> 2.3 Anatomy of One Iteration: Where Time and Money Go</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text"> t0 ----- prefill (input tokens, cache-able) ----- t1 -- decode (output tokens) -- t2 -- tool exec -- t3
           cost ~ input_tokens * p_in                     cost ~ out * p_out             latency of tool
@@ -676,6 +700,8 @@ def run_agent(goal: str, max_steps=12, max_seconds=90, max_output_tokens_total=2
 <p>Inserting a timestamp, a request ID, or a re-ordered tool list near the <em>top</em> of the prompt invalidates the cache for everything after it on every call. A single <code>Current time: 20:24:41</code> in the system prompt can multiply your input bill by 5-10x on long loops. Put volatile data at the end, in the latest user turn.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="24-tool-results-as-the-primary-context-pollutant-171" class="doc-heading doc-h2"><a href="#24-tool-results-as-the-primary-context-pollutant-171" class="heading-anchor">#</a> 2.4 Tool Results as the Primary Context Pollutant</h2>
 <p class="doc-paragraph">In real traces, tool outputs typically account for 60-90% of context tokens. A web page, a log file or a SQL result set is far larger than the model's reasoning. Design tools to return <strong>decision-relevant, bounded</strong> output:</p>
 <ul class="doc-list">
@@ -690,10 +716,16 @@ def run_agent(goal: str, max_steps=12, max_seconds=90, max_output_tokens_total=2
 <p>Treat tool design as <strong>agent-computer interface (ACI)</strong> design, a term Anthropic uses deliberately by analogy with HCI. Teams routinely get larger gains from rewriting tool names, descriptions and output shapes than from changing models. Poka-yoke your tools: make wrong usage hard (e.g., require absolute paths, enums instead of free strings).</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="3-reasoning-and-acting-architectures-183" class="doc-heading doc-h1"><a href="#3-reasoning-and-acting-architectures-183" class="heading-anchor">#</a> 3. Reasoning-and-Acting Architectures</h1>
 <p class="doc-paragraph">This section covers the canonical cognitive architectures from the research literature, what each actually changes in the loop, and where each earns its keep in production. Many were invented for 2022-2023 models that could not reliably reason without scaffolding; reasoning models have absorbed some of their benefits, and knowing <em>which</em> is a staff-level skill.</p>
+</section>
+<section class="doc-section">
 <h2 id="31-chain-of-thought-background-187" class="doc-heading doc-h2"><a href="#31-chain-of-thought-background-187" class="heading-anchor">#</a> 3.1 Chain-of-Thought (Background)</h2>
 <p class="doc-paragraph">Chain-of-Thought (Wei et al., 2022) showed that eliciting intermediate reasoning tokens improves multi-step problem solving. Mechanically, CoT gives the transformer more serial computation: each generated token is another forward pass that can condition on prior intermediate results. Every architecture below is a way to structure, branch, verify or ground that serial computation.</p>
+</section>
+<section class="doc-section">
 <h2 id="32-react-reason-act-191" class="doc-heading doc-h2"><a href="#32-react-reason-act-191" class="heading-anchor">#</a> 3.2 ReAct (Reason + Act)</h2>
 <p class="doc-paragraph"><strong>Paper</strong>: Yao et al., 2022, <em>ReAct: Synergizing Reasoning and Acting in Language Models</em>.</p>
 <p class="doc-paragraph"><strong>Mechanics</strong>: interleave <code>Thought -&gt; Action -&gt; Observation</code> steps. The thought lets the model plan and track progress; the action grounds it in external information; the observation corrects hallucination.</p>
@@ -714,6 +746,8 @@ Final Answer: ...</code></pre></div>
 <p>Classic ReAct failure: <strong>repetition loops</strong>. The model calls <code>search(&quot;X&quot;)</code>, gets an unhelpful result, reasons &quot;let me search for X&quot;, and calls the same thing again. Mitigate with (1) duplicate-call detection that injects &quot;You already called this with identical arguments; result was ...&quot;, (2) step caps, (3) tool outputs that suggest alternatives on empty results.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="33-plan-and-execute-217" class="doc-heading doc-h2"><a href="#33-plan-and-execute-217" class="heading-anchor">#</a> 3.3 Plan-and-Execute</h2>
 <p class="doc-paragraph"><strong>Mechanics</strong>: separate a <strong>planner</strong> (one call producing a multi-step plan) from an <strong>executor</strong> (which carries out each step, often with a cheaper model or a small ReAct loop), plus an optional <strong>replanner</strong> that revises the remaining plan after each step or on failure. Popularised by BabyAGI-style systems and the <em>Plan-and-Solve</em> prompting paper (Wang et al., 2023), and by LangGraph's plan-and-execute tutorials.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">           +---------+   plan[1..n]   +-----------+  result_i  +-----------+
@@ -765,6 +799,8 @@ def plan_and_execute(goal, llm_big, llm_small, max_replans=3):
 <p>Show the plan to the user <em>before</em> executing irreversible steps. Plan approval is a far better HITL checkpoint than approving each tool call: humans can evaluate intent at plan level, while per-call approval produces rubber-stamping fatigue within minutes.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="34-rewoo-reasoning-without-observation-275" class="doc-heading doc-h2"><a href="#34-rewoo-reasoning-without-observation-275" class="heading-anchor">#</a> 3.4 ReWOO (Reasoning WithOut Observation)</h2>
 <p class="doc-paragraph"><strong>Paper</strong>: Xu et al., 2023.</p>
 <p class="doc-paragraph"><strong>Mechanics</strong>: the planner writes the <em>entire</em> plan up front, including tool calls with <strong>variable placeholders</strong> referencing earlier results (<code>#E1</code>, <code>#E2</code>). A <strong>worker</strong> executes tool calls without any LLM involvement, substituting variables. A <strong>solver</strong> LLM gets the plan plus all evidence and writes the answer. Exactly two LLM calls regardless of number of tools.</p>
@@ -776,6 +812,8 @@ Plan: Extract the company name, then find its CEO.
 Solver: given #E1..#E3, answer.</code></pre></div>
 <p class="doc-paragraph"><strong>Strengths</strong>: token-efficient (the paper reported roughly 5x fewer tokens than ReAct on HotpotQA); no observation re-prompting; tool calls can be batched.</p>
 <p class="doc-paragraph"><strong>Weaknesses</strong>: brittle when an early result invalidates the plan; no adaptivity mid-execution.</p>
+</section>
+<section class="doc-section">
 <h2 id="35-llm-compiler-294" class="doc-heading doc-h2"><a href="#35-llm-compiler-294" class="heading-anchor">#</a> 3.5 LLM Compiler</h2>
 <p class="doc-paragraph"><strong>Paper</strong>: Kim et al., 2023, <em>An LLM Compiler for Parallel Function Calling</em>.</p>
 <p class="doc-paragraph"><strong>Mechanics</strong>: generalises ReWOO into a <strong>DAG</strong> of tool calls. Three components: a <strong>Function Calling Planner</strong> that streams a task DAG with dependencies; a <strong>Task Fetching Unit</strong> that dispatches tasks as soon as their dependencies resolve (like an out-of-order CPU); an <strong>Executor</strong>. A <strong>Joiner</strong> decides whether to answer or replan.</p>
@@ -784,6 +822,8 @@ scheduler:         [1]---+
                    [2]---+--&gt; [3] --&gt; joiner --&gt; answer | replan</code></pre></div>
 <p class="doc-paragraph">Reported results: up to ~3.7x latency speedup and lower cost vs ReAct on parallelisable tasks.</p>
 <p class="doc-paragraph"><strong>Today</strong>: native <em>parallel tool calling</em> (multiple tool calls in one model turn, supported by OpenAI, Anthropic and Gemini) captures much of the benefit for flat fan-out. LLM Compiler remains valuable when there are <em>dependent</em> chains of tool calls that can be planned in advance and executed without round-tripping to the model.</p>
+</section>
+<section class="doc-section">
 <h2 id="36-comparison-react-vs-plan-and-execute-vs-rewoo-vs-llm-compiler-310" class="doc-heading doc-h2"><a href="#36-comparison-react-vs-plan-and-execute-vs-rewoo-vs-llm-compiler-310" class="heading-anchor">#</a> 3.6 Comparison: ReAct vs Plan-and-Execute vs ReWOO vs LLM Compiler</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -844,6 +884,8 @@ scheduler:         [1]---+
 <td>Planner DAG errors</td>
 </tr>
 </tbody></table></div>
+</section>
+<section class="doc-section">
 <h2 id="37-self-refine-322" class="doc-heading doc-h2"><a href="#37-self-refine-322" class="heading-anchor">#</a> 3.7 Self-Refine</h2>
 <p class="doc-paragraph"><strong>Paper</strong>: Madaan et al., 2023.</p>
 <p class="doc-paragraph"><strong>Mechanics</strong>: the same model generates output, critiques it with feedback, then refines using the feedback, iterating until a stop condition. No training, no external signal.</p>
@@ -863,6 +905,8 @@ scheduler:         [1]---+
 <p>Research (e.g., Huang et al., 2023, <em>Large Language Models Cannot Self-Correct Reasoning Yet</em>) showed that <strong>intrinsic</strong> self-correction without external feedback often fails to improve, and can degrade, reasoning accuracy: the model &quot;corrects&quot; right answers into wrong ones. Self-refinement works reliably for <em>style, format and completeness</em> criteria, and for reasoning only when grounded in an external signal (tests, compilers, validators, retrieval).</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="38-reflexion-344" class="doc-heading doc-h2"><a href="#38-reflexion-344" class="heading-anchor">#</a> 3.8 Reflexion</h2>
 <p class="doc-paragraph"><strong>Paper</strong>: Shinn et al., 2023, <em>Reflexion: Language Agents with Verbal Reinforcement Learning</em>.</p>
 <p class="doc-paragraph"><strong>Mechanics</strong>: across <em>trials</em>, an agent attempts a task, an <strong>evaluator</strong> (unit tests, exact-match, heuristic or LLM judge) scores it, and a <strong>self-reflection</strong> model writes a natural-language lesson (&quot;I failed because I assumed the list was sorted; next time check&quot;). Lessons are stored in <strong>episodic memory</strong> and prepended to the next trial. This is &quot;RL&quot; with the gradient replaced by text in the context window.</p>
@@ -876,6 +920,8 @@ trial 2 (memory: [reflection_1]) -&gt; evaluator: PASS</code></pre></div>
 <p>Reflexion-style memory across <em>sessions</em> is powerful but dangerous: a wrong lesson persists and poisons future runs. Version lessons, attach provenance (which trial, which evaluator), expire them, and evaluate with and without memory to detect drift.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="39-tree-of-thoughts-tot-362" class="doc-heading doc-h2"><a href="#39-tree-of-thoughts-tot-362" class="heading-anchor">#</a> 3.9 Tree-of-Thoughts (ToT)</h2>
 <p class="doc-paragraph"><strong>Paper</strong>: Yao et al., 2023.</p>
 <p class="doc-paragraph"><strong>Mechanics</strong>: treat reasoning as search over a tree whose nodes are partial solutions (&quot;thoughts&quot;). At each node: <strong>generate</strong> k candidate next thoughts; <strong>evaluate</strong> each (LLM value estimate: &quot;sure/likely/impossible&quot;, or a vote); <strong>search</strong> with BFS (keep top-b per level, beam search) or DFS with backtracking.</p>
@@ -900,6 +946,8 @@ trial 2 (memory: [reflection_1]) -&gt; evaluator: PASS</code></pre></div>
     return llm(f&quot;{problem}\nBest reasoning:{frontier[0]}\nFinal answer:&quot;)</code></pre></div>
 <p class="doc-paragraph">Cost: roughly <code>depth × beam × k × 2</code> calls. On Game of 24, the paper reported GPT-4 success going from 4% (CoT) to 74% (ToT).</p>
 <p class="doc-paragraph"><strong>Today</strong>: reasoning models internalise much of this search in their hidden chain of thought (they backtrack, verify and try alternatives), so explicit ToT over a reasoning model rarely pays off for pure reasoning tasks. Explicit search remains valuable when <strong>evaluation is external</strong> (a compiler, a simulator, a proof checker, a test suite) or when you need <strong>diversity</strong> across candidates.</p>
+</section>
+<section class="doc-section">
 <h2 id="310-graph-of-thoughts-got-397" class="doc-heading doc-h2"><a href="#310-graph-of-thoughts-got-397" class="heading-anchor">#</a> 3.10 Graph-of-Thoughts (GoT)</h2>
 <p class="doc-paragraph"><strong>Paper</strong>: Besta et al., 2023.</p>
 <p class="doc-paragraph"><strong>Mechanics</strong>: generalises ToT from a tree to an arbitrary graph. Thoughts can be <strong>aggregated</strong> (merge several partial solutions into one), <strong>refined</strong> (self-loops) and <strong>generated</strong>. This models divide-and-conquer: e.g., sort subarrays independently, then merge them; summarise document chunks, then merge summaries.</p>
@@ -907,6 +955,8 @@ trial 2 (memory: [reflection_1]) -&gt; evaluator: PASS</code></pre></div>
  chunk2 -&gt; summary2  &gt;-- aggregate --&gt; refine --&gt; final
  chunk3 -&gt; summary3 /</code></pre></div>
 <p class="doc-paragraph">In practice, GoT's practical descendant is the <strong>map-reduce / orchestrator-workers</strong> pattern with explicit merge steps, which you will implement as a graph in LangGraph or as fan-out/fan-in in Temporal far more often than via the GoT framework itself.</p>
+</section>
+<section class="doc-section">
 <h2 id="311-lats-language-agent-tree-search-411" class="doc-heading doc-h2"><a href="#311-lats-language-agent-tree-search-411" class="heading-anchor">#</a> 3.11 LATS (Language Agent Tree Search)</h2>
 <p class="doc-paragraph"><strong>Paper</strong>: Zhou et al., 2023, <em>Language Agent Tree Search Unifies Reasoning, Acting, and Planning</em>.</p>
 <p class="doc-paragraph"><strong>Mechanics</strong>: combines ReAct (acting in an environment), ToT (search), Reflexion (self-reflection on failures) and <strong>Monte Carlo Tree Search</strong>. Each node is an agent state (trajectory so far). The algorithm loops:</p>
@@ -925,6 +975,8 @@ trial 2 (memory: [reflection_1]) -&gt; evaluator: PASS</code></pre></div>
 <p>LATS and other environment-level search require the ability to <strong>reset or fork environment state</strong>. That is trivial for pure functions and code-in-sandbox, but impossible for real side effects (you cannot &quot;un-send&quot; an email to explore a sibling branch). Only apply tree search over actions that are side-effect-free, or over a simulated/sandboxed copy of the environment (snapshotted containers, database transactions rolled back, browser contexts cloned).</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="312-comparison-of-search-and-reflection-architectures-429" class="doc-heading doc-h2"><a href="#312-comparison-of-search-and-reflection-architectures-429" class="heading-anchor">#</a> 3.12 Comparison of Search and Reflection Architectures</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -991,6 +1043,8 @@ trial 2 (memory: [reflection_1]) -&gt; evaluator: PASS</code></pre></div>
 <p>The most important staff-level heuristic about search architectures: <strong>search is only as good as the verifier</strong>. If you have a cheap, reliable verifier (tests, type checker, schema validator, exact-match, solver), best-of-N or tree search converts compute into accuracy almost linearly in log(N). If your only verifier is the same LLM judging itself, gains plateau quickly and can reverse. Invest in verifiers before search.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="313-best-of-n-and-self-consistency-the-underrated-baseline-444" class="doc-heading doc-h2"><a href="#313-best-of-n-and-self-consistency-the-underrated-baseline-444" class="heading-anchor">#</a> 3.13 Best-of-N and Self-Consistency: The Underrated Baseline</h2>
 <p class="doc-paragraph">Before building elaborate trees, try sampling N independent full solutions in parallel and choosing via majority vote (self-consistency, Wang et al., 2022) or a verifier. It is embarrassingly parallel, so wall-clock latency barely increases, and it is often within a few points of complex search at a fraction of the engineering cost.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">import asyncio, collections
@@ -1002,8 +1056,12 @@ async def best_of_n(prompt, llm, n=5, verifier=None):
         return max(scored, key=lambda x: x[0])[1]
     answers = [extract_final(o) for o in outs]
     return collections.Counter(answers).most_common(1)[0][0]</code></pre></div>
+</section>
+<section class="doc-section">
 <h1 id="4-composable-workflow-patterns-461" class="doc-heading doc-h1"><a href="#4-composable-workflow-patterns-461" class="heading-anchor">#</a> 4. Composable Workflow Patterns</h1>
 <p class="doc-paragraph">Anthropic's <em>Building Effective Agents</em> identifies five workflow patterns that, combined with the autonomous agent loop, cover the vast majority of production systems. They are composable: an orchestrator's worker can itself be an evaluator-optimizer loop containing a router.</p>
+</section>
+<section class="doc-section">
 <h2 id="41-prompt-chaining-465" class="doc-heading doc-h2"><a href="#41-prompt-chaining-465" class="heading-anchor">#</a> 4.1 Prompt Chaining</h2>
 <p class="doc-paragraph"><strong>Mechanics</strong>: decompose a task into a fixed sequence of LLM calls, each consuming the previous output. Insert programmatic <strong>gates</strong> (validation checks) between steps.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">input -&gt; [LLM: outline] -&gt; gate(outline valid?) -&gt; [LLM: draft] -&gt; [LLM: translate] -&gt; output
@@ -1019,6 +1077,8 @@ async def best_of_n(prompt, llm, n=5, verifier=None):
         draft = llm(f&quot;Remove unverifiable claims:\n{draft}&quot;)
     return llm(f&quot;Translate to German, keep formatting:\n{draft}&quot;)</code></pre></div>
 <p class="doc-paragraph"><strong>Why it works</strong>: each call has a narrower job, so it is easier to prompt, test and swap models per step. You trade latency for accuracy.</p>
+</section>
+<section class="doc-section">
 <h2 id="42-routing-489" class="doc-heading doc-h2"><a href="#42-routing-489" class="heading-anchor">#</a> 4.2 Routing</h2>
 <p class="doc-paragraph"><strong>Mechanics</strong>: classify the input and dispatch to a specialised downstream prompt, tool set or model. Separation of concerns: optimising one route does not regress others.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">from typing import Literal
@@ -1042,6 +1102,8 @@ def route(query: str):
 <p>Routers fail silently. A misrouted query gets a confident answer from the wrong specialist. Log router decisions with confidence, sample misroutes into your eval set weekly, and always include an <code>other</code>/fallback class. Routers trained or prompted months ago drift as product surface grows.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="43-parallelization-515" class="doc-heading doc-h2"><a href="#43-parallelization-515" class="heading-anchor">#</a> 4.3 Parallelization</h2>
 <p class="doc-paragraph">Two variants:</p>
 <ul class="doc-list">
@@ -1057,6 +1119,8 @@ def route(query: str):
         return REFUSAL
     return await answer_t</code></pre></div>
 <p class="doc-paragraph">The OpenAI Agents SDK's <strong>input guardrails</strong> follow this pattern: they run concurrently with the agent and raise a tripwire exception that halts the run if violated.</p>
+</section>
+<section class="doc-section">
 <h2 id="44-orchestrator-workers-535" class="doc-heading doc-h2"><a href="#44-orchestrator-workers-535" class="heading-anchor">#</a> 4.4 Orchestrator-Workers</h2>
 <p class="doc-paragraph"><strong>Mechanics</strong>: a central LLM dynamically decomposes the task, delegates subtasks to worker LLMs (often with their own tools and fresh contexts), and synthesises results. Unlike parallelization, subtasks are <em>not predefined</em>; the orchestrator decides them per input.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                 +--------------+
@@ -1074,6 +1138,8 @@ def route(query: str):
 <p>Use orchestrator-workers when work is <strong>breadth-first and parallelisable</strong> with low inter-worker dependency (research, codebase-wide analysis, many-file migrations). Avoid it for tightly coupled tasks (most single-feature coding), where workers need each other's evolving context and coordination costs dominate. Cognition's widely discussed &quot;Don't Build Multi-Agents&quot; essay makes the counterpoint: share full traces, and prefer a single-threaded agent when decisions are interdependent.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="45-evaluator-optimizer-556" class="doc-heading doc-h2"><a href="#45-evaluator-optimizer-556" class="heading-anchor">#</a> 4.5 Evaluator-Optimizer</h2>
 <p class="doc-paragraph"><strong>Mechanics</strong>: one LLM generates; another evaluates against explicit criteria and returns feedback; loop until accepted or budget exhausted. This is Self-Refine with a separated (often differently prompted or different-model) critic, ideally augmented with deterministic checks.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">class Verdict(BaseModel):
@@ -1094,6 +1160,8 @@ def evaluator_optimizer(task, gen, judge, max_rounds=4, threshold=8):
         out = gen(task, previous=out, feedback=v.issues + checks.errors)
     return best_by_score(history), history</code></pre></div>
 <p class="doc-paragraph"><strong>When it fits</strong>: clear evaluation criteria exist, and iterative refinement measurably helps (literary translation, code that must pass tests, SQL that must execute, documents with compliance rubrics).</p>
+</section>
+<section class="doc-section">
 <h2 id="46-pattern-selection-matrix-582" class="doc-heading doc-h2"><a href="#46-pattern-selection-matrix-582" class="heading-anchor">#</a> 4.6 Pattern Selection Matrix</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1147,7 +1215,11 @@ def evaluator_optimizer(task, gen, judge, max_rounds=4, threshold=8):
 <td>Open-ended, many steps, environment feedback</td>
 </tr>
 </tbody></table></div>
+</section>
+<section class="doc-section">
 <h1 id="5-state-machine-and-graph-based-control-593" class="doc-heading doc-h1"><a href="#5-state-machine-and-graph-based-control-593" class="heading-anchor">#</a> 5. State-Machine and Graph-Based Control</h1>
+</section>
+<section class="doc-section">
 <h2 id="51-why-graphs-595" class="doc-heading doc-h2"><a href="#51-why-graphs-595" class="heading-anchor">#</a> 5.1 Why Graphs</h2>
 <p class="doc-paragraph">Once an agentic system has more than one loop, conditional branches, human approvals and retries, ad-hoc <code>while</code> loops become unmaintainable. The industry converged on modelling agents as <strong>explicit state machines / graphs</strong>:</p>
 <ul class="doc-list">
@@ -1157,6 +1229,8 @@ def evaluator_optimizer(task, gen, judge, max_rounds=4, threshold=8):
 <li><strong>Checkpoints</strong> persist state after each step, enabling resume, time-travel debugging and human-in-the-loop interrupts.</li>
 </ul>
 <p class="doc-paragraph">LangGraph is the most prominent library built on this model (inspired by Pregel/BSP: nodes run in &quot;super-steps&quot;, writing to state channels with reducer functions). Google ADK offers <code>SequentialAgent</code>, <code>ParallelAgent</code> and <code>LoopAgent</code> workflow agents composed with <code>LlmAgent</code>s. The OpenAI Agents SDK takes a lighter approach (agents plus <strong>handoffs</strong> plus agents-as-tools) with control flow emerging from the model; you write graph logic in plain Python around it. Temporal provides durable execution for the same structures at the infrastructure level.</p>
+</section>
+<section class="doc-section">
 <h2 id="52-a-langgraph-example-606" class="doc-heading doc-h2"><a href="#52-a-langgraph-example-606" class="heading-anchor">#</a> 5.2 A LangGraph Example</h2>
 <p class="doc-paragraph">The following uses LangGraph's <code>StateGraph</code> API (stable since 1.0). It implements a ReAct agent with a human-approval gate before sensitive tools.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">from typing import Annotated, TypedDict
@@ -1209,6 +1283,8 @@ app = g.compile(checkpointer=InMemorySaver())
 config = {&quot;configurable&quot;: {&quot;thread_id&quot;: &quot;ticket-123&quot;}}
 app.invoke({&quot;messages&quot;: [(&quot;user&quot;, &quot;Refund order O-9&quot;)], &quot;steps&quot;: 0}, config)
 # ...later, after human review: app.invoke(Command(resume=&quot;approve&quot;), config)</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="53-explicit-fsm-without-a-framework-663" class="doc-heading doc-h2"><a href="#53-explicit-fsm-without-a-framework-663" class="heading-anchor">#</a> 5.3 Explicit FSM Without a Framework</h2>
 <p class="doc-paragraph">For many teams, a small typed state machine in plain code is clearer than a framework and easier to run inside Temporal activities or a queue worker.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">from enum import Enum, auto
@@ -1236,6 +1312,8 @@ def step(ctx):
     ctx.state = nxt
     checkpoint(ctx)</code></pre></div>
 <p class="doc-paragraph">The key property: the LLM chooses <em>among allowed transitions</em>; the graph encodes the invariants (no execution without proposal; verify after every execute). This is &quot;constrained agency&quot; and is how regulated industries deploy agents.</p>
+</section>
+<section class="doc-section">
 <h2 id="54-durable-execution-696" class="doc-heading doc-h2"><a href="#54-durable-execution-696" class="heading-anchor">#</a> 5.4 Durable Execution</h2>
 <p class="doc-paragraph">Agent runs that last minutes to days, wait for humans, or call flaky APIs need <strong>durable execution</strong>: if the process dies, the run resumes from the last completed step without re-executing side effects. Options:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -1283,7 +1361,11 @@ def step(ctx):
 <p>A graph is also your <strong>observability schema</strong>. Name nodes meaningfully and emit a span per node (OpenTelemetry GenAI semantic conventions are now broadly supported by LangSmith, Langfuse, Arize Phoenix, Logfire and the major SDKs). When an incident happens, &quot;40% of runs loop between VERIFY and PROPOSE&quot; is actionable; &quot;the agent got confused&quot; is not.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="6-reasoning-models-vs-non-reasoning-models-713" class="doc-heading doc-h1"><a href="#6-reasoning-models-vs-non-reasoning-models-713" class="heading-anchor">#</a> 6. Reasoning Models vs Non-Reasoning Models</h1>
+</section>
+<section class="doc-section">
 <h2 id="61-what-a-reasoning-model-is-715" class="doc-heading doc-h2"><a href="#61-what-a-reasoning-model-is-715" class="heading-anchor">#</a> 6.1 What a Reasoning Model Is</h2>
 <p class="doc-paragraph">A <strong>reasoning model</strong> is trained, typically with large-scale reinforcement learning on verifiable rewards, to produce an extended internal chain of thought before its answer, and to use that chain productively: decomposing, checking, backtracking and trying alternatives. Lineage:</p>
 <ul class="doc-list">
@@ -1292,6 +1374,8 @@ def step(ctx):
 <li><strong>Google Gemini thinking</strong> (Gemini 2.5 Pro/Flash, Gemini 3): controlled via <code>thinking_config</code> (a <code>thinking_budget</code> token count on 2.5 models, where <code>0</code> disables thinking on Flash and <code>-1</code> requests dynamic budgeting; newer models expose a coarser <code>thinking_level</code>). Thought summaries are optional via <code>include_thoughts</code>.</li>
 <li><strong>Open-weight</strong>: DeepSeek-R1 (January 2025) publicly demonstrated that GRPO-based RL on verifiable rewards could produce o1-class reasoning, followed by Qwen3 thinking modes, and others; these expose raw reasoning tokens.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="62-how-they-are-trained-why-they-behave-as-they-do-724" class="doc-heading doc-h2"><a href="#62-how-they-are-trained-why-they-behave-as-they-do-724" class="heading-anchor">#</a> 6.2 How They Are Trained (Why They Behave as They Do)</h2>
 <p class="doc-paragraph">The core recipe, popularised by DeepSeek-R1 and widely replicated:</p>
 <ol class="doc-list-ordered">
@@ -1307,6 +1391,8 @@ def step(ctx):
 <li>They tend to <strong>ignore or fight micro-managing prompts</strong> (&quot;think step by step&quot;, rigid CoT templates); the guidance from OpenAI and Anthropic is to give high-level goals and constraints and let the model reason.</li>
 <li>They can <strong>overthink</strong> simple tasks: spending thousands of tokens on a classification.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="63-test-time-compute-and-scaling-740" class="doc-heading doc-h2"><a href="#63-test-time-compute-and-scaling-740" class="heading-anchor">#</a> 6.3 Test-Time Compute and Scaling</h2>
 <p class="doc-paragraph">The central idea: accuracy can be bought at inference time, not only at training time. There are two orthogonal axes:</p>
 <ul class="doc-list">
@@ -1322,6 +1408,8 @@ def step(ctx):
    |  ______/
    +------------------------------------------------&gt; log(thinking tokens or N samples)
       cheap tasks saturate here ^         hard tasks still gaining ^</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="64-choosing-reasoning-vs-non-reasoning-760" class="doc-heading doc-h2"><a href="#64-choosing-reasoning-vs-non-reasoning-760" class="heading-anchor">#</a> 6.4 Choosing: Reasoning vs Non-Reasoning</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1377,6 +1465,8 @@ def step(ctx):
 <p>The dominant 2026 architecture is <strong>heterogeneous</strong>: a reasoning model (or high effort setting) as the planner/orchestrator and for hard decision points, with fast non-reasoning or low-effort models as workers, extractors and routers. Many frontier models are now <em>hybrid</em> (one model, thinking toggled per request), so &quot;which model&quot; often becomes &quot;which effort level per node&quot;, which you can tune per graph node against evals.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="65-thinking-budgets-776" class="doc-heading doc-h2"><a href="#65-thinking-budgets-776" class="heading-anchor">#</a> 6.5 Thinking Budgets</h2>
 <p class="doc-paragraph">Budgets cap reasoning tokens. Mechanics differ by provider and must be checked against current docs, but the patterns are stable.</p>
 <p class="doc-paragraph"><strong>Anthropic</strong> (extended thinking, Messages API):</p>
@@ -1421,6 +1511,8 @@ resp = genai_client.models.generate_content(
 <p>Truncated thinking is worse than no thinking. If <code>max_tokens</code> (or the output cap) is too close to the thinking budget, the model can exhaust its output allowance mid-reasoning and return an empty or partial answer (<code>stop_reason == &quot;max_tokens&quot;</code>, OpenAI <code>status: incomplete</code>). Always leave generous headroom for the final answer and handle the incomplete case explicitly (retry with a higher cap or lower effort).</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="66-interleaved-thinking-with-tool-use-831" class="doc-heading doc-h2"><a href="#66-interleaved-thinking-with-tool-use-831" class="heading-anchor">#</a> 6.6 Interleaved Thinking with Tool Use</h2>
 <p class="doc-paragraph">Early reasoning models thought once, then answered. Agentic use requires <strong>interleaved thinking</strong>: reasoning <em>between</em> tool calls, about each observation.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">user goal
@@ -1444,6 +1536,8 @@ resp = genai_client.models.generate_content(
 <p>A very common production bug: a framework or custom middleware &quot;cleans&quot; message history by stripping thinking/reasoning blocks to save tokens, or re-serialises them. This silently degrades multi-step tool-use quality (the model loses its plan) or causes API validation errors. Treat reasoning items as opaque, signed artefacts: store and replay them verbatim within a tool-use turn. (Providers may drop thinking from <em>earlier completed turns</em> automatically; follow their rules rather than inventing your own.)</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="67-reasoning-models-change-which-scaffolds-pay-off-856" class="doc-heading doc-h2"><a href="#67-reasoning-models-change-which-scaffolds-pay-off-856" class="heading-anchor">#</a> 6.7 Reasoning Models Change Which Scaffolds Pay Off</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1494,6 +1588,7 @@ resp = genai_client.models.generate_content(
 </tr>
 </tbody></table></div>
 <p class="doc-paragraph">The general lesson, consistent with Sutton's &quot;bitter lesson&quot;: scaffolds that substitute for model capability decay as models improve; scaffolds that add <strong>information</strong> (tools, retrieval, verifiers, environment feedback) or <strong>control</strong> (budgets, permissions, approvals) remain valuable. Design accordingly, and re-evaluate your scaffolds with every model upgrade.</p>
+</section>
 
 
             <div class="doc-footer">
@@ -1554,30 +1649,65 @@ resp = genai_client.models.generate_content(
         </aside>
     </main>
 
-    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <!-- KaTeX Scripts (deferred, lazy per-element rendering) -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-    <!-- Prism Syntax Highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <!-- Prism Syntax Highlighting (deferred + manual lazy highlighting) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Render Math with KaTeX
-            if (typeof renderMathInElement !== 'undefined') {
-                renderMathInElement(document.body, {
-                    delimiters: [
-                        {left: '', right: '', display: true},
-                        {left: '$', right: '$', display: false},
-                        {left: '\\(', right: '\\)', display: false},
-                        {left: '\\[', right: '\\]', display: true}
-                    ],
-                    throwOnError: false,
-                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+            const katexOpts = {
+                delimiters: [
+                    {left: '', right: '', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            };
+
+            function renderMathEl(el) {
+                if (el.dataset.mathDone || typeof renderMathInElement === 'undefined') return;
+                el.dataset.mathDone = '1';
+                renderMathInElement(el, katexOpts);
+            }
+
+            function highlightCodeEl(el) {
+                if (el.dataset.prismDone || typeof Prism === 'undefined') return;
+                if (el.classList.contains('language-text')) return;
+                el.dataset.prismDone = '1';
+                Prism.highlightElement(el);
+            }
+
+            const mathEls = document.querySelectorAll('.math-block, .math-display, .math-inline');
+            const codeEls = document.querySelectorAll('pre code[class*="language-"]');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) return;
+                        const el = entry.target;
+                        if (el.tagName === 'CODE') {
+                            highlightCodeEl(el);
+                        } else {
+                            renderMathEl(el);
+                        }
+                        obs.unobserve(el);
+                    });
+                }, { rootMargin: '500px 0px' });
+
+                mathEls.forEach(el => observer.observe(el));
+                codeEls.forEach(el => {
+                    if (!el.classList.contains('language-text')) observer.observe(el);
                 });
+            } else {
+                mathEls.forEach(renderMathEl);
+                codeEls.forEach(highlightCodeEl);
             }
         });
 

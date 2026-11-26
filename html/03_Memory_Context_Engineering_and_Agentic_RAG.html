@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>03: Memory, Context Engineering &amp; Agentic RAG | Agentic AI Study Suite</title>
-    <!-- Fonts -->
+    <!-- Fonts (lean weights, non-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- KaTeX CSS for LaTeX Math Formulas -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- Prism Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" media="print" onload="this.media='all'">
+    <!-- Prism Syntax Highlighting (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" media="print" onload="this.media='all'">
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -77,6 +77,12 @@
             display: flex;
             flex-direction: column;
             z-index: 100;
+            contain: layout style paint;
+        }
+        /* Virtualize off-screen sections for 60fps scrolling */
+        .doc-section {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 500px;
         }
         .sidebar-header {
             padding: 20px 18px;
@@ -189,6 +195,7 @@
             border-left: 1px solid var(--border);
             padding-left: 16px;
             display: none;
+            contain: layout style paint;
         }
         @media (min-width: 1240px) {
             aside.toc-rail { display: block; }
@@ -453,7 +460,10 @@
                 <h1 class="doc-title">03: Memory, Context Engineering &amp; Agentic RAG</h1>
             </div>
 
-            <h1 id="context-window-economics-and-failure-modes-2" class="doc-heading doc-h1"><a href="#context-window-economics-and-failure-modes-2" class="heading-anchor">#</a> Context Window Economics and Failure Modes</h1>
+            <section class="doc-section">
+<h1 id="context-window-economics-and-failure-modes-2" class="doc-heading doc-h1"><a href="#context-window-economics-and-failure-modes-2" class="heading-anchor">#</a> Context Window Economics and Failure Modes</h1>
+</section>
+<section class="doc-section">
 <h2 id="why-context-is-the-scarcest-resource-in-an-agent-4" class="doc-heading doc-h2"><a href="#why-context-is-the-scarcest-resource-in-an-agent-4" class="heading-anchor">#</a> Why Context Is the Scarcest Resource in an Agent</h2>
 <p class="doc-paragraph">An LLM agent is a stateless function called in a loop. Every turn, the model sees <em>only</em> what is inside its context window: system prompt, tool definitions, conversation history, tool results, retrieved documents, and scratchpad. Everything the agent &quot;knows&quot; about the task at hand must be re-serialized into tokens on every call. Context engineering is the discipline of deciding <strong>which tokens go into the window, in what order, in what form, at each step</strong>.</p>
 <p class="doc-paragraph">Late-2026 frontier models advertise windows from 200K to 1M+ tokens (some 2M). It is tempting to treat this as &quot;infinite memory&quot;. It is not, for three independent reasons:</p>
@@ -462,6 +472,8 @@
 <li><strong>Latency scales with input tokens.</strong> Prefill is compute-bound; time-to-first-token (TTFT) grows roughly linearly with uncached prompt length, and attention cost grows super-linearly for very long sequences.</li>
 <li><strong>Quality degrades with length and clutter.</strong> Models attend unevenly, distractors hurt reasoning, and effective usable context is far below the advertised maximum.</li>
 </ol>
+</section>
+<section class="doc-section">
 <h2 id="the-cost-model-14" class="doc-heading doc-h2"><a href="#the-cost-model-14" class="heading-anchor">#</a> The Cost Model</h2>
 <p class="doc-paragraph">A useful first-principles model for a single agent run:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Total cost  ~=  sum over steps t of:
@@ -508,12 +520,16 @@ Context at step t:  C_t = S + T + sum_{i&lt;t}(a_i + o_i)
 <p>Staff-level framing: the unit of optimization is <strong>cost per successful task</strong>, not cost per call. A compaction step that saves 60% of tokens but drops task success from 82% to 74% is almost always a loss once you price in retries and human escalation. Always evaluate context strategies against an end-to-end success metric.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="reasoning-tokens-change-the-budget-43" class="doc-heading doc-h2"><a href="#reasoning-tokens-change-the-budget-43" class="heading-anchor">#</a> Reasoning Tokens Change the Budget</h2>
 <p class="doc-paragraph">Reasoning models (OpenAI o-series / GPT-5-class thinking modes, Claude extended thinking, Gemini thinking) spend hidden or summarized &quot;thinking&quot; tokens billed as output. Two implications for context engineering:</p>
 <ul class="doc-list">
 <li><strong>Output dominates cost</strong> for hard steps. Trimming input by 20K tokens may matter less than capping reasoning effort on easy steps (route easy steps to low effort or a smaller model).</li>
 <li><strong>Thinking blocks and history.</strong> Some APIs require prior thinking blocks to be passed back unmodified during tool-use loops (e.g., Anthropic's extended thinking with tool use requires returning the thinking blocks for the current assistant turn), while others strip or encrypt prior reasoning. Read provider docs: mutating or dropping these incorrectly can cause errors or degrade reasoning continuity.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="context-rot-and-lost-in-the-middle-50" class="doc-heading doc-h2"><a href="#context-rot-and-lost-in-the-middle-50" class="heading-anchor">#</a> Context Rot and Lost-in-the-Middle</h2>
 <p class="doc-paragraph"><strong>Lost in the middle</strong> (Liu et al., 2023) showed that on multi-document QA, accuracy is highest when the relevant document is at the beginning or end of the context and drops markedly when it is in the middle: a U-shaped curve. Newer models have flattened this curve on simple needle-in-a-haystack (NIAH) tests, but NIAH is a weak test: it requires lexical match of a single fact.</p>
 <p class="doc-paragraph"><strong>Context rot</strong> is the broader, 2025-popularized observation (e.g., Chroma's technical report on context rot, and benchmarks such as RULER, NoLiMa, LongBench v2, Michelangelo-style latent structure queries) that performance degrades as input length grows <em>even when the task difficulty is held constant</em>, and degrades faster when:</p>
@@ -543,6 +559,8 @@ Context at step t:  C_t = S + T + sum_{i&lt;t}(a_i + o_i)
 <p>Production pitfall: teams validate an agent on short demo tasks, then deploy to long sessions where the context reaches 150K+ tokens of accumulated tool output. Quality silently drops: the agent &quot;forgets&quot; constraints stated early, repeats completed actions, or follows instructions found in stale tool output. Always run evals at the <em>p95 context length</em> your production traffic reaches, not at the median.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="effective-context-vs-advertised-context-81" class="doc-heading doc-h2"><a href="#effective-context-vs-advertised-context-81" class="heading-anchor">#</a> Effective Context vs Advertised Context</h2>
 <p class="doc-paragraph">Treat effective context as a measured property per model per task family. A practical approach:</p>
 <ol class="doc-list-ordered">
@@ -551,6 +569,8 @@ Context at step t:  C_t = S + T + sum_{i&lt;t}(a_i + o_i)
 <li>Define your <em>operating budget</em> as the length where accuracy stays within ~2-3 points of the short-context baseline.</li>
 </ol>
 <p class="doc-paragraph">Many teams find that for multi-hop reasoning tasks, the operating budget is 20-40% of the advertised window.</p>
+</section>
+<section class="doc-section">
 <h2 id="where-to-put-what-position-heuristics-91" class="doc-heading doc-h2"><a href="#where-to-put-what-position-heuristics-91" class="heading-anchor">#</a> Where to Put What: Position Heuristics</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -596,7 +616,11 @@ Context at step t:  C_t = S + T + sum_{i&lt;t}(a_i + o_i)
 <p>&quot;Restate key constraints near the end&quot; conflicts with &quot;keep the prefix stable&quot; only if you restate them inside the prefix. Put a short, deterministic reminder block at the tail of the context (after history). Claude Code-style systems do exactly this with system reminders injected into recent turns.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="context-engineering-strategies-write-select-compress-isolate-105" class="doc-heading doc-h1"><a href="#context-engineering-strategies-write-select-compress-isolate-105" class="heading-anchor">#</a> Context Engineering Strategies: Write, Select, Compress, Isolate</h1>
+</section>
+<section class="doc-section">
 <h2 id="the-four-strategy-framework-107" class="doc-heading doc-h2"><a href="#the-four-strategy-framework-107" class="heading-anchor">#</a> The Four-Strategy Framework</h2>
 <p class="doc-paragraph">A widely used taxonomy (popularized by LangChain's context engineering writeups, building on Anthropic's and Cognition's posts) groups techniques into four buckets:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -628,6 +652,8 @@ Context at step t:  C_t = S + T + sum_{i&lt;t}(a_i + o_i)
 </tr>
 </tbody></table></div>
 <p class="doc-paragraph">The mental model: the context window is a <strong>CPU cache</strong>, external storage is <strong>RAM/disk</strong>, and context engineering is the <strong>memory management unit</strong> deciding what to page in and out. MemGPT made this analogy explicit.</p>
+</section>
+<section class="doc-section">
 <h2 id="write-externalizing-state-120" class="doc-heading doc-h2"><a href="#write-externalizing-state-120" class="heading-anchor">#</a> Write: Externalizing State</h2>
 <p class="doc-paragraph">Agents should write intermediate state somewhere durable rather than relying on it surviving in history:</p>
 <ul class="doc-list">
@@ -662,6 +688,8 @@ def record_observation(tool_name: str, output: str, count_tokens) -&gt; str:
 <p>Offloading is <strong>restorable compression</strong>: nothing is lost, because the agent can re-read the file. Prefer restorable compression (drop content but keep a pointer: URL, file path, doc ID) over lossy summarization whenever the agent has a tool to re-fetch.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="select-pulling-the-right-tokens-in-155" class="doc-heading doc-h2"><a href="#select-pulling-the-right-tokens-in-155" class="heading-anchor">#</a> Select: Pulling the Right Tokens In</h2>
 <p class="doc-paragraph">Selection applies to more than documents:</p>
 <ul class="doc-list">
@@ -676,6 +704,8 @@ def record_observation(tool_name: str, output: str, count_tokens) -&gt; str:
 <p>Dynamically changing the tool list mid-session invalidates the prompt cache (tools are usually at the front of the prefix) and can confuse the model when earlier turns reference tools that no longer exist. Manus reported preferring to <em>mask</em> tool availability via constrained decoding / logit masking rather than removing definitions. If you must vary tools, do it at session boundaries or with provider-supported deferred loading.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="compress-fewer-tokens-same-signal-167" class="doc-heading doc-h2"><a href="#compress-fewer-tokens-same-signal-167" class="heading-anchor">#</a> Compress: Fewer Tokens, Same Signal</h2>
 <p class="doc-paragraph">Compression techniques, ordered from cheapest/safest to most lossy:</p>
 <ol class="doc-list-ordered">
@@ -685,6 +715,8 @@ def record_observation(tool_name: str, output: str, count_tokens) -&gt; str:
 <li><strong>LLM summarization / compaction</strong>: summarize history into a running state document. Most lossy; discussed in depth later.</li>
 <li><strong>Token-level prompt compression</strong> (LLMLingua-family): drop low-information tokens using a small LM. Useful for RAG passages; less used for agent history because it harms exact identifiers.</li>
 </ol>
+</section>
+<section class="doc-section">
 <h2 id="isolate-separate-windows-for-separate-concerns-177" class="doc-heading doc-h2"><a href="#isolate-separate-windows-for-separate-concerns-177" class="heading-anchor">#</a> Isolate: Separate Windows for Separate Concerns</h2>
 <p class="doc-paragraph">Isolation splits work across multiple context windows:</p>
 <ul class="doc-list">
@@ -737,6 +769,8 @@ def record_observation(tool_name: str, output: str, count_tokens) -&gt; str:
 <p>Cognition's &quot;Don't build multi-agents&quot; argument and Anthropic's multi-agent research success are compatible: isolation works when sub-tasks are <strong>read-heavy and separable</strong>, and fails when sub-agents make <strong>write decisions that implicitly depend on each other</strong> (e.g., two sub-agents each building half a UI with different style assumptions). Rule of thumb: parallelize reading, serialize writing.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="putting-it-together-a-context-assembly-pipeline-199" class="doc-heading doc-h2"><a href="#putting-it-together-a-context-assembly-pipeline-199" class="heading-anchor">#</a> Putting It Together: A Context Assembly Pipeline</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                +--------------------+
  user turn ---&gt; |  Context Assembler |  (deterministic code, not the LLM)
@@ -787,7 +821,11 @@ def assemble(sections: list[Section], budget: int, count) -&gt; str:
 <p>Never let the token budget allocator reorder or mutate the <em>cacheable prefix</em> based on per-request data. A single dynamic value (a timestamp, a user name, a randomly ordered set of tools from a dict) in the system prompt makes every request a cache miss.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="agent-memory-architecture-253" class="doc-heading doc-h1"><a href="#agent-memory-architecture-253" class="heading-anchor">#</a> Agent Memory Architecture</h1>
+</section>
+<section class="doc-section">
 <h2 id="taxonomy-of-memory-255" class="doc-heading doc-h2"><a href="#taxonomy-of-memory-255" class="heading-anchor">#</a> Taxonomy of Memory</h2>
 <p class="doc-paragraph">Borrowing from cognitive science (and the CoALA framework: Cognitive Architectures for Language Agents, Sumers et al.), agent memory divides into:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -828,6 +866,8 @@ def assemble(sections: list[Section], budget: int, count) -&gt; str:
 <li><strong>Hot path (in-loop)</strong>: the agent decides to save a memory via a tool call during the conversation (e.g., <code>memory.save(...)</code>). Immediate, but adds latency and distracts the agent.</li>
 <li><strong>Background (out-of-loop)</strong>: a separate process reflects over transcripts after or between sessions and writes memories. No latency impact, better quality (can use a stronger model and see the whole session), but memories become available later.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="working-memory-and-scratchpads-271" class="doc-heading doc-h2"><a href="#working-memory-and-scratchpads-271" class="heading-anchor">#</a> Working Memory and Scratchpads</h2>
 <p class="doc-paragraph">Working memory is everything the model can attend to right now. Its design questions:</p>
 <ul class="doc-list">
@@ -855,6 +895,8 @@ SCRATCHPAD_TOOL = {
 <p>Scratchpads double as compaction seeds. If the agent maintains a high-quality scratchpad, compaction becomes &quot;keep system prompt + scratchpad + last N turns&quot;, which is cheap and far less lossy than summarizing a raw transcript after the fact.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="long-term-memory-episodic-300" class="doc-heading doc-h2"><a href="#long-term-memory-episodic-300" class="heading-anchor">#</a> Long-Term Memory: Episodic</h2>
 <p class="doc-paragraph">Episodic memory stores <em>what happened</em>: an interaction, its context, the actions taken, and the outcome. Uses:</p>
 <ul class="doc-list">
@@ -883,6 +925,8 @@ class Episode(BaseModel):
 recency(m)   = decay ** hours_since_last_access(m)      e.g. decay = 0.995
 importance   = LLM-rated 1..10 at write time, normalized
 relevance    = cosine(embed(m), embed(query))</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="long-term-memory-semantic-337" class="doc-heading doc-h2"><a href="#long-term-memory-semantic-337" class="heading-anchor">#</a> Long-Term Memory: Semantic</h2>
 <p class="doc-paragraph">Semantic memory stores <em>facts</em>: user preferences, entity attributes, domain knowledge. Two representation choices:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -913,6 +957,8 @@ relevance    = cosine(embed(m), embed(query))</code></pre></div>
 </tr>
 </tbody></table></div>
 <p class="doc-paragraph">Frameworks: LangGraph's long-term memory store (namespaced key-value with optional semantic search) and LangMem; Mem0 (extract-then-update pipeline with ADD/UPDATE/DELETE/NOOP operations, plus a graph variant); Zep / Graphiti (temporal knowledge graph with bi-temporal edges: when a fact was true vs. when it was recorded); Letta (MemGPT successor) with memory blocks; OpenAI and Anthropic consumer products with user-visible memory; Claude's memory tool (a file-directory-based memory the agent reads/writes via tool calls).</p>
+</section>
+<section class="doc-section">
 <h2 id="long-term-memory-procedural-349" class="doc-heading doc-h2"><a href="#long-term-memory-procedural-349" class="heading-anchor">#</a> Long-Term Memory: Procedural</h2>
 <p class="doc-paragraph">Procedural memory is <em>how to act</em>. In agents it lives in:</p>
 <ul class="doc-list">
@@ -926,6 +972,8 @@ relevance    = cosine(embed(m), embed(query))</code></pre></div>
 <p>Self-modifying procedural memory is a security surface. If an agent can rewrite its own instructions based on conversation content, a prompt injection in one session can become a <strong>persistent</strong> backdoor across all future sessions (&quot;memory poisoning&quot;). Require human review or strict validation for procedural memory writes, and scope them per user/tenant.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="memgpt-letta-style-hierarchical-memory-360" class="doc-heading doc-h2"><a href="#memgpt-letta-style-hierarchical-memory-360" class="heading-anchor">#</a> MemGPT / Letta-Style Hierarchical Memory</h2>
 <p class="doc-paragraph">MemGPT (Packer et al., 2023) framed the LLM as an operating system managing virtual memory:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">+------------------------------------------------------------+
@@ -998,6 +1046,8 @@ relevance    = cosine(embed(m), embed(query))</code></pre></div>
 <p>Hybrid is the production default in 2026: a small always-in-context core profile (MemGPT-style blocks), background extraction for facts and episodes, and an explicit <code>search_memory</code> tool so the agent can page in more when needed. Do not make the agent's task performance depend on it remembering to call <code>save_memory</code>.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="memory-scoping-and-namespaces-410" class="doc-heading doc-h2"><a href="#memory-scoping-and-namespaces-410" class="heading-anchor">#</a> Memory Scoping and Namespaces</h2>
 <p class="doc-paragraph">Every memory must have an explicit scope; most memory bugs are scope bugs.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">namespace = (tenant_id, scope, owner_id, [agent_id], [topic])
@@ -1014,7 +1064,11 @@ scope examples:
 <p>Cross-user memory leakage is the most damaging memory bug: an agent retrieves user A's memory while serving user B because the vector search filter used <code>tenant_id</code> but not <code>user_id</code>, or because a &quot;team&quot; memory was extracted from a private DM. Enforce scope filters in the storage layer (mandatory filter injection), never by asking the LLM to &quot;only use this user's memories&quot;.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="memory-policies-write-read-update-forget-429" class="doc-heading doc-h1"><a href="#memory-policies-write-read-update-forget-429" class="heading-anchor">#</a> Memory Policies: Write, Read, Update, Forget</h1>
+</section>
+<section class="doc-section">
 <h2 id="the-memory-lifecycle-431" class="doc-heading doc-h2"><a href="#the-memory-lifecycle-431" class="heading-anchor">#</a> The Memory Lifecycle</h2>
 <p class="doc-paragraph">Memory is a data pipeline with a lifecycle, and each stage needs an explicit policy:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text"> transcript / events
@@ -1030,6 +1084,8 @@ scope examples:
    [5] UPDATE        -- reinforce on use, correct on contradiction
         |
    [6] FORGET        -- TTL, decay, user deletion, compliance erasure</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="write-policy-what-is-worth-remembering-451" class="doc-heading doc-h2"><a href="#write-policy-what-is-worth-remembering-451" class="heading-anchor">#</a> Write Policy: What Is Worth Remembering</h2>
 <p class="doc-paragraph">Bad write policies are the root cause of most &quot;creepy&quot; or &quot;dumb&quot; memory behaviors. Criteria:</p>
 <ul class="doc-list">
@@ -1052,6 +1108,8 @@ Rules:
 Return JSON: {&quot;facts&quot;: [{&quot;text&quot;: str, &quot;category&quot;: str, &quot;source&quot;: &quot;explicit&quot;|&quot;inferred&quot;,
                &quot;confidence&quot;: float, &quot;sensitive&quot;: bool}]}
 &quot;&quot;&quot;</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="consolidation-and-conflict-resolution-477" class="doc-heading doc-h2"><a href="#consolidation-and-conflict-resolution-477" class="heading-anchor">#</a> Consolidation and Conflict Resolution</h2>
 <p class="doc-paragraph">When a new candidate fact arrives, compare it against similar existing memories and decide an operation. Mem0 popularized the four-operation scheme:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -1112,6 +1170,8 @@ def consolidate(candidate, store, llm, k=5):
 <p>LLM-based consolidation is non-deterministic and can cascade: a bad UPDATE merges two unrelated facts, the merged text then matches more candidates, and errors compound. Keep the raw extracted facts (append-only log) separate from the consolidated view so you can rebuild the view with a better consolidator. Treat consolidated memory like a materialized view over an event log.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="read-policy-when-and-what-to-retrieve-518" class="doc-heading doc-h2"><a href="#read-policy-when-and-what-to-retrieve-518" class="heading-anchor">#</a> Read Policy: When and What to Retrieve</h2>
 <p class="doc-paragraph">Options, from simplest to most agentic:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -1160,12 +1220,16 @@ Use these only if relevant to the current request. Do not mention them unprompte
 <p>Over-personalization is a real product failure: injecting every retrieved memory leads models to shoehorn irrelevant facts into answers (&quot;Since you're vegetarian, here is a Python sorting algorithm...&quot;). Use a relevance threshold, cap memories at a small k, and instruct the model to use memories only when pertinent. Measure &quot;inappropriate memory use&quot; as an explicit eval dimension.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="update-and-reinforcement-543" class="doc-heading doc-h2"><a href="#update-and-reinforcement-543" class="heading-anchor">#</a> Update and Reinforcement</h2>
 <ul class="doc-list">
 <li><strong>Access-based reinforcement</strong>: bump <code>last_accessed_at</code> when a memory is retrieved <em>and used</em> (cited in the answer), which feeds recency scoring.</li>
 <li><strong>Confirmation</strong>: when a user's behavior is consistent with an inferred memory, raise confidence; when contradicted, lower it.</li>
 <li><strong>Reflection</strong>: periodically (sleep-time) synthesize higher-level memories from many low-level ones (&quot;User consistently asks for type hints&quot; from 12 separate episodes), as in Generative Agents' reflection step.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="forget-policy-549" class="doc-heading doc-h2"><a href="#forget-policy-549" class="heading-anchor">#</a> Forget Policy</h2>
 <p class="doc-paragraph">Forgetting is required for quality, cost, and compliance:</p>
 <ul class="doc-list">
@@ -1181,9 +1245,15 @@ Use these only if relevant to the current request. Do not mention them unprompte
 <p>Deleting a memory record while leaving the fact inside a rolling session summary, a reflection memory, or a fine-tuning dataset is a compliance failure. Maintain <strong>lineage</strong>: every derived memory stores the IDs of its source memories/messages, so deletion can cascade. Summaries derived from deleted data must be regenerated.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="compaction-and-summarization-562" class="doc-heading doc-h1"><a href="#compaction-and-summarization-562" class="heading-anchor">#</a> Compaction and Summarization</h1>
+</section>
+<section class="doc-section">
 <h2 id="why-compaction-exists-564" class="doc-heading doc-h2"><a href="#why-compaction-exists-564" class="heading-anchor">#</a> Why Compaction Exists</h2>
 <p class="doc-paragraph">When history approaches the operating budget, you must shrink it. Compaction replaces a span of history with a shorter representation while preserving what future steps need. Claude Code's auto-compact, the Claude API's server-side context management features (context editing to clear old tool results, compaction), OpenAI's conversation state options and Responses API compaction, and LangGraph summarization nodes all implement variations.</p>
+</section>
+<section class="doc-section">
 <h2 id="compaction-strategies-568" class="doc-heading doc-h2"><a href="#compaction-strategies-568" class="heading-anchor">#</a> Compaction Strategies</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1237,6 +1307,8 @@ Use these only if relevant to the current request. Do not mention them unprompte
 <td>One call</td>
 </tr>
 </tbody></table></div>
+</section>
+<section class="doc-section">
 <h2 id="what-a-good-compaction-summary-preserves-579" class="doc-heading doc-h2"><a href="#what-a-good-compaction-summary-preserves-579" class="heading-anchor">#</a> What a Good Compaction Summary Preserves</h2>
 <p class="doc-paragraph">A compaction prompt should be explicit about what must survive. For coding/ops agents:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Summarize the conversation so far for your own continuation. Preserve EXACTLY:
@@ -1255,6 +1327,8 @@ redundant tool output.</code></pre></div>
 <p>Classic compaction failures: (1) <strong>side-effect amnesia</strong>, where the summary omits that an email was already sent, so the agent sends it again; (2) <strong>constraint loss</strong>, where &quot;do not modify the public API&quot; disappears and the agent later breaks it; (3) <strong>identifier corruption</strong>, where the summarizer paraphrases <code>order_8f3a2c</code> into &quot;the order&quot;. Mitigate with a structured schema, a side-effect ledger kept outside the LLM, and idempotency keys on all side-effecting tools.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="trigger-policies-599" class="doc-heading doc-h2"><a href="#trigger-policies-599" class="heading-anchor">#</a> Trigger Policies</h2>
 <ul class="doc-list">
 <li><strong>Threshold-based</strong>: compact when context reaches ~70-85% of the operating budget (not the advertised max), leaving headroom for the next tool result and reasoning.</li>
@@ -1278,6 +1352,8 @@ redundant tool output.</code></pre></div>
 <p>Make compaction <em>evaluable</em>: log pre- and post-compaction contexts and run an offline probe set (&quot;What files have you modified? What did the user forbid? What's the next step?&quot;) against the post-compaction context. Factual recall on these probes is a cheap regression test when you change the compaction prompt or model.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="summarization-for-memory-vs-compaction-622" class="doc-heading doc-h2"><a href="#summarization-for-memory-vs-compaction-622" class="heading-anchor">#</a> Summarization for Memory vs Compaction</h2>
 <p class="doc-paragraph">These are different tasks often conflated:</p>
 <ul class="doc-list">
@@ -1285,7 +1361,11 @@ redundant tool output.</code></pre></div>
 <li><strong>Memory summarization</strong> optimizes for <em>future unknown tasks</em>; it should be goal-agnostic, factual, and decontextualized.</li>
 </ul>
 <p class="doc-paragraph">Using a compaction summary as long-term memory produces memories full of task-specific scaffolding (&quot;next step: run tests again&quot;) that pollute future sessions.</p>
+</section>
+<section class="doc-section">
 <h1 id="prompt-caching-and-kv-cache-mechanics-631" class="doc-heading doc-h1"><a href="#prompt-caching-and-kv-cache-mechanics-631" class="heading-anchor">#</a> Prompt Caching and KV-Cache Mechanics</h1>
+</section>
+<section class="doc-section">
 <h2 id="what-is-being-cached-633" class="doc-heading doc-h2"><a href="#what-is-being-cached-633" class="heading-anchor">#</a> What Is Being Cached</h2>
 <p class="doc-paragraph">In a transformer decoder, each layer computes Key and Value vectors for every token. During generation, the model reuses previously computed K/V for all earlier tokens (the <strong>KV cache</strong>) and only computes the new token. Prefill (processing the prompt) is the expensive, compute-bound phase; decode is memory-bandwidth-bound.</p>
 <p class="doc-paragraph"><strong>Prompt caching</strong> (also called prefix caching or context caching) persists the KV cache for a prompt prefix across requests. If a new request shares an identical token prefix with a cached one, prefill for that prefix is skipped.</p>
@@ -1296,6 +1376,8 @@ Example (70B-class, GQA): 80 layers * 8 kv_heads * 128 dim * 2 * 2 bytes (fp16)
                         = ~327 KB per token
 100K-token prefix       = ~32 GB of KV cache</code></pre></div>
 <p class="doc-paragraph">This is why providers tier storage (HBM, host RAM, SSD), charge for cache writes, and evict after minutes. Techniques like GQA/MQA, MLA (DeepSeek's multi-head latent attention), KV quantization (FP8), and paged attention (vLLM's PagedAttention) all exist to shrink or manage this memory.</p>
+</section>
+<section class="doc-section">
 <h2 id="prefix-matching-semantics-651" class="doc-heading doc-h2"><a href="#prefix-matching-semantics-651" class="heading-anchor">#</a> Prefix Matching Semantics</h2>
 <p class="doc-paragraph">Cache hits require an <strong>exact token-prefix match</strong> from the start of the prompt. Implications:</p>
 <ul class="doc-list">
@@ -1303,6 +1385,8 @@ Example (70B-class, GQA): 80 layers * 8 kv_heads * 128 dim * 2 * 2 bytes (fp16)
 <li>Order of components matters: the API typically serializes tools, then system, then messages (the exact order varies by provider).</li>
 <li>Self-hosted engines (vLLM automatic prefix caching, SGLang RadixAttention) hash fixed-size token blocks and share them across requests via a radix tree / block hash table, enabling sharing of common prefixes among many concurrent requests.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="provider-models-as-of-late-2026-verify-current-docs-659" class="doc-heading doc-h2"><a href="#provider-models-as-of-late-2026-verify-current-docs-659" class="heading-anchor">#</a> Provider Models (as of late 2026; verify current docs)</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1357,6 +1441,8 @@ resp = client.messages.create(
 )
 u = resp.usage
 print(u.cache_creation_input_tokens, u.cache_read_input_tokens, u.input_tokens)</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="cache-friendly-prompt-layout-692" class="doc-heading doc-h2"><a href="#cache-friendly-prompt-layout-692" class="heading-anchor">#</a> Cache-Friendly Prompt Layout</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">+------------------------------------------------------+  &lt;- most stable
 | Tool definitions (deterministically ordered)          |
@@ -1387,6 +1473,8 @@ print(u.cache_creation_input_tokens, u.cache_read_input_tokens, u.input_tokens)<
 <p>A common silent regression: a developer adds &quot;Today is {datetime.now()}&quot; to the system prompt or injects the user's name into the first line. Cache hit rate drops from 85% to near 0, latency and cost jump 3-5x, and no functional test fails. Monitor <code>cache_read_tokens / total_input_tokens</code> as a first-class SLO metric with alerts.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="cache-economics-723" class="doc-heading doc-h2"><a href="#cache-economics-723" class="heading-anchor">#</a> Cache Economics</h2>
 <p class="doc-paragraph">Break-even for explicit caching (Anthropic-style write premium W relative to base, read price R relative to base):</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Without caching: n requests * P tokens * 1.0
@@ -1400,6 +1488,8 @@ Example W = 1.25, R = 0.1:  caching wins once n &gt;= 2
 <p>Prompt caching changes architecture decisions. With cheap cached reads, &quot;stuff a stable 150K-token knowledge base into a cached prefix&quot; can beat RAG on quality and engineering cost for small, slowly changing corpora (a pattern sometimes called CAG, cache-augmented generation). It loses when the corpus is large, changes often, needs ACLs per user, or when context rot dominates. Evaluate both; don't assume RAG.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="kv-cache-aware-agent-design-739" class="doc-heading doc-h2"><a href="#kv-cache-aware-agent-design-739" class="heading-anchor">#</a> KV-Cache-Aware Agent Design</h2>
 <p class="doc-paragraph">Manus's widely cited lessons for agent loops are KV-cache-centric: keep the prefix stable, make context append-only, mask tools instead of removing them, use the filesystem as externalized memory, and recite goals at the tail. Additional patterns:</p>
 <ul class="doc-list">
@@ -1407,7 +1497,11 @@ Example W = 1.25, R = 0.1:  caching wins once n &gt;= 2
 <li><strong>Parallel sampling</strong>: best-of-n or tree search over a shared prefix reuses the same cache (SGLang's radix cache excels at this).</li>
 <li><strong>Avoid reordering retrieved documents across turns</strong> if they are part of a cached segment.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h1 id="rag-fundamentals-747" class="doc-heading doc-h1"><a href="#rag-fundamentals-747" class="heading-anchor">#</a> RAG Fundamentals</h1>
+</section>
+<section class="doc-section">
 <h2 id="the-retrieval-problem-749" class="doc-heading doc-h2"><a href="#the-retrieval-problem-749" class="heading-anchor">#</a> The Retrieval Problem</h2>
 <p class="doc-paragraph">Retrieval-Augmented Generation grounds a model's output in an external corpus at inference time. RAG addresses: knowledge cutoff, private data, verifiability (citations), and reducing hallucination. The canonical pipeline:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">INGESTION (offline / streaming)
@@ -1418,6 +1512,8 @@ QUERY (online)
  user query -&gt; [rewrite/expand] -&gt; retrieve (hybrid) -&gt; fuse -&gt; rerank -&gt; filter (ACL, freshness)
            -&gt; pack context (dedupe, order, budget) -&gt; generate with citations -&gt; verify</code></pre></div>
 <p class="doc-paragraph">Retrieval quality bounds generation quality: if the right passage is not in the context, the best model cannot answer faithfully. Most RAG failures in production are <strong>retrieval and parsing failures</strong>, not generation failures.</p>
+</section>
+<section class="doc-section">
 <h2 id="parsing-the-unglamorous-foundation-765" class="doc-heading doc-h2"><a href="#parsing-the-unglamorous-foundation-765" class="heading-anchor">#</a> Parsing: The Unglamorous Foundation</h2>
 <ul class="doc-list">
 <li>PDFs: layout-aware parsing (tables, multi-column, headers/footers). Options include vision-language-model-based parsing (rendering pages as images and asking a VLM to transcribe to Markdown), layout models (e.g., Docling, Unstructured, LlamaParse-class services), and OCR for scans.</li>
@@ -1430,6 +1526,8 @@ QUERY (online)
 <p>Garbage-in: a parser that drops table headers, merges two columns into interleaved text, or loses footnotes produces chunks that embed fine and retrieve fine but are semantically wrong. Always sample-inspect parsed output per document type before tuning anything downstream.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="chunking-774" class="doc-heading doc-h2"><a href="#chunking-774" class="heading-anchor">#</a> Chunking</h2>
 <p class="doc-paragraph">Chunking trades <strong>retrieval precision</strong> (small chunks match queries tightly) against <strong>context sufficiency</strong> (large chunks contain enough to answer).</p>
 <div class="table-responsive"><table class="doc-table">
@@ -1503,6 +1601,8 @@ def contextualize(doc_text, chunks, llm):
 <p>There is no universally optimal chunk size. Typical starting points: 256-512 tokens for factoid QA, 512-1024 for explanatory content, structure-aligned for code and legal. Pick by measuring retrieval recall@k on a labeled query set for <em>your</em> corpus, and remember the answer changes when you add a reranker (rerankers tolerate larger candidate chunks).</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="embeddings-808" class="doc-heading doc-h2"><a href="#embeddings-808" class="heading-anchor">#</a> Embeddings</h2>
 <p class="doc-paragraph">A bi-encoder maps text to a dense vector such that semantic similarity corresponds to geometric closeness (cosine / dot product). Key properties when choosing a model:</p>
 <ul class="doc-list">
@@ -1518,6 +1618,8 @@ def contextualize(doc_text, chunks, llm):
 <p>Changing the embedding model requires <strong>re-embedding the entire corpus</strong>: vectors from different models live in incompatible spaces. Version embedding indices (<code>index_v7_model-x_dim1024</code>), run dual-write during migration, and never mix vectors from different models in one index. Also pin the model version: an API provider silently updating a model alias breaks similarity between old and new vectors.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="approximate-nearest-neighbor-indexes-821" class="doc-heading doc-h2"><a href="#approximate-nearest-neighbor-indexes-821" class="heading-anchor">#</a> Approximate Nearest Neighbor Indexes</h2>
 <p class="doc-paragraph">Exact kNN over N vectors of dimension d costs O(N*d) per query; at 100M vectors this is too slow. ANN indexes trade a little recall for orders-of-magnitude speedups.</p>
 <h3 id="hnsw-hierarchical-navigable-small-world-825" class="doc-heading doc-h3"><a href="#hnsw-hierarchical-navigable-small-world-825" class="heading-anchor">#</a> HNSW (Hierarchical Navigable Small World)</h3>
@@ -1620,6 +1722,7 @@ at layer 0 do a beam search of width ef_search.</code></pre></div>
 <p>Vector database choice is rarely the bottleneck. pgvector (with HNSW and iterative index scans) inside an existing Postgres often wins on operational simplicity, transactional consistency with ACL tables, and joins up to tens of millions of vectors. Dedicated engines (Qdrant, Weaviate, Milvus, Pinecone, Vespa, Elasticsearch/OpenSearch, Turbopuffer) win at larger scale, with heavy hybrid/filtering requirements, or serverless economics. Choose by filtering, hybrid support, update patterns, and ops model, not by ANN benchmark charts.</p>
 </div>
 </div>
+</section>
 
 
             <div class="doc-footer">
@@ -1679,39 +1782,70 @@ at layer 0 do a beam search of width ef_search.</code></pre></div>
 <li class="toc-level-2"><a href="#chunking-774">Chunking</a></li>
 <li class="toc-level-2"><a href="#embeddings-808">Embeddings</a></li>
 <li class="toc-level-2"><a href="#approximate-nearest-neighbor-indexes-821">Approximate Nearest Neighbor Indexes</a></li>
-<li class="toc-level-3"><a href="#hnsw-hierarchical-navigable-small-world-825">HNSW (Hierarchical Navigable Small World)</a></li>
-<li class="toc-level-3"><a href="#ivf-inverted-file-index-842">IVF (Inverted File Index)</a></li>
-<li class="toc-level-3"><a href="#pq-product-quantization-848">PQ (Product Quantization)</a></li>
-<li class="toc-level-3"><a href="#diskann-and-others-854">DiskANN and Others</a></li>
 </ul></nav>
 
         </aside>
     </main>
 
-    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <!-- KaTeX Scripts (deferred, lazy per-element rendering) -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-    <!-- Prism Syntax Highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <!-- Prism Syntax Highlighting (deferred + manual lazy highlighting) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Render Math with KaTeX
-            if (typeof renderMathInElement !== 'undefined') {
-                renderMathInElement(document.body, {
-                    delimiters: [
-                        {left: '', right: '', display: true},
-                        {left: '$', right: '$', display: false},
-                        {left: '\\(', right: '\\)', display: false},
-                        {left: '\\[', right: '\\]', display: true}
-                    ],
-                    throwOnError: false,
-                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+            const katexOpts = {
+                delimiters: [
+                    {left: '', right: '', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            };
+
+            function renderMathEl(el) {
+                if (el.dataset.mathDone || typeof renderMathInElement === 'undefined') return;
+                el.dataset.mathDone = '1';
+                renderMathInElement(el, katexOpts);
+            }
+
+            function highlightCodeEl(el) {
+                if (el.dataset.prismDone || typeof Prism === 'undefined') return;
+                if (el.classList.contains('language-text')) return;
+                el.dataset.prismDone = '1';
+                Prism.highlightElement(el);
+            }
+
+            const mathEls = document.querySelectorAll('.math-block, .math-display, .math-inline');
+            const codeEls = document.querySelectorAll('pre code[class*="language-"]');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) return;
+                        const el = entry.target;
+                        if (el.tagName === 'CODE') {
+                            highlightCodeEl(el);
+                        } else {
+                            renderMathEl(el);
+                        }
+                        obs.unobserve(el);
+                    });
+                }, { rootMargin: '500px 0px' });
+
+                mathEls.forEach(el => observer.observe(el));
+                codeEls.forEach(el => {
+                    if (!el.classList.contains('language-text')) observer.observe(el);
                 });
+            } else {
+                mathEls.forEach(renderMathEl);
+                codeEls.forEach(highlightCodeEl);
             }
         });
 

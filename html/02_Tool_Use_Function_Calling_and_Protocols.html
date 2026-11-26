@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>02: Tool Use, Function Calling &amp; Protocols | Agentic AI Study Suite</title>
-    <!-- Fonts -->
+    <!-- Fonts (lean weights, non-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- KaTeX CSS for LaTeX Math Formulas -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- Prism Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" media="print" onload="this.media='all'">
+    <!-- Prism Syntax Highlighting (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" media="print" onload="this.media='all'">
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -77,6 +77,12 @@
             display: flex;
             flex-direction: column;
             z-index: 100;
+            contain: layout style paint;
+        }
+        /* Virtualize off-screen sections for 60fps scrolling */
+        .doc-section {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 500px;
         }
         .sidebar-header {
             padding: 20px 18px;
@@ -189,6 +195,7 @@
             border-left: 1px solid var(--border);
             padding-left: 16px;
             display: none;
+            contain: layout style paint;
         }
         @media (min-width: 1240px) {
             aside.toc-rail { display: block; }
@@ -453,8 +460,11 @@
                 <h1 class="doc-title">02: Tool Use, Function Calling &amp; Protocols</h1>
             </div>
 
-            <h1 id="function-calling-internals-2" class="doc-heading doc-h1"><a href="#function-calling-internals-2" class="heading-anchor">#</a> Function Calling Internals</h1>
+            <section class="doc-section">
+<h1 id="function-calling-internals-2" class="doc-heading doc-h1"><a href="#function-calling-internals-2" class="heading-anchor">#</a> Function Calling Internals</h1>
 <p class="doc-paragraph">Tool use is what turns a language model from a text predictor into an actor. At a Staff level you need to understand it at three layers: what the model actually learned during training, what the inference stack does to make outputs parseable, and what your orchestration loop does with the result. Most production bugs in agent systems trace back to a mismatch between those three layers.</p>
+</section>
+<section class="doc-section">
 <h2 id="the-mental-model-tool-calls-are-just-tokens-6" class="doc-heading doc-h2"><a href="#the-mental-model-tool-calls-are-just-tokens-6" class="heading-anchor">#</a> The mental model: tool calls are just tokens</h2>
 <p class="doc-paragraph">A model never &quot;calls&quot; anything. It emits a sequence of tokens that the serving stack recognizes as a tool-call structure. The runtime (your code or the provider's agent runtime) parses it, executes a function, and appends the result to the context as another message. The model then continues generating conditioned on that result.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">+-----------+   messages + tool schemas   +-------------+
@@ -488,6 +498,8 @@ What's the weather in Pune?
 &lt;|assistant|&gt;
 It's 24 C and hazy in Pune.</code></pre></div>
 <p class="doc-paragraph">The implication: tool descriptions are prompt text. Everything you write in a schema (names, descriptions, enum values, field descriptions) consumes context and shapes behavior exactly like a system prompt does.</p>
+</section>
+<section class="doc-section">
 <h2 id="how-models-are-trained-to-emit-tool-calls-50" class="doc-heading doc-h2"><a href="#how-models-are-trained-to-emit-tool-calls-50" class="heading-anchor">#</a> How models are trained to emit tool calls</h2>
 <p class="doc-paragraph">Tool-calling competence comes from several post-training stages layered on a pretrained base:</p>
 <ol class="doc-list-ordered">
@@ -509,6 +521,8 @@ It's 24 C and hazy in Pune.</code></pre></div>
 <li>Models are trained with a few to a few dozen tools in context. Accuracy falls as tool count rises into the hundreds; this is why tool retrieval exists (covered later).</li>
 <li>RLVR-trained models have strong priors about common tools (bash, file edit, web search, browser). Matching those conventions (for example a <code>str_replace</code>-style edit tool) yields better behavior than inventing novel interfaces.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="json-schema-as-the-contract-69" class="doc-heading doc-h2"><a href="#json-schema-as-the-contract-69" class="heading-anchor">#</a> JSON Schema as the contract</h2>
 <p class="doc-paragraph">Almost every provider uses a subset of JSON Schema to describe parameters. Know the subset you can rely on:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -598,6 +612,8 @@ class SearchOrders(BaseModel):
 
 schema = SearchOrders.model_json_schema()
 # On receipt of a tool call: SearchOrders.model_validate_json(call.arguments)</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="constrained-grammar-decoding-and-structured-outputs-123" class="doc-heading doc-h2"><a href="#constrained-grammar-decoding-and-structured-outputs-123" class="heading-anchor">#</a> Constrained (grammar) decoding and structured outputs</h2>
 <p class="doc-paragraph">Training makes valid JSON likely; constrained decoding makes it guaranteed. At each decoding step, the model produces logits over the whole vocabulary. A constrained decoder computes which tokens are legal continuations under a grammar (derived from your JSON Schema) and masks all others to negative infinity before sampling.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">schema --compile--&gt; grammar (CFG / regex automaton)
@@ -662,6 +678,8 @@ step t: logits[vocab] -&gt; mask(illegal tokens) -&gt; sample -&gt; advance auto
 <p>Use the &quot;final answer as a tool&quot; pattern: give the agent a <code>submit_result</code> tool whose schema is your output type and force or strongly encourage it at the end. You get typed output, an explicit termination signal, and the ability to validate and bounce back errors (&quot;field X invalid, fix and resubmit&quot;) inside the same loop. Most agent SDKs implement structured <code>output_type</code> this way internally.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="the-agent-loop-precisely-159" class="doc-heading doc-h2"><a href="#the-agent-loop-precisely-159" class="heading-anchor">#</a> The agent loop, precisely</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Framework-agnostic pseudocode for a robust tool loop
 def run_agent(client, messages, tools, registry, max_steps=25):
@@ -698,8 +716,12 @@ def run_agent(client, messages, tools, registry, max_steps=25):
 <p><strong>Orphaned tool calls.</strong> Nearly every provider rejects a request where an assistant tool call has no matching tool result (or results come back in a mismatched order). This bites when you cancel, time out, or crash mid-turn and later resume from a persisted transcript. On resume, synthesize an error result (&quot;cancelled before completion; state unknown&quot;) for every dangling call id.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="tool-design-principles-the-agent-computer-interface-196" class="doc-heading doc-h1"><a href="#tool-design-principles-the-agent-computer-interface-196" class="heading-anchor">#</a> Tool Design Principles: The Agent-Computer Interface</h1>
 <p class="doc-paragraph">The SWE-agent research popularized the term <strong>Agent-Computer Interface (ACI)</strong>: the tools, their outputs, and their error messages are a user interface whose user is a model. Just as HCI determines human productivity, ACI determines agent productivity, often more than model choice. Anthropic's guidance on writing tools for agents makes the same point: invest in tools as much as in prompts.</p>
+</section>
+<section class="doc-section">
 <h2 id="principle-1-design-for-the-agents-task-not-your-api-surface-200" class="doc-heading doc-h2"><a href="#principle-1-design-for-the-agents-task-not-your-api-surface-200" class="heading-anchor">#</a> Principle 1: Design for the agent's task, not your API surface</h2>
 <p class="doc-paragraph">The most common anti-pattern is wrapping every REST endpoint one-to-one. Agents then need many calls, hold intermediate IDs in context, and make mistakes stitching them together.</p>
 <div class="table-responsive"><table class="doc-table">
@@ -728,6 +750,8 @@ def run_agent(client, messages, tools, registry, max_steps=25):
 <p>A useful heuristic: if you see the same 3-call sequence in more than ~30% of traces, it should be one tool. Mine your traces for frequent n-grams of tool calls and consolidate. Conversely, if a tool has a mode flag that changes its behavior drastically, split it.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="principle-2-naming-and-namespacing-215" class="doc-heading doc-h2"><a href="#principle-2-naming-and-namespacing-215" class="heading-anchor">#</a> Principle 2: Naming and namespacing</h2>
 <ul class="doc-list">
 <li>Use verb_noun names that say what happens: <code>search_tickets</code>, <code>create_refund_request</code>, <code>read_file</code>.</li>
@@ -735,6 +759,8 @@ def run_agent(client, messages, tools, registry, max_steps=25):
 <li>Avoid near-synonyms in the same toolset (<code>find_user</code> and <code>lookup_user</code>); the model will pick inconsistently.</li>
 <li>Keep names within provider limits (commonly <code>^[a-zA-Z0-9_-]{1,64}$</code>).</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="principle-3-descriptions-are-prompts-222" class="doc-heading doc-h2"><a href="#principle-3-descriptions-are-prompts-222" class="heading-anchor">#</a> Principle 3: Descriptions are prompts</h2>
 <p class="doc-paragraph">Write a description as you would brief a new colleague: what it does, when to use it, when not to, what it returns, important constraints, and an example if the argument format is non-obvious.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Bad:  &quot;Gets data.&quot;
@@ -742,6 +768,8 @@ Good: &quot;Search the knowledge base of internal runbooks. Use for operational
        how-to questions ('how do I rotate the DB password'). Returns up to 5
        passages with doc_id and url. Not for customer data. Queries work best
        as short keyword phrases, e.g. 'rotate postgres credentials'.&quot;</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="principle-4-granularity-and-argument-design-234" class="doc-heading doc-h2"><a href="#principle-4-granularity-and-argument-design-234" class="heading-anchor">#</a> Principle 4: Granularity and argument design</h2>
 <ul class="doc-list">
 <li>Prefer semantic identifiers over opaque ones where possible. Models handle names and slugs far better than UUIDs, and hallucinate fewer of them. If you must use UUIDs, return them prominently and never require the model to construct them.</li>
@@ -750,6 +778,8 @@ Good: &quot;Search the knowledge base of internal runbooks. Use for operational
 <li>Avoid requiring the model to do arithmetic or exact counting (line offsets, byte ranges). A <code>str_replace(old, new)</code> edit tool beats <code>edit(line_start, line_end, text)</code> because models are poor at line counting but good at quoting.</li>
 <li>Prefer absolute paths over relative ones; SWE-agent style work found relative paths caused errors once the agent changed directories.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="principle-5-token-efficient-responses-242" class="doc-heading doc-h2"><a href="#principle-5-token-efficient-responses-242" class="heading-anchor">#</a> Principle 5: Token-efficient responses</h2>
 <p class="doc-paragraph">Every byte a tool returns is re-read on every subsequent step (until compaction). A 20K-token tool response in step 3 of a 30-step task costs 20K tokens times 27 more model calls (prompt caching reduces cost, not context pressure).</p>
 <p class="doc-paragraph">Techniques:</p>
@@ -768,6 +798,8 @@ Good: &quot;Search the knowledge base of internal runbooks. Use for operational
     if cursor:
         lines.append(f&quot;More results available: call search_tickets with cursor='{cursor}'.&quot;)
     return &quot;\n&quot;.join(lines)</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="principle-6-error-messages-are-prompts-265" class="doc-heading doc-h2"><a href="#principle-6-error-messages-are-prompts-265" class="heading-anchor">#</a> Principle 6: Error messages are prompts</h2>
 <p class="doc-paragraph">When a tool fails, its error text is the only thing guiding the model's next action. A stack trace teaches nothing; a precise, actionable message enables self-correction.</p>
 <div class="table-responsive"><table class="doc-table">
@@ -800,6 +832,8 @@ Good: &quot;Search the knowledge base of internal runbooks. Use for operational
 <p><strong>Error loops.</strong> An agent receiving the same vague error repeatedly will retry the same call until the step limit. Detect identical consecutive calls with identical errors (hash name plus args) and inject a stronger message or abort after N repeats.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="principle-7-evaluate-tools-empirically-281" class="doc-heading doc-h2"><a href="#principle-7-evaluate-tools-empirically-281" class="heading-anchor">#</a> Principle 7: Evaluate tools empirically</h2>
 <p class="doc-paragraph">Tool design is an empirical discipline. Build an eval set of realistic tasks, run the agent, and examine: which tools are called, wrong-tool rate, argument error rate, number of calls per task, tokens consumed by tool results, and task success. Iterate on descriptions and shapes like you would on prompts. A strong practice is letting a model read failure transcripts and propose description improvements, then re-running the eval.</p>
 <div class="callout callout-tip">
@@ -808,10 +842,16 @@ Good: &quot;Search the knowledge base of internal runbooks. Use for operational
 <p>Track <strong>tool-result tokens per successful task</strong> as a first-class metric. It is often the dominant cost driver in agent systems and the easiest to cut 2-5x by reshaping responses, without touching the model.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="poka-yoke-making-mistakes-impossible-288" class="doc-heading doc-h2"><a href="#poka-yoke-making-mistakes-impossible-288" class="heading-anchor">#</a> Poka-yoke: making mistakes impossible</h2>
 <p class="doc-paragraph">Borrowed from lean manufacturing: design tools so incorrect use is hard. Examples: an edit tool that fails if <code>old_str</code> is not unique (forcing more context) instead of editing the first match; a deploy tool that requires an environment enum and refuses <code>prod</code> without a change ticket ID; a SQL tool exposed via read-only credentials so destructive statements fail at the database regardless of prompt injection.</p>
+</section>
+<section class="doc-section">
 <h1 id="parallel-tool-calls-292" class="doc-heading doc-h1"><a href="#parallel-tool-calls-292" class="heading-anchor">#</a> Parallel Tool Calls</h1>
 <p class="doc-paragraph">Modern models can emit multiple tool calls in a single assistant turn when the calls are independent: fetch weather for three cities, read five files, run several searches. This reduces round trips (each model call is typically hundreds of milliseconds to seconds) and total tokens (the context is re-sent fewer times).</p>
+</section>
+<section class="doc-section">
 <h2 id="mechanics-296" class="doc-heading doc-h2"><a href="#mechanics-296" class="heading-anchor">#</a> Mechanics</h2>
 <p class="doc-paragraph">The assistant message contains a list of calls, each with a unique id. Your executor runs them (concurrently if safe), and returns one result per id. Order of results usually should match or be keyed by id; check provider requirements.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">import asyncio
@@ -827,6 +867,8 @@ async def execute_calls(calls, registry, max_concurrency=8):
                 return call.id, f&quot;{type(e).__name__}: {e}&quot;, True
     results = await asyncio.gather(*(one(c) for c in calls))
     return [{&quot;tool_call_id&quot;: cid, &quot;content&quot;: out, &quot;is_error&quot;: err} for cid, out, err in results]</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="when-to-allow-serialize-or-disable-316" class="doc-heading doc-h2"><a href="#when-to-allow-serialize-or-disable-316" class="heading-anchor">#</a> When to allow, serialize, or disable</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -872,7 +914,11 @@ async def execute_calls(calls, registry, max_concurrency=8):
 <p>Parallelism also exists one level up: <strong>parallel sub-agents</strong> (a lead agent spawning researchers) trade tokens for wall-clock time. Anthropic reported multi-agent research using many times the tokens of a single chat. Parallel tool calls are almost always a free win; parallel agents are a cost decision.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="tool-selection-at-scale-335" class="doc-heading doc-h1"><a href="#tool-selection-at-scale-335" class="heading-anchor">#</a> Tool Selection at Scale</h1>
+</section>
+<section class="doc-section">
 <h2 id="why-many-tools-break-agents-337" class="doc-heading doc-h2"><a href="#why-many-tools-break-agents-337" class="heading-anchor">#</a> Why many tools break agents</h2>
 <p class="doc-paragraph">With 10-20 well-designed tools, frontier models select accurately. With hundreds (common once you connect several MCP servers, each exposing 20-80 tools), three problems appear:</p>
 <ol class="doc-list-ordered">
@@ -880,6 +926,8 @@ async def execute_calls(calls, registry, max_concurrency=8):
 <li><strong>Selection accuracy.</strong> Confusable tools and attention dilution increase wrong-tool and hallucinated-tool rates. Benchmarks over large tool libraries consistently show accuracy declining with toolset size.</li>
 <li><strong>Cache invalidation.</strong> Changing the tool list between turns invalidates prompt-cache prefixes, because tool definitions typically render at the start of the prompt.</li>
 </ol>
+</section>
+<section class="doc-section">
 <h2 id="strategies-345" class="doc-heading doc-h2"><a href="#strategies-345" class="heading-anchor">#</a> Strategies</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -958,10 +1006,16 @@ class ToolIndex:
 </div>
 <h3 id="code-execution-as-a-scaling-strategy-387" class="doc-heading doc-h3"><a href="#code-execution-as-a-scaling-strategy-387" class="heading-anchor">#</a> Code execution as a scaling strategy</h3>
 <p class="doc-paragraph">An increasingly popular 2025-2026 pattern (described publicly by Anthropic and Cloudflare under names like &quot;code mode&quot;) presents MCP tools as typed functions in a code sandbox, for example a directory tree of TypeScript or Python modules, one per tool. The agent lists directories to discover tools, reads only the files it needs, and writes code that calls them. Intermediate data stays in the sandbox instead of passing through the model's context; a 10,000-row spreadsheet can be filtered in code and only 5 rows returned. This is CodeAct applied to tool scaling, covered later.</p>
+</section>
+<section class="doc-section">
 <h1 id="model-context-protocol-mcp-in-depth-392" class="doc-heading doc-h1"><a href="#model-context-protocol-mcp-in-depth-392" class="heading-anchor">#</a> Model Context Protocol (MCP) in Depth</h1>
+</section>
+<section class="doc-section">
 <h2 id="why-mcp-exists-394" class="doc-heading doc-h2"><a href="#why-mcp-exists-394" class="heading-anchor">#</a> Why MCP exists</h2>
 <p class="doc-paragraph">Before MCP, every agent application wrote bespoke integrations for every data source: M applications times N tools equals M x N adapters. The Model Context Protocol, introduced by Anthropic in November 2024 and since adopted by OpenAI, Google, Microsoft, and most agent frameworks (and donated to a vendor-neutral foundation under the Linux Foundation umbrella in late 2025), turns that into M + N: each application implements an MCP client once, each tool provider implements an MCP server once. The common analogy is &quot;USB-C for AI applications&quot;.</p>
 <p class="doc-paragraph">MCP standardizes <em>how context and capabilities are exposed to an LLM application</em>. It does not standardize the model API, agent reasoning, or agent-to-agent collaboration (that is A2A's job).</p>
+</section>
+<section class="doc-section">
 <h2 id="architecture-host-client-server-400" class="doc-heading doc-h2"><a href="#architecture-host-client-server-400" class="heading-anchor">#</a> Architecture: host, client, server</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">+---------------------------------------------------------------+
 | HOST (e.g. IDE, desktop chat app, your agent service)         |
@@ -984,6 +1038,8 @@ class ToolIndex:
 <li><strong>Server</strong>: a program exposing capabilities (tools, resources, prompts). It may be a local subprocess or a remote service.</li>
 </ul>
 <p class="doc-paragraph">Design principles from the spec worth internalizing: servers should be easy to build (the host handles orchestration complexity); servers should be composable; <strong>servers should not be able to read the whole conversation or see into other servers</strong> (isolation is enforced by the host); and features are added progressively through capability negotiation.</p>
+</section>
+<section class="doc-section">
 <h2 id="wire-protocol-json-rpc-20-426" class="doc-heading doc-h2"><a href="#wire-protocol-json-rpc-20-426" class="heading-anchor">#</a> Wire protocol: JSON-RPC 2.0</h2>
 <p class="doc-paragraph">All MCP messages are JSON-RPC 2.0, UTF-8 encoded. Three message kinds:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-json">// Request: has id, expects a response
@@ -998,6 +1054,8 @@ class ToolIndex:
 {&quot;jsonrpc&quot;: &quot;2.0&quot;, &quot;method&quot;: &quot;notifications/tools/list_changed&quot;}</code></pre></div>
 <p class="doc-paragraph">Note the two levels of error. A JSON-RPC <code>error</code> object (with codes like -32602 invalid params, -32601 method not found) signals a <em>protocol</em> failure. A tool that ran but failed should return a normal result with <code>isError: true</code> and a descriptive text, so the error reaches the model and it can self-correct. Getting this wrong is a classic server bug: protocol errors are often swallowed by the host and the model never learns what happened.</p>
 <p class="doc-paragraph">Communication is bidirectional: servers can send requests to clients too (sampling, elicitation, roots listing, pings). Earlier spec versions allowed JSON-RPC batching; the 2025-06-18 revision removed batch support.</p>
+</section>
+<section class="doc-section">
 <h2 id="lifecycle-and-capability-negotiation-447" class="doc-heading doc-h2"><a href="#lifecycle-and-capability-negotiation-447" class="heading-anchor">#</a> Lifecycle and capability negotiation</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Client                                   Server
   |  initialize {protocolVersion,           |
@@ -1034,6 +1092,8 @@ class ToolIndex:
 <p><strong>Version skew in the wild.</strong> Hosts and servers in production span several spec revisions. Servers that assume the newest features (structured tool output, elicitation) break on older hosts. Always branch on negotiated capabilities and protocol version, and test against at least two host implementations.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="server-primitives-tools-resources-prompts-488" class="doc-heading doc-h2"><a href="#server-primitives-tools-resources-prompts-488" class="heading-anchor">#</a> Server primitives: tools, resources, prompts</h2>
 <p class="doc-paragraph">MCP distinguishes primitives by <strong>who controls them</strong>:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -1089,6 +1149,8 @@ class ToolIndex:
 <p class="doc-paragraph">Resources are application-controlled context addressed by URI (<code>file:///repo/README.md</code>, <code>postgres://db/schema/users</code>, custom schemes). Resource templates use RFC 6570 URI templates (<code>github://repos/{owner}/{repo}/issues/{n}</code>). Clients may subscribe to a resource and receive <code>notifications/resources/updated</code>. The host decides how resources enter context: user attaches them, the app auto-includes them, or the host lets the model choose via a tool wrapper.</p>
 <h3 id="prompts-527" class="doc-heading doc-h3"><a href="#prompts-527" class="heading-anchor">#</a> Prompts</h3>
 <p class="doc-paragraph">Prompts are parameterized message templates exposed by the server, typically surfaced as user-triggered commands (<code>/summarize-pr pr=123</code>). <code>prompts/get</code> returns a list of messages, possibly embedding resources. They let server authors ship best-practice workflows alongside their tools.</p>
+</section>
+<section class="doc-section">
 <h2 id="client-primitives-sampling-roots-elicitation-531" class="doc-heading doc-h2"><a href="#client-primitives-sampling-roots-elicitation-531" class="heading-anchor">#</a> Client primitives: sampling, roots, elicitation</h2>
 <p class="doc-paragraph">These are capabilities the client offers to servers.</p>
 <h3 id="sampling-535" class="doc-heading doc-h3"><a href="#sampling-535" class="heading-anchor">#</a> Sampling</h3>
@@ -1103,6 +1165,8 @@ class ToolIndex:
 <p class="doc-paragraph">Roots tell the server which filesystem locations or URIs the client considers in scope (<code>file:///home/dev/project</code>). The server calls <code>roots/list</code>; the client sends <code>notifications/roots/list_changed</code> when the user opens a different workspace. Roots are advisory coordination, not enforcement; real enforcement belongs in the server and the OS sandbox.</p>
 <h3 id="elicitation-546" class="doc-heading doc-h3"><a href="#elicitation-546" class="heading-anchor">#</a> Elicitation</h3>
 <p class="doc-paragraph">Added in 2025-06-18: <code>elicitation/create</code> lets a server ask the <em>user</em> for structured input mid-operation via the host's UI. The request carries a message and a restricted JSON Schema (flat object with primitive fields). The user responds with action <code>accept</code> (with data), <code>decline</code>, or <code>cancel</code>. Example: a booking tool asks the user to confirm seat preference. Servers must not use form elicitation to request secrets like passwords or API keys; the 2025-11-25 revision added a URL-mode elicitation for flows (such as third-party OAuth or payments) where sensitive input should happen in a browser page outside the client.</p>
+</section>
+<section class="doc-section">
 <h2 id="notifications-and-utilities-550" class="doc-heading doc-h2"><a href="#notifications-and-utilities-550" class="heading-anchor">#</a> Notifications and utilities</h2>
 <ul class="doc-list">
 <li><code>notifications/progress</code>: progress updates for long-running requests, keyed by a <code>progressToken</code> sent in the request's <code>_meta</code>.</li>
@@ -1119,6 +1183,8 @@ class ToolIndex:
 <p><code>list_changed</code> is powerful but costly: every tool-list change can invalidate the host's prompt cache. For servers with dynamic tools, batch changes and avoid toggling tools per request. For hosts, consider pinning the tool list for the duration of an agent run and applying changes between runs.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="transports-563" class="doc-heading doc-h2"><a href="#transports-563" class="heading-anchor">#</a> Transports</h2>
 <h3 id="stdio-565" class="doc-heading doc-h3"><a href="#stdio-565" class="heading-anchor">#</a> stdio</h3>
 <p class="doc-paragraph">The host launches the server as a subprocess. Messages are newline-delimited JSON-RPC on stdin/stdout. Stderr is for logs (the client may capture or ignore). Nothing else may be written to stdout.</p>
@@ -1193,6 +1259,8 @@ DELETE /mcp (session abc)            -&gt; session closed</code></pre></div>
 <p>Stateful Streamable HTTP sessions behind a load balancer are the #1 operational surprise. Either run stateless (every request self-contained, state in your DB keyed by user), or use session-affinity routing plus a shared store for resumability. Prefer stateless unless you need server-initiated requests mid-call (sampling, elicitation).</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="authorization-oauth-21-609" class="doc-heading doc-h2"><a href="#authorization-oauth-21-609" class="heading-anchor">#</a> Authorization: OAuth 2.1</h2>
 <p class="doc-paragraph">Authorization applies to HTTP transports (stdio servers get credentials from the environment). The model, finalized across the 2025-03-26 and 2025-06-18 revisions and refined in 2025-11-25:</p>
 <ul class="doc-list">
@@ -1224,6 +1292,8 @@ DELETE /mcp (session abc)            -&gt; session closed</code></pre></div>
 <p><strong>Confused deputy via static client IDs.</strong> An MCP proxy server that uses a single static OAuth client with a third-party API, plus dynamic registration for its own clients, can be tricked into issuing authorization codes to an attacker-registered redirect URI if consent cookies are reused. The spec requires per-client consent before forwarding to the third-party authorization flow. If you build a proxy/gateway, read the security best-practices document in full.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="mcp-security-model-and-threats-643" class="doc-heading doc-h2"><a href="#mcp-security-model-and-threats-643" class="heading-anchor">#</a> MCP security model and threats</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1280,6 +1350,8 @@ DELETE /mcp (session abc)            -&gt; session closed</code></pre></div>
 <p>In enterprises, the winning architecture is an <strong>MCP gateway</strong>: a central proxy that terminates OAuth, enforces per-user and per-tool policy, logs every call for audit, scans tool descriptions for changes, and exposes a curated, namespaced catalog. Individual teams publish servers behind it; agents only ever connect to the gateway. This also gives you one place for rate limiting and kill switches.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="building-an-mcp-server-in-python-661" class="doc-heading doc-h2"><a href="#building-an-mcp-server-in-python-661" class="heading-anchor">#</a> Building an MCP server in Python</h2>
 <p class="doc-paragraph">The official Python SDK (<code>mcp</code> package) includes FastMCP, a decorator-based high-level API. The example below implements a ticketing server with tools, a resource, a prompt, progress, logging, and elicitation. API names match the official SDK at the time of writing; check the SDK docs for your version, as signatures evolve.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># server.py  -- pip install &quot;mcp[cli]&quot;
@@ -1415,7 +1487,11 @@ asyncio.run(main())</code></pre></div>
 <li>Make mutating tools idempotent (see the final section).</li>
 <li>Publish in a registry (the official MCP Registry launched in 2025) with pinned versions and signed artifacts.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h1 id="agent2agent-a2a-protocol-811" class="doc-heading doc-h1"><a href="#agent2agent-a2a-protocol-811" class="heading-anchor">#</a> Agent2Agent (A2A) Protocol</h1>
+</section>
+<section class="doc-section">
 <h2 id="purpose-and-positioning-813" class="doc-heading doc-h2"><a href="#purpose-and-positioning-813" class="heading-anchor">#</a> Purpose and positioning</h2>
 <p class="doc-paragraph">A2A, announced by Google in April 2025 and donated to the Linux Foundation in mid-2025 with broad industry backing, standardizes communication <em>between agents</em>: independent, possibly opaque systems built on different frameworks by different organizations. Where MCP connects an agent to its tools and data, A2A connects an agent to <em>another agent</em> that has its own reasoning, state, and tools, and that you cannot inspect.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">            +-------------------+     A2A (task delegation)    +--------------------+
@@ -1428,6 +1504,8 @@ User  ---&gt;  |  Client agent     | ---------------------------&gt; |  Remote a
                  | tools   |                                        | tools   |
                  +---------+                                        +---------+</code></pre></div>
 <p class="doc-paragraph">Core design tenets: embrace agentic capabilities (agents collaborate as peers without sharing memory or tools), build on existing standards (HTTP, JSON-RPC 2.0, SSE, with gRPC and REST bindings added later), secure by default (enterprise auth schemes declared up front), support long-running tasks (hours or days, with human-in-the-loop), and be modality agnostic (text, files, structured data).</p>
+</section>
+<section class="doc-section">
 <h2 id="core-concepts-831" class="doc-heading doc-h2"><a href="#core-concepts-831" class="heading-anchor">#</a> Core concepts</h2>
 <h3 id="agent-card-833" class="doc-heading doc-h3"><a href="#agent-card-833" class="heading-anchor">#</a> Agent Card</h3>
 <p class="doc-paragraph">A JSON document describing the agent, conventionally served at a well-known URL (<code>/.well-known/agent-card.json</code> in current versions; early versions used <code>agent.json</code>). It enables discovery and capability negotiation.</p>
@@ -1525,6 +1603,8 @@ class BookingExecutor(AgentExecutor):
 
 # Wire up: agent card + request handler + HTTP app (e.g. Starlette), served at card.url</code></pre></div>
 <p class="doc-paragraph">Google ADK, LangGraph, CrewAI, Semantic Kernel/Microsoft Agent Framework, and others provide A2A adapters to expose an agent as an A2A server or call remote A2A agents as tools.</p>
+</section>
+<section class="doc-section">
 <h2 id="mcp-vs-a2a-925" class="doc-heading doc-h2"><a href="#mcp-vs-a2a-925" class="heading-anchor">#</a> MCP vs A2A</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1597,6 +1677,7 @@ class BookingExecutor(AgentExecutor):
 <p>Don't adopt A2A for agents inside one codebase and one deployment; in-process multi-agent orchestration (LangGraph subgraphs, OpenAI Agents SDK handoffs, ADK sub-agents) is simpler, cheaper, and easier to debug. A2A earns its keep at organizational or deployment boundaries where independent release cycles, separate ownership, and formal trust matter.</p>
 </div>
 </div>
+</section>
 
 
             <div class="doc-footer">
@@ -1611,7 +1692,6 @@ class BookingExecutor(AgentExecutor):
 <li class="toc-level-1"><a href="#function-calling-internals-2">Function Calling Internals</a></li>
 <li class="toc-level-2"><a href="#the-mental-model-tool-calls-are-just-tokens-6">The mental model: tool calls are just tokens</a></li>
 <li class="toc-level-2"><a href="#how-models-are-trained-to-emit-tool-calls-50">How models are trained to emit tool calls</a></li>
-<li class="toc-level-3"><a href="#why-this-matters-for-engineers-63">Why this matters for engineers</a></li>
 <li class="toc-level-2"><a href="#json-schema-as-the-contract-69">JSON Schema as the contract</a></li>
 <li class="toc-level-2"><a href="#constrained-grammar-decoding-and-structured-outputs-123">Constrained (grammar) decoding and structured outputs</a></li>
 <li class="toc-level-2"><a href="#the-agent-loop-precisely-159">The agent loop, precisely</a></li>
@@ -1630,69 +1710,86 @@ class BookingExecutor(AgentExecutor):
 <li class="toc-level-1"><a href="#tool-selection-at-scale-335">Tool Selection at Scale</a></li>
 <li class="toc-level-2"><a href="#why-many-tools-break-agents-337">Why many tools break agents</a></li>
 <li class="toc-level-2"><a href="#strategies-345">Strategies</a></li>
-<li class="toc-level-3"><a href="#embedding-based-tool-retrieval-356">Embedding-based tool retrieval</a></li>
-<li class="toc-level-3"><a href="#the-search-tool-pattern-380">The search-tool pattern</a></li>
-<li class="toc-level-3"><a href="#code-execution-as-a-scaling-strategy-387">Code execution as a scaling strategy</a></li>
 <li class="toc-level-1"><a href="#model-context-protocol-mcp-in-depth-392">Model Context Protocol (MCP) in Depth</a></li>
 <li class="toc-level-2"><a href="#why-mcp-exists-394">Why MCP exists</a></li>
 <li class="toc-level-2"><a href="#architecture-host-client-server-400">Architecture: host, client, server</a></li>
 <li class="toc-level-2"><a href="#wire-protocol-json-rpc-20-426">Wire protocol: JSON-RPC 2.0</a></li>
 <li class="toc-level-2"><a href="#lifecycle-and-capability-negotiation-447">Lifecycle and capability negotiation</a></li>
 <li class="toc-level-2"><a href="#server-primitives-tools-resources-prompts-488">Server primitives: tools, resources, prompts</a></li>
-<li class="toc-level-3"><a href="#tools-498">Tools</a></li>
-<li class="toc-level-3"><a href="#resources-523">Resources</a></li>
-<li class="toc-level-3"><a href="#prompts-527">Prompts</a></li>
 <li class="toc-level-2"><a href="#client-primitives-sampling-roots-elicitation-531">Client primitives: sampling, roots, elicitation</a></li>
-<li class="toc-level-3"><a href="#sampling-535">Sampling</a></li>
-<li class="toc-level-3"><a href="#roots-542">Roots</a></li>
-<li class="toc-level-3"><a href="#elicitation-546">Elicitation</a></li>
 <li class="toc-level-2"><a href="#notifications-and-utilities-550">Notifications and utilities</a></li>
 <li class="toc-level-2"><a href="#transports-563">Transports</a></li>
-<li class="toc-level-3"><a href="#stdio-565">stdio</a></li>
-<li class="toc-level-3"><a href="#streamable-http-575">Streamable HTTP</a></li>
 <li class="toc-level-2"><a href="#authorization-oauth-21-609">Authorization: OAuth 2.1</a></li>
-<li class="toc-level-3"><a href="#the-confused-deputy-and-token-passthrough-636">The confused deputy and token passthrough</a></li>
 <li class="toc-level-2"><a href="#mcp-security-model-and-threats-643">MCP security model and threats</a></li>
 <li class="toc-level-2"><a href="#building-an-mcp-server-in-python-661">Building an MCP server in Python</a></li>
-<li class="toc-level-3"><a href="#writing-an-mcp-client-774">Writing an MCP client</a></li>
-<li class="toc-level-3"><a href="#production-checklist-for-mcp-servers-800">Production checklist for MCP servers</a></li>
 <li class="toc-level-1"><a href="#agent2agent-a2a-protocol-811">Agent2Agent (A2A) Protocol</a></li>
 <li class="toc-level-2"><a href="#purpose-and-positioning-813">Purpose and positioning</a></li>
 <li class="toc-level-2"><a href="#core-concepts-831">Core concepts</a></li>
-<li class="toc-level-3"><a href="#agent-card-833">Agent Card</a></li>
-<li class="toc-level-3"><a href="#task-message-part-artifact-862">Task, Message, Part, Artifact</a></li>
-<li class="toc-level-3"><a href="#interaction-patterns-869">Interaction patterns</a></li>
-<li class="toc-level-3"><a href="#implementing-an-a2a-server-sketch-898">Implementing an A2A server (sketch)</a></li>
 <li class="toc-level-2"><a href="#mcp-vs-a2a-925">MCP vs A2A</a></li>
 </ul></nav>
 
         </aside>
     </main>
 
-    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <!-- KaTeX Scripts (deferred, lazy per-element rendering) -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-    <!-- Prism Syntax Highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <!-- Prism Syntax Highlighting (deferred + manual lazy highlighting) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Render Math with KaTeX
-            if (typeof renderMathInElement !== 'undefined') {
-                renderMathInElement(document.body, {
-                    delimiters: [
-                        {left: '', right: '', display: true},
-                        {left: '$', right: '$', display: false},
-                        {left: '\\(', right: '\\)', display: false},
-                        {left: '\\[', right: '\\]', display: true}
-                    ],
-                    throwOnError: false,
-                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+            const katexOpts = {
+                delimiters: [
+                    {left: '', right: '', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            };
+
+            function renderMathEl(el) {
+                if (el.dataset.mathDone || typeof renderMathInElement === 'undefined') return;
+                el.dataset.mathDone = '1';
+                renderMathInElement(el, katexOpts);
+            }
+
+            function highlightCodeEl(el) {
+                if (el.dataset.prismDone || typeof Prism === 'undefined') return;
+                if (el.classList.contains('language-text')) return;
+                el.dataset.prismDone = '1';
+                Prism.highlightElement(el);
+            }
+
+            const mathEls = document.querySelectorAll('.math-block, .math-display, .math-inline');
+            const codeEls = document.querySelectorAll('pre code[class*="language-"]');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) return;
+                        const el = entry.target;
+                        if (el.tagName === 'CODE') {
+                            highlightCodeEl(el);
+                        } else {
+                            renderMathEl(el);
+                        }
+                        obs.unobserve(el);
+                    });
+                }, { rootMargin: '500px 0px' });
+
+                mathEls.forEach(el => observer.observe(el));
+                codeEls.forEach(el => {
+                    if (!el.classList.contains('language-text')) observer.observe(el);
                 });
+            } else {
+                mathEls.forEach(renderMathEl);
+                codeEls.forEach(highlightCodeEl);
             }
         });
 

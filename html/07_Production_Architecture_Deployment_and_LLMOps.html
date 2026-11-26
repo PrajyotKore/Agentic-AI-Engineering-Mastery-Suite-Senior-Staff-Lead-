@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>07: Production Architecture &amp; LLMOps | Agentic AI Study Suite</title>
-    <!-- Fonts -->
+    <!-- Fonts (lean weights, non-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- KaTeX CSS for LaTeX Math Formulas -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- Prism Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" media="print" onload="this.media='all'">
+    <!-- Prism Syntax Highlighting (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" media="print" onload="this.media='all'">
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -77,6 +77,12 @@
             display: flex;
             flex-direction: column;
             z-index: 100;
+            contain: layout style paint;
+        }
+        /* Virtualize off-screen sections for 60fps scrolling */
+        .doc-section {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 500px;
         }
         .sidebar-header {
             padding: 20px 18px;
@@ -189,6 +195,7 @@
             border-left: 1px solid var(--border);
             padding-left: 16px;
             display: none;
+            contain: layout style paint;
         }
         @media (min-width: 1240px) {
             aside.toc-rail { display: block; }
@@ -453,7 +460,10 @@
                 <h1 class="doc-title">07: Production Architecture &amp; LLMOps</h1>
             </div>
 
-            <h1 id="reference-agent-platform-architecture-2" class="doc-heading doc-h1"><a href="#reference-agent-platform-architecture-2" class="heading-anchor">#</a> Reference Agent Platform Architecture</h1>
+            <section class="doc-section">
+<h1 id="reference-agent-platform-architecture-2" class="doc-heading doc-h1"><a href="#reference-agent-platform-architecture-2" class="heading-anchor">#</a> Reference Agent Platform Architecture</h1>
+</section>
+<section class="doc-section">
 <h2 id="why-agents-need-a-platform-not-a-script-4" class="doc-heading doc-h2"><a href="#why-agents-need-a-platform-not-a-script-4" class="heading-anchor">#</a> Why Agents Need a Platform, Not a Script</h2>
 <p class="doc-paragraph">A prototype agent is a loop: call a model, parse tool calls, execute tools, append results, repeat until the model stops. That loop fits in sixty lines of Python and works beautifully on a laptop. In production the same loop must survive provider outages, enforce per-tenant budgets, resume after a pod is evicted mid-run, stream partial output to a browser, keep secrets away from the model, emit traces an on-call engineer can read at 3 a.m., and be upgraded without breaking in-flight sessions. None of those concerns live in the loop itself. They live in the platform around it.</p>
 <p class="doc-paragraph">The mental model that scales is to treat the <strong>agent loop as a stateful, non-deterministic, long-running workflow whose steps are expensive remote calls</strong>. Every property of that sentence drives an architectural decision:</p>
@@ -463,6 +473,8 @@
 <li><strong>Long-running</strong> means HTTP request/response is the wrong default transport for anything beyond a few seconds.</li>
 <li><strong>Expensive remote calls</strong> means caching, routing, batching and budgeting have first-order cost and latency impact.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="the-layered-reference-architecture-15" class="doc-heading doc-h2"><a href="#the-layered-reference-architecture-15" class="heading-anchor">#</a> The Layered Reference Architecture</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">                 +---------------------------------------------------+
  Clients  ----&gt;  |  Edge / API Gateway (authn, WAF, rate limit, SSE) |
@@ -581,6 +593,8 @@
 <p>Staff-level framing: the platform's job is to make the <em>agent author's</em> code boring. If every team re-implements retries, fallbacks, budget checks and tracing inside their agent, you have a framework zoo, not a platform. Push cross-cutting concerns down into the gateway, orchestrator and tool layer so that agent code is mostly prompts, tool definitions and policies.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="request-lifecycle-walkthrough-114" class="doc-heading doc-h2"><a href="#request-lifecycle-walkthrough-114" class="heading-anchor">#</a> Request Lifecycle Walkthrough</h2>
 <p class="doc-paragraph">Consider a user asking a support agent: &quot;Refund my last order and email me the receipt.&quot;</p>
 <ol class="doc-list-ordered">
@@ -592,6 +606,8 @@
 <li>The model emits <code>lookup_order</code> then <code>issue_refund(amount=42.00)</code>. Tool calls go via the tool layer, which injects the tenant's service credential (never visible to the model), enforces a 10-second timeout, and records the call with its idempotency key so a retry cannot double-refund.</li>
 <li>The model emits <code>send_email</code>. The final answer streams to the user. The workflow completes; usage is written to the cost ledger; the trace is sampled into the trajectory warehouse with an outcome label later attached from CSAT data.</li>
 </ol>
+</section>
+<section class="doc-section">
 <h2 id="control-plane-vs-data-plane-126" class="doc-heading doc-h2"><a href="#control-plane-vs-data-plane-126" class="heading-anchor">#</a> Control Plane vs Data Plane</h2>
 <p class="doc-paragraph">Mature platforms split:</p>
 <ul class="doc-list">
@@ -604,7 +620,11 @@
 <p>Data-plane components must keep working with the last known-good configuration when the control plane is unavailable. Design config distribution as versioned immutable snapshots (e.g., <code>agent_config@v417</code>) pushed or polled with local caching, never as a synchronous lookup on every request.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="execution-models-sync-async-and-event-driven-136" class="doc-heading doc-h1"><a href="#execution-models-sync-async-and-event-driven-136" class="heading-anchor">#</a> Execution Models: Sync, Async, and Event-Driven</h1>
+</section>
+<section class="doc-section">
 <h2 id="the-spectrum-138" class="doc-heading doc-h2"><a href="#the-spectrum-138" class="heading-anchor">#</a> The Spectrum</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -652,6 +672,8 @@
 </tr>
 </tbody></table></div>
 <p class="doc-paragraph">The deciding question is not &quot;how long does it usually take&quot; but &quot;<strong>what is the p99 duration and what happens if the executing process dies halfway?</strong>&quot; If the answer involves side effects or more than one user-visible minute of lost work, use durable async execution.</p>
+</section>
+<section class="doc-section">
 <h2 id="synchronous-inline-150" class="doc-heading doc-h2"><a href="#synchronous-inline-150" class="heading-anchor">#</a> Synchronous Inline</h2>
 <p class="doc-paragraph">Best for chat-like interactions. The runner holds the request open and streams tokens. Keep the loop bounded: maximum steps (e.g., 8–15), maximum wall-clock (e.g., 60 s), maximum tokens. If a run exceeds limits, hand off to async mode rather than failing — &quot;This is taking longer; I'll notify you when it's done.&quot;</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Framework-agnostic pseudocode for a bounded inline loop
@@ -671,6 +693,8 @@ async def run_inline(ctx, messages, tools, limits):
         ], return_exceptions=True)
         messages.extend(to_tool_messages(msg.tool_calls, results))
     return await ctx.escalate_to_async(messages)</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="async-job-pattern-174" class="doc-heading doc-h2"><a href="#async-job-pattern-174" class="heading-anchor">#</a> Async Job Pattern</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Client --POST /runs--&gt; API --enqueue--&gt; Queue --&gt; Worker pool
    ^                     |                           |
@@ -678,6 +702,8 @@ async def run_inline(ctx, messages, tools, limits):
    |                                                 +--&gt; events to stream bus
    +-------- GET /runs/{id}/events (SSE) &lt;-----------+</code></pre></div>
 <p class="doc-paragraph">The API returns a run id immediately. The client subscribes to an event stream keyed by run id. Workers publish events to a bus (Redis Streams, Kafka, NATS) and the streaming endpoint tails the bus. This decouples which pod runs the agent from which pod holds the client connection — essential once you have more than one replica.</p>
+</section>
+<section class="doc-section">
 <h2 id="event-driven-agents-186" class="doc-heading doc-h2"><a href="#event-driven-agents-186" class="heading-anchor">#</a> Event-Driven Agents</h2>
 <p class="doc-paragraph">Here agents are consumers of business events: <code>ticket.created</code>, <code>pr.opened</code>, <code>alert.fired</code>. Key design rules:</p>
 <ul class="doc-list">
@@ -714,9 +740,15 @@ async def run_inline(ctx, messages, tools, limits):
 <p>Use choreography between bounded contexts (the triage agent and the billing agent are owned by different teams) and orchestration within one (the steps of a single refund process). Mixing both is normal; the anti-pattern is an implicit orchestration hidden inside chains of events nobody can trace.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="long-running-agents-with-queues-workers-and-durable-execution-204" class="doc-heading doc-h1"><a href="#long-running-agents-with-queues-workers-and-durable-execution-204" class="heading-anchor">#</a> Long-Running Agents with Queues, Workers, and Durable Execution</h1>
+</section>
+<section class="doc-section">
 <h2 id="the-core-problem-206" class="doc-heading doc-h2"><a href="#the-core-problem-206" class="heading-anchor">#</a> The Core Problem</h2>
 <p class="doc-paragraph">An agent that researches for 40 minutes, calling 200 tools, will encounter: provider 529/overloaded errors, rate limits, pod restarts, network partitions, and tool timeouts. Each failure must resume from the last good step, not from scratch, and must never repeat a non-idempotent side effect.</p>
+</section>
+<section class="doc-section">
 <h2 id="three-implementation-approaches-210" class="doc-heading doc-h2"><a href="#three-implementation-approaches-210" class="heading-anchor">#</a> Three Implementation Approaches</h2>
 <h3 id="approach-a-queue-workers-checkpoints-diy-212" class="doc-heading doc-h3"><a href="#approach-a-queue-workers-checkpoints-diy-212" class="heading-anchor">#</a> Approach A: Queue + Workers + Checkpoints (DIY)</h3>
 <p class="doc-paragraph">Each agent step is a message. A worker pulls a message, loads the checkpoint, performs one step (one model call plus its tool calls), writes the new checkpoint transactionally with the next step message (outbox pattern), and acks.</p>
@@ -842,6 +874,8 @@ class AgentWorkflow:
 <p>No engine gives exactly-once execution of external side effects. Activities are retried, so the <em>tool</em> must be idempotent: pass an idempotency key (e.g., <code>run_id:step:tool_call_id</code>) to downstream APIs that support it (Stripe-style), or record a &quot;started&quot; marker and check-before-act for those that do not.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="worker-design-307" class="doc-heading doc-h2"><a href="#worker-design-307" class="heading-anchor">#</a> Worker Design</h2>
 <ul class="doc-list">
 <li><strong>Separate worker pools by resource profile</strong>: LLM-call-heavy workers are I/O bound (high concurrency per process, async); code-execution or browser/computer-use workers are CPU/memory bound and need sandboxed isolation (gVisor, Firecracker microVMs, Kata).</li>
@@ -855,9 +889,15 @@ class AgentWorkflow:
 <p>Size async worker concurrency against your <em>token-per-minute quota</em>, not your pod count. Fifty idle-waiting workers that all fire at once will slam into a 429 wall; a gateway-side token bucket plus queue-depth-based autoscaling keeps throughput at the quota ceiling without thrashing.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="streaming-sse-websockets-and-event-protocols-317" class="doc-heading doc-h1"><a href="#streaming-sse-websockets-and-event-protocols-317" class="heading-anchor">#</a> Streaming: SSE, WebSockets, and Event Protocols</h1>
+</section>
+<section class="doc-section">
 <h2 id="why-stream-319" class="doc-heading doc-h2"><a href="#why-stream-319" class="heading-anchor">#</a> Why Stream</h2>
 <p class="doc-paragraph">Perceived latency is dominated by time-to-first-visible-output. A 12-second answer that starts rendering at 700 ms feels faster than a 6-second answer delivered all at once. For agents, streaming also conveys <em>progress</em>: &quot;Searching orders…&quot;, &quot;Calling refund API…&quot;, which drastically reduces abandonment during multi-step runs.</p>
+</section>
+<section class="doc-section">
 <h2 id="transport-choices-323" class="doc-heading doc-h2"><a href="#transport-choices-323" class="heading-anchor">#</a> Transport Choices</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -905,6 +945,8 @@ class AgentWorkflow:
 </tr>
 </tbody></table></div>
 <p class="doc-paragraph">Provider APIs themselves stream via SSE (OpenAI Responses API, Anthropic Messages API, Gemini), and realtime voice APIs use WebSocket or WebRTC. MCP's Streamable HTTP transport can upgrade responses to SSE for server-to-client messages. A2A supports SSE streaming of task updates.</p>
+</section>
+<section class="doc-section">
 <h2 id="designing-an-agent-event-schema-335" class="doc-heading doc-h2"><a href="#designing-an-agent-event-schema-335" class="heading-anchor">#</a> Designing an Agent Event Schema</h2>
 <p class="doc-paragraph">Do not forward raw provider deltas to the browser. Define your own typed event stream, so you can switch providers and add agent-level events:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-json">{&quot;id&quot;:&quot;412&quot;,&quot;event&quot;:&quot;run.started&quot;,&quot;data&quot;:{&quot;run_id&quot;:&quot;r_9&quot;,&quot;agent&quot;:&quot;support@v31&quot;}}
@@ -916,6 +958,8 @@ class AgentWorkflow:
 {&quot;id&quot;:&quot;455&quot;,&quot;event&quot;:&quot;message.completed&quot;,&quot;data&quot;:{&quot;usage&quot;:{&quot;in&quot;:5120,&quot;out&quot;:210}}}
 {&quot;id&quot;:&quot;456&quot;,&quot;event&quot;:&quot;run.completed&quot;,&quot;data&quot;:{&quot;status&quot;:&quot;success&quot;}}</code></pre></div>
 <p class="doc-paragraph">Open protocols such as AG-UI standardise this agent-to-frontend event layer; adopting one (or mirroring its shape) eases frontend reuse.</p>
+</section>
+<section class="doc-section">
 <h2 id="resumable-streams-352" class="doc-heading doc-h2"><a href="#resumable-streams-352" class="heading-anchor">#</a> Resumable Streams</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">Worker --XADD run:r_9--&gt; Redis Stream &lt;--XREAD from last id-- SSE endpoint (any pod)
                                                      ^
@@ -962,6 +1006,8 @@ async def events(run_id: str, request: Request):
 <p>Streaming and output guardrails conflict. If you stream tokens as they arrive, a moderation classifier that flags the full response runs too late — the user already saw it. Options: stream with a lagging buffer (moderate every N tokens/sentence before release), stream only for low-risk surfaces, or retract-and-replace in the UI. Pick explicitly per surface.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="interruption-and-steering-400" class="doc-heading doc-h2"><a href="#interruption-and-steering-400" class="heading-anchor">#</a> Interruption and Steering</h2>
 <p class="doc-paragraph">Users want to stop or redirect an agent mid-run. With WebSockets, the client sends <code>{&quot;type&quot;:&quot;cancel&quot;}</code> or <code>{&quot;type&quot;:&quot;steer&quot;,&quot;text&quot;:&quot;use EU region&quot;}</code>; with SSE, use a separate POST endpoint that sends a signal to the run (e.g., Temporal signal or a Redis key the loop checks between steps). Cancellation must propagate: abort the in-flight provider stream (saving tokens), cancel pending tool calls if safe, and record the partial state.</p>
 <div class="callout callout-tip">
@@ -970,9 +1016,15 @@ async def events(run_id: str, request: Request):
 <p>Check for cancellation between every step <em>and</em> abort the provider HTTP stream on cancel. Reasoning models can burn thousands of hidden reasoning tokens after a user has already navigated away; at scale, unabandoned streams are a measurable percentage of spend.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="model-routing-and-cascading-408" class="doc-heading doc-h1"><a href="#model-routing-and-cascading-408" class="heading-anchor">#</a> Model Routing and Cascading</h1>
+</section>
+<section class="doc-section">
 <h2 id="the-economic-premise-410" class="doc-heading doc-h2"><a href="#the-economic-premise-410" class="heading-anchor">#</a> The Economic Premise</h2>
 <p class="doc-paragraph">Model prices span roughly two orders of magnitude between small and frontier models, and latency spans one order. Yet in most agent workloads a large majority of calls — classification, extraction, routing decisions, simple tool-argument filling, summarisation of tool output — are well within the ability of small models. Routing sends each request to the cheapest model that meets its quality bar; cascading tries cheap first and escalates on low confidence.</p>
+</section>
+<section class="doc-section">
 <h2 id="routing-strategies-414" class="doc-heading doc-h2"><a href="#routing-strategies-414" class="heading-anchor">#</a> Routing Strategies</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1020,6 +1072,8 @@ async def events(run_id: str, request: Request):
 </tr>
 </tbody></table></div>
 <p class="doc-paragraph">Most current frontier APIs expose a reasoning effort or thinking-budget parameter. Routing therefore has two axes: <em>which model</em> and <em>how much thinking</em>. A common production pattern is a fast non-reasoning model for conversational turns and a reasoning model (or high effort) only for planning, code generation, or when the cheap path fails verification.</p>
+</section>
+<section class="doc-section">
 <h2 id="cascade-mechanics-427" class="doc-heading doc-h2"><a href="#cascade-mechanics-427" class="heading-anchor">#</a> Cascade Mechanics</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">request --&gt; small model --&gt; verifier --&gt; pass? --yes--&gt; return
                                 |
@@ -1059,9 +1113,15 @@ async def cascade(req, tiers, verify):
 <p>Before building a learned router, measure the ceiling: run your eval set through every candidate model and compute the &quot;oracle routing&quot; cost (cheapest model that got each item right). If oracle savings are under 30%, a static per-step assignment probably captures most of the value with zero operational risk.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="routing-in-multi-agent-systems-476" class="doc-heading doc-h2"><a href="#routing-in-multi-agent-systems-476" class="heading-anchor">#</a> Routing in Multi-Agent Systems</h2>
 <p class="doc-paragraph">In orchestrator-worker architectures (an orchestrator plans and spawns sub-agents), the orchestrator is usually a frontier reasoning model and sub-agents can be smaller. Anthropic's published experience with multi-agent research systems noted token usage is the dominant driver of both performance and cost, with multi-agent runs consuming many times the tokens of single-agent chats. Routing sub-agents to cheaper models is often the single largest lever.</p>
+</section>
+<section class="doc-section">
 <h1 id="llm-gateways-480" class="doc-heading doc-h1"><a href="#llm-gateways-480" class="heading-anchor">#</a> LLM Gateways</h1>
+</section>
+<section class="doc-section">
 <h2 id="responsibilities-482" class="doc-heading doc-h2"><a href="#responsibilities-482" class="heading-anchor">#</a> Responsibilities</h2>
 <p class="doc-paragraph">An LLM gateway is a reverse proxy specialised for model APIs. Open-source and commercial options include LiteLLM, Portkey, Kong AI Gateway, Envoy AI Gateway, Cloudflare AI Gateway, Azure API Management AI policies, and in-house builds. Core responsibilities:</p>
 <ol class="doc-list-ordered">
@@ -1075,6 +1135,8 @@ async def cascade(req, tiers, verify):
 <li><strong>Policy and safety</strong>: PII redaction, prompt-injection classifiers, data residency routing.</li>
 <li><strong>Observability</strong>: OTel spans, request logs (with configurable redaction).</li>
 </ol>
+</section>
+<section class="doc-section">
 <h2 id="rate-limiting-with-token-buckets-496" class="doc-heading doc-h2"><a href="#rate-limiting-with-token-buckets-496" class="heading-anchor">#</a> Rate Limiting with Token Buckets</h2>
 <p class="doc-paragraph">Providers limit both requests per minute (RPM) and tokens per minute (TPM), sometimes separately for input and output. The gateway must enforce your <em>internal</em> allocation of those limits so one tenant cannot starve others.</p>
 <p class="doc-paragraph">A token-bucket limiter per (tenant, model) key, with capacity <code>B</code> and refill rate <code>r</code> tokens/s, admits a request costing <code>k</code> tokens if bucket ≥ <code>k</code>. The difficulty: output tokens are unknown up front. Common approach — reserve <code>input_tokens + max_tokens</code> estimate at admission, then refund the unused portion after completion.</p>
@@ -1113,6 +1175,8 @@ async def settle(tenant, model, reserved, actual_in, actual_out):
 <p>Reserving <code>max_tokens</code> for reasoning models is a trap: reasoning tokens count as output and can be tens of thousands. If you reserve the max you under-admit massively; if you reserve too little you overshoot provider TPM and get 429 storms. Use a per-route rolling p95 of actual output tokens as the reservation and refund/charge the difference.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="fallback-design-537" class="doc-heading doc-h2"><a href="#fallback-design-537" class="heading-anchor">#</a> Fallback Design</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">primary: provider A, model X, region us-east
   on 429/5xx/timeout --&gt; provider A, model X, region us-west
@@ -1171,6 +1235,8 @@ async def settle(tenant, model, reserved, actual_in, actual_out):
 <p>Treat cross-provider fallback as a feature that must be <em>continuously exercised</em>. Route 1–5% of production traffic to the secondary provider permanently. Fallback paths that are only used during outages are always broken during outages — expired keys, untested prompts, missing quota.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="quotas-budgets-and-hierarchies-565" class="doc-heading doc-h2"><a href="#quotas-budgets-and-hierarchies-565" class="heading-anchor">#</a> Quotas, Budgets, and Hierarchies</h2>
 <p class="doc-paragraph">Quotas should be hierarchical: organisation → tenant → team/feature → user, each with soft (alert) and hard (block or degrade) limits on spend and tokens. Hard limits for end users should degrade gracefully (switch to cheaper model, reduce max steps) rather than error.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">yaml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-yaml"># Example gateway budget policy (illustrative schema)
@@ -1188,6 +1254,8 @@ budgets:
     period: day
     hard_limit_tokens: 2_000_000
     on_hard_limit: block_with_message</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="caching-at-the-gateway-587" class="doc-heading doc-h2"><a href="#caching-at-the-gateway-587" class="heading-anchor">#</a> Caching at the Gateway</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1228,7 +1296,11 @@ budgets:
 <p>Semantic caches are dangerous in agents. &quot;Cancel my order 1234&quot; and &quot;Cancel my order 1243&quot; are near-identical embeddings. Never semantic-cache anything that is user-specific, has side effects, or depends on fresh state. Scope all caches by tenant to avoid cross-tenant data leakage.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="latency-engineering-599" class="doc-heading doc-h1"><a href="#latency-engineering-599" class="heading-anchor">#</a> Latency Engineering</h1>
+</section>
+<section class="doc-section">
 <h2 id="decomposing-agent-latency-601" class="doc-heading doc-h2"><a href="#decomposing-agent-latency-601" class="heading-anchor">#</a> Decomposing Agent Latency</h2>
 <p class="doc-paragraph">For a single model call:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">latency = network RTT + queueing + prefill(input_tokens) + [reasoning tokens decode] + visible output tokens decode
@@ -1238,6 +1310,8 @@ total ≈ TTFT + output_tokens * TPOT</code></pre></div>
 <p class="doc-paragraph">For an agent run:</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">run latency = sum over sequential steps of (model latency + tool latency) + orchestration overhead</code></pre></div>
 <p class="doc-paragraph">Key insight: <strong>output tokens and sequential steps dominate</strong>. Prefill is highly parallel on GPUs (thousands of tokens per second per request), decode is sequential (tens to low hundreds of tokens per second per stream). A 2,000-token output at 60 tokens/s is 33 seconds no matter how small the prompt.</p>
+</section>
+<section class="doc-section">
 <h2 id="the-latency-levers-620" class="doc-heading doc-h2"><a href="#the-latency-levers-620" class="heading-anchor">#</a> The Latency Levers</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1308,6 +1382,8 @@ total ≈ TTFT + output_tokens * TPOT</code></pre></div>
 <td>Committed spend</td>
 </tr>
 </tbody></table></div>
+</section>
+<section class="doc-section">
 <h2 id="parallelism-635" class="doc-heading doc-h2"><a href="#parallelism-635" class="heading-anchor">#</a> Parallelism</h2>
 <p class="doc-paragraph">Modern models emit multiple tool calls in one turn (parallel tool calling). Execute them concurrently with per-tool timeouts. At the architecture level, orchestrator-worker patterns fan out sub-agents in parallel — research agents commonly parallelise searches across sub-agents, trading tokens for wall-clock.</p>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python">async def exec_parallel(calls, timeout_s=15):
@@ -1323,6 +1399,8 @@ total ≈ TTFT + output_tokens * TPOT</code></pre></div>
 <p>Parallel tool calls with hidden dependencies cause race conditions: <code>create_folder</code> and <code>upload_file_to_folder</code> emitted in the same turn will fail nondeterministically. Mark tools with dependency or side-effect metadata and serialise side-effecting calls targeting the same resource, or instruct the model (and validate) that dependent calls must be in separate turns.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="speculative-execution-at-the-agent-level-652" class="doc-heading doc-h2"><a href="#speculative-execution-at-the-agent-level-652" class="heading-anchor">#</a> Speculative Execution at the Agent Level</h2>
 <p class="doc-paragraph">Distinct from speculative <em>decoding</em> (an inference-engine technique covered later), agent-level speculation means starting work before you know you need it:</p>
 <ul class="doc-list">
@@ -1331,6 +1409,8 @@ total ≈ TTFT + output_tokens * TPOT</code></pre></div>
 <li><strong>Speculative model calls</strong>: run the cheap model and the expensive model concurrently, return the cheap one if it verifies, cancel the expensive one — trades cost for cascade latency.</li>
 <li><strong>Predicted outputs</strong>: some APIs accept a predicted output (e.g., when editing a file where most content is unchanged), letting the server verify spans instead of generating them.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="prompt-caching-661" class="doc-heading doc-h2"><a href="#prompt-caching-661" class="heading-anchor">#</a> Prompt Caching</h2>
 <p class="doc-paragraph">Providers cache the KV state of prompt prefixes. Mechanics differ:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -1406,6 +1486,8 @@ log(cache_read=u.cache_read_input_tokens, cache_write=u.cache_creation_input_tok
 <p>For agent loops, the conversation grows by appending tool results, so each step re-sends the previous prefix. With good caching, a 20-step agent with a 30k-token context pays full price for roughly one prefix and discounted price for the rest. Without caching, input cost grows quadratically with steps. Caching is not an optimisation for agents; it is what makes long loops economically viable.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="latency-slos-for-agents-708" class="doc-heading doc-h2"><a href="#latency-slos-for-agents-708" class="heading-anchor">#</a> Latency SLOs for Agents</h2>
 <p class="doc-paragraph">Define SLOs per interaction class, not one global number:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -1437,7 +1519,11 @@ log(cache_read=u.cache_read_input_tokens, cache_write=u.cache_creation_input_tok
 </tr>
 </tbody></table></div>
 <p class="doc-paragraph">Measure first <em>meaningful</em> event (a status or first token), not HTTP 200.</p>
+</section>
+<section class="doc-section">
 <h1 id="cost-engineering-and-token-budgets-721" class="doc-heading doc-h1"><a href="#cost-engineering-and-token-budgets-721" class="heading-anchor">#</a> Cost Engineering and Token Budgets</h1>
+</section>
+<section class="doc-section">
 <h2 id="anatomy-of-agent-cost-723" class="doc-heading doc-h2"><a href="#anatomy-of-agent-cost-723" class="heading-anchor">#</a> Anatomy of Agent Cost</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">cost_per_task = sum over model calls of [
      uncached_in * p_in + cached_in * p_cached + cache_write * p_write
@@ -1447,6 +1533,8 @@ log(cache_read=u.cache_read_input_tokens, cache_write=u.cache_creation_input_tok
  + infra (orchestrator, storage, observability)
  + human review costs (often the largest, often ignored)</code></pre></div>
 <p class="doc-paragraph">Unit economics should be expressed <strong>per successful task</strong>, not per token or per request: <code>cost_per_success = total_cost / successful_tasks</code>. An agent with a 60% success rate at 0.10 USD per attempt costs 0.167 USD per success, plus the cost of the failures handled by humans.</p>
+</section>
+<section class="doc-section">
 <h2 id="worked-finops-example-737" class="doc-heading doc-h2"><a href="#worked-finops-example-737" class="heading-anchor">#</a> Worked FinOps Example</h2>
 <p class="doc-paragraph">Scenario: customer-support agent, 1.2 million conversations/month, average 3 user turns per conversation, average 4 model calls per turn (planner + tool loops), hence 14.4 million model calls/month.</p>
 <p class="doc-paragraph">Per-call token profile (averages):</p>
@@ -1481,6 +1569,8 @@ total                                       ≈ 82,200 USD/month   (-87% vs A)</
 <p>Reasoning tokens are invisible output tokens billed at output rates. Switching a route from a non-reasoning model to a reasoning model at &quot;the same price per token&quot; can multiply cost 5–20x because each call emits thousands of hidden reasoning tokens. Track <code>reasoning_tokens</code> separately in your cost ledger and set reasoning effort explicitly per route.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="token-budgets-in-the-agent-loop-786" class="doc-heading doc-h2"><a href="#token-budgets-in-the-agent-loop-786" class="heading-anchor">#</a> Token Budgets in the Agent Loop</h2>
 <p class="doc-paragraph">Budgets should exist at several levels:</p>
 <ul class="doc-list">
@@ -1505,6 +1595,8 @@ total                                       ≈ 82,200 USD/month   (-87% vs A)</
         if self.tokens &gt; self.token_limit:
             raise BudgetExceeded(&quot;tokens&quot;, self.tokens)</code></pre></div>
 <p class="doc-paragraph">On <code>BudgetExceeded</code>, do not just crash: ask the model to produce a best-effort final answer with what it has (one bounded call), or hand off to a human.</p>
+</section>
+<section class="doc-section">
 <h2 id="context-compaction-economics-815" class="doc-heading doc-h2"><a href="#context-compaction-economics-815" class="heading-anchor">#</a> Context Compaction Economics</h2>
 <p class="doc-paragraph">Long agent runs accumulate tool outputs. Strategies:</p>
 <div class="table-responsive"><table class="doc-table">
@@ -1546,8 +1638,12 @@ total                                       ≈ 82,200 USD/month   (-87% vs A)</
 <p>Compact in discrete epochs (e.g., when context passes 70% of the window), not every turn. Every compaction invalidates the cache for the suffix; compacting once per 20 turns costs one cache write, compacting every turn defeats caching entirely. The Claude Agent SDK and several frameworks provide built-in compaction for exactly this reason.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="batch-and-flex-tiers-829" class="doc-heading doc-h2"><a href="#batch-and-flex-tiers-829" class="heading-anchor">#</a> Batch and Flex Tiers</h2>
 <p class="doc-paragraph">Major providers offer batch APIs (asynchronous, typically within 24 hours) at around a 50% discount, and some offer flex/priority tiers trading latency for price. Route offline workloads — evals, backfills, nightly summarisation, synthetic data generation, trajectory labelling — to batch. A platform should make &quot;batch-eligible&quot; a property of the job, with the gateway choosing the API.</p>
+</section>
+<section class="doc-section">
 <h2 id="finops-operating-model-833" class="doc-heading doc-h2"><a href="#finops-operating-model-833" class="heading-anchor">#</a> FinOps Operating Model</h2>
 <ul class="doc-list">
 <li><strong>Showback/chargeback</strong> by tenant, team, feature via gateway tags.</li>
@@ -1561,6 +1657,7 @@ total                                       ≈ 82,200 USD/month   (-87% vs A)</
 <p>Runaway loops are the costliest agent failure mode: a tool returns an error the model cannot fix, the model retries forever. Hard step limits, repeated-identical-call detection (same tool + same args three times → abort), and per-run spend caps are mandatory, not optional.</p>
 </div>
 </div>
+</section>
 
 
             <div class="doc-footer">
@@ -1575,15 +1672,6 @@ total                                       ≈ 82,200 USD/month   (-87% vs A)</
 <li class="toc-level-1"><a href="#reference-agent-platform-architecture-2">Reference Agent Platform Architecture</a></li>
 <li class="toc-level-2"><a href="#why-agents-need-a-platform-not-a-script-4">Why Agents Need a Platform, Not a Script</a></li>
 <li class="toc-level-2"><a href="#the-layered-reference-architecture-15">The Layered Reference Architecture</a></li>
-<li class="toc-level-3"><a href="#edge-api-gateway-63">Edge / API Gateway</a></li>
-<li class="toc-level-3"><a href="#session-service-67">Session Service</a></li>
-<li class="toc-level-3"><a href="#orchestrator-71">Orchestrator</a></li>
-<li class="toc-level-3"><a href="#agent-runtime-75">Agent Runtime</a></li>
-<li class="toc-level-3"><a href="#llm-gateway-and-model-router-79">LLM Gateway and Model Router</a></li>
-<li class="toc-level-3"><a href="#tool-layer-83">Tool Layer</a></li>
-<li class="toc-level-3"><a href="#memory-and-state-87">Memory and State</a></li>
-<li class="toc-level-3"><a href="#queues-103">Queues</a></li>
-<li class="toc-level-3"><a href="#observability-107">Observability</a></li>
 <li class="toc-level-2"><a href="#request-lifecycle-walkthrough-114">Request Lifecycle Walkthrough</a></li>
 <li class="toc-level-2"><a href="#control-plane-vs-data-plane-126">Control Plane vs Data Plane</a></li>
 <li class="toc-level-1"><a href="#execution-models-sync-async-and-event-driven-136">Execution Models: Sync, Async, and Event-Driven</a></li>
@@ -1594,9 +1682,6 @@ total                                       ≈ 82,200 USD/month   (-87% vs A)</
 <li class="toc-level-1"><a href="#long-running-agents-with-queues-workers-and-durable-execution-204">Long-Running Agents with Queues, Workers, and Durable Execution</a></li>
 <li class="toc-level-2"><a href="#the-core-problem-206">The Core Problem</a></li>
 <li class="toc-level-2"><a href="#three-implementation-approaches-210">Three Implementation Approaches</a></li>
-<li class="toc-level-3"><a href="#approach-a-queue-workers-checkpoints-diy-212">Approach A: Queue + Workers + Checkpoints (DIY)</a></li>
-<li class="toc-level-3"><a href="#approach-b-durable-execution-temporal-and-peers-235">Approach B: Durable Execution (Temporal and peers)</a></li>
-<li class="toc-level-3"><a href="#approach-c-graph-runtime-with-checkpointer-291">Approach C: Graph Runtime with Checkpointer</a></li>
 <li class="toc-level-2"><a href="#worker-design-307">Worker Design</a></li>
 <li class="toc-level-1"><a href="#streaming-sse-websockets-and-event-protocols-317">Streaming: SSE, WebSockets, and Event Protocols</a></li>
 <li class="toc-level-2"><a href="#why-stream-319">Why Stream</a></li>
@@ -1608,7 +1693,6 @@ total                                       ≈ 82,200 USD/month   (-87% vs A)</
 <li class="toc-level-2"><a href="#the-economic-premise-410">The Economic Premise</a></li>
 <li class="toc-level-2"><a href="#routing-strategies-414">Routing Strategies</a></li>
 <li class="toc-level-2"><a href="#cascade-mechanics-427">Cascade Mechanics</a></li>
-<li class="toc-level-3"><a href="#worked-cascade-math-439">Worked Cascade Math</a></li>
 <li class="toc-level-2"><a href="#routing-in-multi-agent-systems-476">Routing in Multi-Agent Systems</a></li>
 <li class="toc-level-1"><a href="#llm-gateways-480">LLM Gateways</a></li>
 <li class="toc-level-2"><a href="#responsibilities-482">Responsibilities</a></li>
@@ -1635,30 +1719,65 @@ total                                       ≈ 82,200 USD/month   (-87% vs A)</
         </aside>
     </main>
 
-    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <!-- KaTeX Scripts (deferred, lazy per-element rendering) -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-    <!-- Prism Syntax Highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <!-- Prism Syntax Highlighting (deferred + manual lazy highlighting) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Render Math with KaTeX
-            if (typeof renderMathInElement !== 'undefined') {
-                renderMathInElement(document.body, {
-                    delimiters: [
-                        {left: '', right: '', display: true},
-                        {left: '$', right: '$', display: false},
-                        {left: '\\(', right: '\\)', display: false},
-                        {left: '\\[', right: '\\]', display: true}
-                    ],
-                    throwOnError: false,
-                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+            const katexOpts = {
+                delimiters: [
+                    {left: '', right: '', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            };
+
+            function renderMathEl(el) {
+                if (el.dataset.mathDone || typeof renderMathInElement === 'undefined') return;
+                el.dataset.mathDone = '1';
+                renderMathInElement(el, katexOpts);
+            }
+
+            function highlightCodeEl(el) {
+                if (el.dataset.prismDone || typeof Prism === 'undefined') return;
+                if (el.classList.contains('language-text')) return;
+                el.dataset.prismDone = '1';
+                Prism.highlightElement(el);
+            }
+
+            const mathEls = document.querySelectorAll('.math-block, .math-display, .math-inline');
+            const codeEls = document.querySelectorAll('pre code[class*="language-"]');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) return;
+                        const el = entry.target;
+                        if (el.tagName === 'CODE') {
+                            highlightCodeEl(el);
+                        } else {
+                            renderMathEl(el);
+                        }
+                        obs.unobserve(el);
+                    });
+                }, { rootMargin: '500px 0px' });
+
+                mathEls.forEach(el => observer.observe(el));
+                codeEls.forEach(el => {
+                    if (!el.classList.contains('language-text')) observer.observe(el);
                 });
+            } else {
+                mathEls.forEach(renderMathEl);
+                codeEls.forEach(highlightCodeEl);
             }
         });
 

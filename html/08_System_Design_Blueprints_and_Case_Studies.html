@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>08: System Design Blueprints &amp; Case Studies | Agentic AI Study Suite</title>
-    <!-- Fonts -->
+    <!-- Fonts (lean weights, non-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- KaTeX CSS for LaTeX Math Formulas -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- Prism Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS for LaTeX Math Formulas (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" media="print" onload="this.media='all'">
+    <!-- Prism Syntax Highlighting (non-render-blocking) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" media="print" onload="this.media='all'">
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -77,6 +77,12 @@
             display: flex;
             flex-direction: column;
             z-index: 100;
+            contain: layout style paint;
+        }
+        /* Virtualize off-screen sections for 60fps scrolling */
+        .doc-section {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 500px;
         }
         .sidebar-header {
             padding: 20px 18px;
@@ -189,6 +195,7 @@
             border-left: 1px solid var(--border);
             padding-left: 16px;
             display: none;
+            contain: layout style paint;
         }
         @media (min-width: 1240px) {
             aside.toc-rail { display: block; }
@@ -453,7 +460,8 @@
                 <h1 class="doc-title">08: System Design Blueprints &amp; Case Studies</h1>
             </div>
 
-            <h1 id="how-to-use-these-case-studies-2" class="doc-heading doc-h1"><a href="#how-to-use-these-case-studies-2" class="heading-anchor">#</a> How to Use These Case Studies</h1>
+            <section class="doc-section">
+<h1 id="how-to-use-these-case-studies-2" class="doc-heading doc-h1"><a href="#how-to-use-these-case-studies-2" class="heading-anchor">#</a> How to Use These Case Studies</h1>
 <p class="doc-paragraph">This part contains seven Staff-level system design case studies for agentic AI, written the way strong candidates answer them out loud. Each one follows the same structure: requirements, clarifying questions, back-of-envelope estimates with the math shown, a high-level architecture, component deep dives, data model, failure modes, security, evals, scaling, and trade-offs. The last chapter turns that structure into a reusable answer framework.</p>
 <p class="doc-paragraph">What separates a Staff answer from a Senior one is usually not knowing more components. It is the following:</p>
 <ul class="doc-list">
@@ -505,9 +513,15 @@
 <td>Total spend divided by successfully completed tasks, not by requests</td>
 </tr>
 </tbody></table></div>
+</section>
+<section class="doc-section">
 <h1 id="case-study-1-autonomous-coding-agent-with-sandboxed-execution-29" class="doc-heading doc-h1"><a href="#case-study-1-autonomous-coding-agent-with-sandboxed-execution-29" class="heading-anchor">#</a> Case Study 1: Autonomous Coding Agent with Sandboxed Execution</h1>
+</section>
+<section class="doc-section">
 <h2 id="prompt-31" class="doc-heading doc-h2"><a href="#prompt-31" class="heading-anchor">#</a> Prompt</h2>
 <p class="doc-paragraph">&quot;Design an autonomous coding agent, similar to Devin, Codex cloud tasks, Claude Code in headless mode, or Jules. An engineer assigns a GitHub issue. The agent clones the repo, plans, edits code, runs tests in a sandbox, and opens a pull request. Target: 5,000 engineers at one company, plus later a SaaS offering.&quot;</p>
+</section>
+<section class="doc-section">
 <h2 id="clarifying-questions-35" class="doc-heading doc-h2"><a href="#clarifying-questions-35" class="heading-anchor">#</a> Clarifying Questions</h2>
 <p class="doc-paragraph">Ask these first, then state your assumptions:</p>
 <ol class="doc-list-ordered">
@@ -519,6 +533,8 @@
 <li><strong>Secrets.</strong> Does the agent need production credentials? No. It may need test service credentials, which are injected and scoped.</li>
 <li><strong>Success metric.</strong> PR merge rate without major rework, time-to-PR, cost per merged PR.</li>
 </ol>
+</section>
+<section class="doc-section">
 <h2 id="functional-and-non-functional-requirements-47" class="doc-heading doc-h2"><a href="#functional-and-non-functional-requirements-47" class="heading-anchor">#</a> Functional and Non-Functional Requirements</h2>
 <p class="doc-paragraph">Functional:</p>
 <ul class="doc-list">
@@ -535,6 +551,8 @@
 <li>A task survives worker crashes. Tasks can run up to 2 hours.</li>
 <li>Cost per merged PR well below the cost of the engineer time it replaces. Target under &amp;#36;5 average.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="back-of-envelope-estimates-64" class="doc-heading doc-h2"><a href="#back-of-envelope-estimates-64" class="heading-anchor">#</a> Back-of-Envelope Estimates</h2>
 <p class="doc-paragraph">Load:</p>
 <ul class="doc-list">
@@ -563,6 +581,8 @@
 </div>
 </div>
 <p class="doc-paragraph">Latency budget per step: model time to first token 1-3s plus generation of 1.5K tokens at about 80 tok/s, which is about 19s worst case. Reasoning-heavy steps are slower. Tool execution averages 5s, with test runs from 30s to 5min. 40 steps × about 25s gives about 17 minutes, matching the target. The critical path is test execution. That argues for incremental test selection and warm build caches more than for faster models.</p>
+</section>
+<section class="doc-section">
 <h2 id="high-level-architecture-91" class="doc-heading doc-h2"><a href="#high-level-architecture-91" class="heading-anchor">#</a> High-Level Architecture</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text"> Issue tracker / Slack / CLI / IDE
               |
@@ -599,6 +619,8 @@
 
  Side systems: Trajectory store (object storage), Eval harness,
  Observability (OTel traces per step), Policy engine (OPA/Cedar)</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="component-deep-dives-131" class="doc-heading doc-h2"><a href="#component-deep-dives-131" class="heading-anchor">#</a> Component Deep Dives</h2>
 <h3 id="sandbox-manager-133" class="doc-heading doc-h3"><a href="#sandbox-manager-133" class="heading-anchor">#</a> Sandbox Manager</h3>
 <p class="doc-paragraph">Use microVMs, Firecracker or Cloud Hypervisor, or gVisor. Plain Docker shares the host kernel, and container escapes are a real risk once you run arbitrary code generated by an LLM from untrusted repos. Key techniques:</p>
@@ -699,6 +721,8 @@ async def run_task(task, sandbox, model, budget):
 <li>Fallback across providers needs prompt and tool-schema adapters. A fallback breaks the cache, so trigger it only on sustained errors.</li>
 <li>Enforce quotas per user, team, and task. Use circuit breakers for provider rate limits (429s) with jittered retry.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="data-model-204" class="doc-heading doc-h2"><a href="#data-model-204" class="heading-anchor">#</a> Data Model</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">sql</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-sql">CREATE TABLE tasks (
   task_id UUID PRIMARY KEY,
@@ -719,6 +743,8 @@ CREATE TABLE steps (
 );
 -- Full prompts and outputs go to object storage: s3://traj/{task_id}/{step}.json
 -- Retained 90 days, encrypted, access-logged (they may contain code and secrets).</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="failure-modes-228" class="doc-heading doc-h2"><a href="#failure-modes-228" class="heading-anchor">#</a> Failure Modes</h2>
 <div class="callout callout-warning">
 <div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
@@ -744,6 +770,8 @@ CREATE TABLE steps (
 <li>Sandbox crash mid-task. Temporal retries the activity. The workspace is checkpointed through git commits on a scratch branch after each successful edit batch, so recovery restores from the last commit.</li>
 <li>Provider outage. Queue tasks. The gateway fails over for new tasks only.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="security-summary-245" class="doc-heading doc-h2"><a href="#security-summary-245" class="heading-anchor">#</a> Security Summary</h2>
 <ul class="doc-list">
 <li>No production credentials ever. Test credentials are short-lived and scoped to the task.</li>
@@ -751,12 +779,16 @@ CREATE TABLE steps (
 <li>The trajectory store is treated as sensitive. Redact secrets with scanners such as gitleaks before persisting.</li>
 <li>Tenant isolation for SaaS: a separate VM per task, no shared writable caches across tenants, and per-tenant encryption keys.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="evals-252" class="doc-heading doc-h2"><a href="#evals-252" class="heading-anchor">#</a> Evals</h2>
 <ul class="doc-list">
 <li><strong>Offline.</strong> An internal SWE-bench-style set: 300 historical issues with their merged fixes and the hidden tests. Measure resolve rate, cost, and steps. Add SWE-bench Verified or Pro-style public sets for sanity checks only, because public benchmarks may be contaminated.</li>
 <li><strong>Online.</strong> PR merge rate, time-to-merge, reviewer rework comments, revert rate within 30 days, and cost per merged PR.</li>
 <li><strong>Regression gate.</strong> Any prompt, model, or tool change must hold resolve rate within the noise band. Run at least 3 seeds, since agent eval variance is high.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="scaling-and-trade-offs-258" class="doc-heading doc-h2"><a href="#scaling-and-trade-offs-258" class="heading-anchor">#</a> Scaling and Trade-offs</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -797,9 +829,15 @@ CREATE TABLE steps (
 <p>The biggest Staff-level insight here is that <strong>verification is the product</strong>. Model quality improves every quarter, so differentiation comes from the environment: fast, faithful sandboxes, good test signal, and mechanical checks. A strong harness with a mid-tier model often beats a weak harness with a frontier model.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="case-study-2-enterprise-agentic-rag-over-50m-documents-with-acls-270" class="doc-heading doc-h1"><a href="#case-study-2-enterprise-agentic-rag-over-50m-documents-with-acls-270" class="heading-anchor">#</a> Case Study 2: Enterprise Agentic RAG over 50M Documents with ACLs</h1>
+</section>
+<section class="doc-section">
 <h2 id="prompt-272" class="doc-heading doc-h2"><a href="#prompt-272" class="heading-anchor">#</a> Prompt</h2>
 <p class="doc-paragraph">&quot;Design an enterprise assistant that answers questions over 50M documents from Confluence, SharePoint, Google Drive, Slack, Jira, and a few databases for a 100K-employee company. Users must only ever see content they are authorized to see. It should handle multi-hop questions, not just lookups.&quot;</p>
+</section>
+<section class="doc-section">
 <h2 id="clarifying-questions-276" class="doc-heading doc-h2"><a href="#clarifying-questions-276" class="heading-anchor">#</a> Clarifying Questions</h2>
 <ol class="doc-list-ordered">
 <li><strong>ACL model.</strong> Does each source system have its own permissions, including groups and nested groups? Yes. We must mirror them, not invent new ones.</li>
@@ -809,9 +847,13 @@ CREATE TABLE steps (
 <li><strong>Languages.</strong> Mostly English, about 20% other languages.</li>
 <li><strong>Usage.</strong> 100K employees, 20% weekly active.</li>
 </ol>
+</section>
+<section class="doc-section">
 <h2 id="requirements-285" class="doc-heading doc-h2"><a href="#requirements-285" class="heading-anchor">#</a> Requirements</h2>
 <p class="doc-paragraph">Functional: hybrid search, agentic multi-step retrieval, cited answers, follow-ups, source previews, and feedback.</p>
 <p class="doc-paragraph">Non-functional: zero unauthorized disclosure as a hard requirement, p95 under 8s for simple questions and under 30s for deep ones, 99.9% availability, per-document deletion within 24 hours for GDPR erasure.</p>
+</section>
+<section class="doc-section">
 <h2 id="back-of-envelope-estimates-291" class="doc-heading doc-h2"><a href="#back-of-envelope-estimates-291" class="heading-anchor">#</a> Back-of-Envelope Estimates</h2>
 <p class="doc-paragraph">Corpus:</p>
 <ul class="doc-list">
@@ -859,6 +901,8 @@ CREATE TABLE steps (
 <td>5s (streaming, so perceived latency is TTFT)</td>
 </tr>
 </tbody></table></div>
+</section>
+<section class="doc-section">
 <h2 id="high-level-architecture-318" class="doc-heading doc-h2"><a href="#high-level-architecture-318" class="heading-anchor">#</a> High-Level Architecture</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">  Source systems (Confluence, SharePoint, Drive, Slack, Jira, DBs)
       |  webhooks + periodic crawl            | permission change events
@@ -893,6 +937,8 @@ CREATE TABLE steps (
  +---------------------------+
  | Chat API / UI / Slack bot |
  +---------------------------+</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="component-deep-dives-356" class="doc-heading doc-h2"><a href="#component-deep-dives-356" class="heading-anchor">#</a> Component Deep Dives</h2>
 <h3 id="acl-model-early-binding-with-late-verification-358" class="doc-heading doc-h3"><a href="#acl-model-early-binding-with-late-verification-358" class="heading-anchor">#</a> ACL Model: Early Binding with Late Verification</h3>
 <p class="doc-paragraph">There are three ways to enforce document permissions:</p>
@@ -977,6 +1023,8 @@ async def answer(question, principal):
 <li>Run a grounding check with a small NLI or LLM judge on each sentence and its cited chunk. Remove or flag unsupported sentences.</li>
 <li>When evidence is insufficient, say so. Abstaining is a feature.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="data-model-423" class="doc-heading doc-h2"><a href="#data-model-423" class="heading-anchor">#</a> Data Model</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-python"># Chunk record in the search index
 {
@@ -993,6 +1041,8 @@ async def answer(question, principal):
   &quot;lang&quot;: &quot;en&quot;, &quot;doc_type&quot;: &quot;runbook&quot;
 }</code></pre></div>
 <p class="doc-paragraph">The principal graph lives in an authorization service: a Zanzibar-style tuple store or a graph database, plus a materialized <code>user -&gt; groups</code> cache in Redis.</p>
+</section>
+<section class="doc-section">
 <h2 id="failure-modes-444" class="doc-heading doc-h2"><a href="#failure-modes-444" class="heading-anchor">#</a> Failure Modes</h2>
 <div class="callout callout-warning">
 <div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
@@ -1006,6 +1056,8 @@ async def answer(question, principal):
 <li><strong>Recall collapse under selective filters.</strong> Monitor &quot;filtered result count &lt; k&quot; and switch to a brute-force strategy.</li>
 <li><strong>Hot shards.</strong> One giant tenant or source. Shard by <code>hash(doc_id)</code> within a tenant and replicate.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="security-454" class="doc-heading doc-h2"><a href="#security-454" class="heading-anchor">#</a> Security</h2>
 <ul class="doc-list">
 <li>The access token is the user's own identity, carried end to end. The agent never uses a super-user identity for retrieval decisions. The connector uses a service account for crawling. Authorization is enforced through acl_tokens, which mirror source ACLs.</li>
@@ -1019,6 +1071,8 @@ async def answer(question, principal):
 <p>Semantic answer caches are dangerous with ACLs. Two users asking the same question may be entitled to different answers. If you cache answers at all, key them on <code>(normalized_query, hash(principal_set))</code>, or cache only retrieval results and re-run the ACL filter. In practice, prompt caching of system prompts gives most of the savings with none of the risk.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h2 id="evals-464" class="doc-heading doc-h2"><a href="#evals-464" class="heading-anchor">#</a> Evals</h2>
 <ul class="doc-list">
 <li><strong>Retrieval.</strong> Recall@k and nDCG on a golden set of 1-2K questions with labelled relevant documents, created by SMEs plus synthetic questions generated from documents.</li>
@@ -1026,6 +1080,8 @@ async def answer(question, principal):
 <li><strong>Security evals.</strong> This is a must-have: a red-team set where a test user asks for content from documents they cannot access. Run it on every release with synthetic users. Target zero leaks. Include injection documents.</li>
 <li><strong>Online.</strong> Thumbs up/down, citation click-through, &quot;no answer&quot; rate, and query reformulation rate.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="scaling-and-trade-offs-471" class="doc-heading doc-h2"><a href="#scaling-and-trade-offs-471" class="heading-anchor">#</a> Scaling and Trade-offs</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1066,7 +1122,11 @@ async def answer(question, principal):
 <p>In the interview, open with the ACL model before talking about embeddings. Most candidates design the vector store first and add permissions at the end, which leads to post-filtering. Saying &quot;authorization is a retrieval-time constraint, not a presentation-time filter&quot; is a strong Staff signal.</p>
 </div>
 </div>
+</section>
+<section class="doc-section">
 <h1 id="case-study-3-multi-agent-customer-support-platform-with-financial-actions-and-hitl-485" class="doc-heading doc-h1"><a href="#case-study-3-multi-agent-customer-support-platform-with-financial-actions-and-hitl-485" class="heading-anchor">#</a> Case Study 3: Multi-Agent Customer Support Platform with Financial Actions and HITL</h1>
+</section>
+<section class="doc-section">
 <h2 id="requirements-487" class="doc-heading doc-h2"><a href="#requirements-487" class="heading-anchor">#</a> Requirements</h2>
 <h3 id="functional-489" class="doc-heading doc-h3"><a href="#functional-489" class="heading-anchor">#</a> Functional</h3>
 <ul class="doc-list">
@@ -1082,6 +1142,8 @@ async def answer(question, principal):
 <li><strong>Reliability:</strong> Exactly-once financial transactions (zero double refunds).</li>
 <li><strong>Security:</strong> PCI-DSS compliance (zero raw card data in LLM context); OAuth scoped access tokens; PII redaction.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="back-of-the-envelope-math-501" class="doc-heading doc-h2"><a href="#back-of-the-envelope-math-501" class="heading-anchor">#</a> Back-of-the-Envelope Math</h2>
 <ul class="doc-list">
 <li><strong>Volume:</strong> 250,000 interactions / 86,400s ≈ ~3.0 interactions/sec average, ~15.0 peak conversations/sec.</li>
@@ -1094,6 +1156,8 @@ async def answer(question, principal):
 <li>Output: 250 tokens @ &amp;#36;15.00/M = &amp;#36;0.00375</li>
 <li>Cost per turn: ~&amp;#36;0.00555. Total daily LLM spend: ~&amp;#36;5,550/day.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="high-level-architecture-512" class="doc-heading doc-h2"><a href="#high-level-architecture-512" class="heading-anchor">#</a> High-Level Architecture</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">[ User (Chat/App) ] &lt;--&gt; [ API Gateway / WebSocket Manager ]
                                   |
@@ -1122,6 +1186,8 @@ async def answer(question, principal):
             [ Two-Phase Commit &amp; Idempotency Store (Redis) ]
                                  |
                [ HITL Escrow &amp; Approval Portal ]</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="component-deep-dive-544" class="doc-heading doc-h2"><a href="#component-deep-dive-544" class="heading-anchor">#</a> Component Deep Dive</h2>
 <h3 id="state-machine-agent-hierarchy-546" class="doc-heading doc-h3"><a href="#state-machine-agent-hierarchy-546" class="heading-anchor">#</a> State Machine &amp; Agent Hierarchy</h3>
 <ul class="doc-list">
@@ -1171,6 +1237,8 @@ def process_refund_node(state: SupportState):
         return {&quot;refund_tx_id&quot;: tx_id}
     else:
         return {&quot;refund_tx_id&quot;: &quot;REJECTED_BY_SUPERVISOR&quot;}</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="failure-modes-production-pitfalls-595" class="doc-heading doc-h2"><a href="#failure-modes-production-pitfalls-595" class="heading-anchor">#</a> Failure Modes &amp; Production Pitfalls</h2>
 <div class="callout callout-warning">
 <div class="callout-header"><span class="callout-icon">⚠️</span> <span class="callout-title">PRODUCTION PITFALL</span></div>
@@ -1185,7 +1253,11 @@ def process_refund_node(state: SupportState):
 </div>
 </div>
 <hr class="doc-divider">
+</section>
+<section class="doc-section">
 <h1 id="case-study-4-deep-research-and-multi-document-synthesis-agent-605" class="doc-heading doc-h1"><a href="#case-study-4-deep-research-and-multi-document-synthesis-agent-605" class="heading-anchor">#</a> Case Study 4: Deep Research and Multi-Document Synthesis Agent</h1>
+</section>
+<section class="doc-section">
 <h2 id="requirements-607" class="doc-heading doc-h2"><a href="#requirements-607" class="heading-anchor">#</a> Requirements</h2>
 <h3 id="functional-609" class="doc-heading doc-h3"><a href="#functional-609" class="heading-anchor">#</a> Functional</h3>
 <ul class="doc-list">
@@ -1200,6 +1272,8 @@ def process_refund_node(state: SupportState):
 <li><strong>Factual Grounding:</strong> Zero unverified assertions; strict contradiction reconciliation.</li>
 <li><strong>Cost Target:</strong> &lt; &amp;#36;2.50 total LLM compute per comprehensive report.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="architecture-620" class="doc-heading doc-h2"><a href="#architecture-620" class="heading-anchor">#</a> Architecture</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">[ User Research Request ]
           |
@@ -1230,6 +1304,8 @@ def process_refund_node(state: SupportState):
                       [ Fact-Checking &amp; Citation Verifier ]
                                   |
                       [ Final Cited PDF / Markdown ]</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="component-deep-dive-654" class="doc-heading doc-h2"><a href="#component-deep-dive-654" class="heading-anchor">#</a> Component Deep Dive</h2>
 <h3 id="1-recursive-plan-and-solve-loop-656" class="doc-heading doc-h3"><a href="#1-recursive-plan-and-solve-loop-656" class="heading-anchor">#</a> 1. Recursive Plan-and-Solve Loop</h3>
 <ul class="doc-list">
@@ -1263,6 +1339,8 @@ Determine if they directly conflict. If they conflict, identify:
 2. Recommended synthesis that accurately attributes both viewpoints.
 Format output strictly as JSON matching ContradictionReport schema.
 &quot;&quot;&quot;</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="scaling-and-trade-offs-688" class="doc-heading doc-h2"><a href="#scaling-and-trade-offs-688" class="heading-anchor">#</a> Scaling and Trade-offs</h2>
 <div class="table-responsive"><table class="doc-table">
 <thead><tr>
@@ -1288,7 +1366,11 @@ Format output strictly as JSON matching ContradictionReport schema.
 </tr>
 </tbody></table></div>
 <hr class="doc-divider">
+</section>
+<section class="doc-section">
 <h1 id="case-study-5-computer-use-and-browser-automation-agent-for-enterprise-back-office-698" class="doc-heading doc-h1"><a href="#case-study-5-computer-use-and-browser-automation-agent-for-enterprise-back-office-698" class="heading-anchor">#</a> Case Study 5: Computer-Use and Browser Automation Agent for Enterprise Back-Office</h1>
+</section>
+<section class="doc-section">
 <h2 id="requirements-700" class="doc-heading doc-h2"><a href="#requirements-700" class="heading-anchor">#</a> Requirements</h2>
 <h3 id="functional-702" class="doc-heading doc-h3"><a href="#functional-702" class="heading-anchor">#</a> Functional</h3>
 <ul class="doc-list">
@@ -1302,6 +1384,8 @@ Format output strictly as JSON matching ContradictionReport schema.
 <li><strong>Safety:</strong> Hard isolation; agents must never perform unauthorized actions or leak session cookies.</li>
 <li><strong>Latency:</strong> Maximum 2.5s per action step (visual screenshot capture + multimodal model inference + action dispatch).</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="architecture-712" class="doc-heading doc-h2"><a href="#architecture-712" class="heading-anchor">#</a> Architecture</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">[ Back-Office Task Dispatcher ]
                |
@@ -1328,6 +1412,8 @@ Format output strictly as JSON matching ContradictionReport schema.
   [ OS Event Dispatcher (PyAutoGUI / Playwright) ]
                |
   [ Visual Verification &amp; State Transition ]</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="component-deep-dive-742" class="doc-heading doc-h2"><a href="#component-deep-dive-742" class="heading-anchor">#</a> Component Deep Dive</h2>
 <h3 id="1-dual-grounding-accessibility-tree-set-of-marks-som-744" class="doc-heading doc-h3"><a href="#1-dual-grounding-accessibility-tree-set-of-marks-som-744" class="heading-anchor">#</a> 1. Dual Grounding: Accessibility Tree + Set-of-Marks (SoM)</h3>
 <ul class="doc-list">
@@ -1361,7 +1447,11 @@ class ComputerAction(Pydantic.BaseModel):
 </div>
 </div>
 <hr class="doc-divider">
+</section>
+<section class="doc-section">
 <h1 id="case-study-6-multi-tenant-agent-platform-as-a-service-for-1000-internal-teams-773" class="doc-heading doc-h1"><a href="#case-study-6-multi-tenant-agent-platform-as-a-service-for-1000-internal-teams-773" class="heading-anchor">#</a> Case Study 6: Multi-Tenant Agent Platform-as-a-Service for 1,000 Internal Teams</h1>
+</section>
+<section class="doc-section">
 <h2 id="requirements-775" class="doc-heading doc-h2"><a href="#requirements-775" class="heading-anchor">#</a> Requirements</h2>
 <h3 id="functional-777" class="doc-heading doc-h3"><a href="#functional-777" class="heading-anchor">#</a> Functional</h3>
 <ul class="doc-list">
@@ -1375,6 +1465,8 @@ class ComputerAction(Pydantic.BaseModel):
 <li><strong>Multi-Tenancy:</strong> Hard cryptographic and network isolation between business units (e.g., Retail vs Investment Banking).</li>
 <li><strong>Availability:</strong> 99.99% uptime for the Agent Gateway.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="architecture-787" class="doc-heading doc-h2"><a href="#architecture-787" class="heading-anchor">#</a> Architecture</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">[ Client Applications &amp; Channels ]
                 |
@@ -1400,6 +1492,8 @@ class ComputerAction(Pydantic.BaseModel):
            [ Unified Observability &amp; Evals (OpenTelemetry) ]
            - Distributed traces (Span per LLM call, span per tool call)
            - Continuous offline LLM-as-a-judge sampling</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="component-deep-dive-816" class="doc-heading doc-h2"><a href="#component-deep-dive-816" class="heading-anchor">#</a> Component Deep Dive</h2>
 <h3 id="1-dynamic-tool-discovery-at-scale-818" class="doc-heading doc-h3"><a href="#1-dynamic-tool-discovery-at-scale-818" class="heading-anchor">#</a> 1. Dynamic Tool Discovery at Scale</h3>
 <p class="doc-paragraph">With 1,000 teams, the catalog contains &gt;5,000 distinct tools. Sending 5,000 JSON schemas in every agent prompt requires 500,000 tokens—blowing past context limits and causing model confusion.</p>
@@ -1421,7 +1515,11 @@ class ComputerAction(Pydantic.BaseModel):
 $$\text{Charge} = (\text{Tokens}_{\text{uncached}} \cdot P_{\text{uncached}}) + (\text{Tokens}_{\text{cached}} \cdot P_{\text{cached}}) + (\text{Tokens}_{\text{out}} \cdot P_{\text{out}}) + \text{ToolSurcharge}$$
 </div>
 <hr class="doc-divider">
+</section>
+<section class="doc-section">
 <h1 id="case-study-7-financial-compliance-and-regulatory-audit-agent-834" class="doc-heading doc-h1"><a href="#case-study-7-financial-compliance-and-regulatory-audit-agent-834" class="heading-anchor">#</a> Case Study 7: Financial Compliance and Regulatory Audit Agent</h1>
+</section>
+<section class="doc-section">
 <h2 id="requirements-836" class="doc-heading doc-h2"><a href="#requirements-836" class="heading-anchor">#</a> Requirements</h2>
 <h3 id="functional-838" class="doc-heading doc-h3"><a href="#functional-838" class="heading-anchor">#</a> Functional</h3>
 <ul class="doc-list">
@@ -1435,6 +1533,8 @@ $$\text{Charge} = (\text{Tokens}_{\text{uncached}} \cdot P_{\text{uncached}}) + 
 <li><strong>Zero Hallucination Tolerance:</strong> Every regulatory flag must cite verified rules and timestamped evidence.</li>
 <li><strong>Maker-Checker Governance:</strong> High-severity flags require dual-investigator sign-off before regulatory submission.</li>
 </ul>
+</section>
+<section class="doc-section">
 <h2 id="architecture-848" class="doc-heading doc-h2"><a href="#architecture-848" class="heading-anchor">#</a> Architecture</h2>
 <div class="code-container"><div class="code-header"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-text">[ Real-Time Data Ingestion Pipeline (Kafka / FIX Protocol Streams) ]
                                 |
@@ -1462,6 +1562,8 @@ $$\text{Charge} = (\text{Tokens}_{\text{uncached}} \cdot P_{\text{uncached}}) + 
                  [ Dual-Control Maker-Checker Portal ]
                  - Compliance Officer 1: Confirms Flag
                  - Compliance Officer 2: Authorizes SEC Filing</code></pre></div>
+</section>
+<section class="doc-section">
 <h2 id="component-deep-dive-879" class="doc-heading doc-h2"><a href="#component-deep-dive-879" class="heading-anchor">#</a> Component Deep Dive</h2>
 <h3 id="1-worm-storage-deterministic-execution-881" class="doc-heading doc-h3"><a href="#1-worm-storage-deterministic-execution-881" class="heading-anchor">#</a> 1. WORM Storage &amp; Deterministic Execution</h3>
 <ul class="doc-list">
@@ -1475,6 +1577,8 @@ $$\text{Charge} = (\text{Tokens}_{\text{uncached}} \cdot P_{\text{uncached}}) + 
 <li>Only when the <code>SurveillanceAgent</code> successfully refutes the defense is the case escalated to human compliance officers.</li>
 </ul>
 <hr class="doc-divider">
+</section>
+<section class="doc-section">
 <h1 id="8-the-staff-level-agentic-system-design-interview-framework-892" class="doc-heading doc-h1"><a href="#8-the-staff-level-agentic-system-design-interview-framework-892" class="heading-anchor">#</a> 8. The Staff-Level Agentic System Design Interview Framework</h1>
 <p class="doc-paragraph">When interviewing for Staff or Lead Agentic AI roles, interviewers do not expect generic backend designs. They look for how you handle <strong>probabilistic failure modes, state durability, safety boundaries, and cost-latency trade-offs</strong>.</p>
 <p class="doc-paragraph">Use the following 8-step framework in any 45-to-60 minute interview:</p>
@@ -1526,6 +1630,7 @@ $$\text{Charge} = (\text{Tokens}_{\text{uncached}} \cdot P_{\text{uncached}}) + 
 <li><strong>35–42 mins:</strong> Evaluation strategy, observability, and scaling trade-offs table.</li>
 <li><strong>42–45 mins:</strong> Summary and interviewer Q&amp;A.</li>
 </ul>
+</section>
 
 
             <div class="doc-footer">
@@ -1545,10 +1650,6 @@ $$\text{Charge} = (\text{Tokens}_{\text{uncached}} \cdot P_{\text{uncached}}) + 
 <li class="toc-level-2"><a href="#back-of-envelope-estimates-64">Back-of-Envelope Estimates</a></li>
 <li class="toc-level-2"><a href="#high-level-architecture-91">High-Level Architecture</a></li>
 <li class="toc-level-2"><a href="#component-deep-dives-131">Component Deep Dives</a></li>
-<li class="toc-level-3"><a href="#sandbox-manager-133">Sandbox Manager</a></li>
-<li class="toc-level-3"><a href="#agent-harness-150">Agent Harness</a></li>
-<li class="toc-level-3"><a href="#verification-and-pr-quality-187">Verification and PR Quality</a></li>
-<li class="toc-level-3"><a href="#model-gateway-197">Model Gateway</a></li>
 <li class="toc-level-2"><a href="#data-model-204">Data Model</a></li>
 <li class="toc-level-2"><a href="#failure-modes-228">Failure Modes</a></li>
 <li class="toc-level-2"><a href="#security-summary-245">Security Summary</a></li>
@@ -1561,10 +1662,6 @@ $$\text{Charge} = (\text{Tokens}_{\text{uncached}} \cdot P_{\text{uncached}}) + 
 <li class="toc-level-2"><a href="#back-of-envelope-estimates-291">Back-of-Envelope Estimates</a></li>
 <li class="toc-level-2"><a href="#high-level-architecture-318">High-Level Architecture</a></li>
 <li class="toc-level-2"><a href="#component-deep-dives-356">Component Deep Dives</a></li>
-<li class="toc-level-3"><a href="#acl-model-early-binding-with-late-verification-358">ACL Model: Early Binding with Late Verification</a></li>
-<li class="toc-level-3"><a href="#ingestion-pipeline-381">Ingestion Pipeline</a></li>
-<li class="toc-level-3"><a href="#retrieval-agent-388">Retrieval Agent</a></li>
-<li class="toc-level-3"><a href="#grounding-and-citations-417">Grounding and Citations</a></li>
 <li class="toc-level-2"><a href="#data-model-423">Data Model</a></li>
 <li class="toc-level-2"><a href="#failure-modes-444">Failure Modes</a></li>
 <li class="toc-level-2"><a href="#security-454">Security</a></li>
@@ -1572,79 +1669,92 @@ $$\text{Charge} = (\text{Tokens}_{\text{uncached}} \cdot P_{\text{uncached}}) + 
 <li class="toc-level-2"><a href="#scaling-and-trade-offs-471">Scaling and Trade-offs</a></li>
 <li class="toc-level-1"><a href="#case-study-3-multi-agent-customer-support-platform-with-financial-actions-and-hitl-485">Case Study 3: Multi-Agent Customer Support Platform with Financial Actions and HITL</a></li>
 <li class="toc-level-2"><a href="#requirements-487">Requirements</a></li>
-<li class="toc-level-3"><a href="#functional-489">Functional</a></li>
-<li class="toc-level-3"><a href="#non-functional-495">Non-Functional</a></li>
 <li class="toc-level-2"><a href="#back-of-the-envelope-math-501">Back-of-the-Envelope Math</a></li>
 <li class="toc-level-2"><a href="#high-level-architecture-512">High-Level Architecture</a></li>
 <li class="toc-level-2"><a href="#component-deep-dive-544">Component Deep Dive</a></li>
-<li class="toc-level-3"><a href="#state-machine-agent-hierarchy-546">State Machine &amp; Agent Hierarchy</a></li>
-<li class="toc-level-3"><a href="#financial-action-safety-saga-pattern-idempotency-554">Financial Action Safety (Saga Pattern &amp; Idempotency)</a></li>
 <li class="toc-level-2"><a href="#failure-modes-production-pitfalls-595">Failure Modes &amp; Production Pitfalls</a></li>
 <li class="toc-level-1"><a href="#case-study-4-deep-research-and-multi-document-synthesis-agent-605">Case Study 4: Deep Research and Multi-Document Synthesis Agent</a></li>
 <li class="toc-level-2"><a href="#requirements-607">Requirements</a></li>
-<li class="toc-level-3"><a href="#functional-609">Functional</a></li>
-<li class="toc-level-3"><a href="#non-functional-614">Non-Functional</a></li>
 <li class="toc-level-2"><a href="#architecture-620">Architecture</a></li>
 <li class="toc-level-2"><a href="#component-deep-dive-654">Component Deep Dive</a></li>
-<li class="toc-level-3"><a href="#1-recursive-plan-and-solve-loop-656">1. Recursive Plan-and-Solve Loop</a></li>
-<li class="toc-level-3"><a href="#2-evidence-graph-and-source-provenance-660">2. Evidence Graph and Source Provenance</a></li>
-<li class="toc-level-3"><a href="#3-contradiction-resolution-engine-669">3. Contradiction Resolution Engine</a></li>
 <li class="toc-level-2"><a href="#scaling-and-trade-offs-688">Scaling and Trade-offs</a></li>
 <li class="toc-level-1"><a href="#case-study-5-computer-use-and-browser-automation-agent-for-enterprise-back-office-698">Case Study 5: Computer-Use and Browser Automation Agent for Enterprise Back-Office</a></li>
 <li class="toc-level-2"><a href="#requirements-700">Requirements</a></li>
-<li class="toc-level-3"><a href="#functional-702">Functional</a></li>
-<li class="toc-level-3"><a href="#non-functional-707">Non-Functional</a></li>
 <li class="toc-level-2"><a href="#architecture-712">Architecture</a></li>
 <li class="toc-level-2"><a href="#component-deep-dive-742">Component Deep Dive</a></li>
-<li class="toc-level-3"><a href="#1-dual-grounding-accessibility-tree-set-of-marks-som-744">1. Dual Grounding: Accessibility Tree + Set-of-Marks (SoM)</a></li>
-<li class="toc-level-3"><a href="#2-action-verification-and-rollback-762">2. Action Verification and Rollback</a></li>
 <li class="toc-level-1"><a href="#case-study-6-multi-tenant-agent-platform-as-a-service-for-1000-internal-teams-773">Case Study 6: Multi-Tenant Agent Platform-as-a-Service for 1,000 Internal Teams</a></li>
 <li class="toc-level-2"><a href="#requirements-775">Requirements</a></li>
-<li class="toc-level-3"><a href="#functional-777">Functional</a></li>
-<li class="toc-level-3"><a href="#non-functional-782">Non-Functional</a></li>
 <li class="toc-level-2"><a href="#architecture-787">Architecture</a></li>
 <li class="toc-level-2"><a href="#component-deep-dive-816">Component Deep Dive</a></li>
-<li class="toc-level-3"><a href="#1-dynamic-tool-discovery-at-scale-818">1. Dynamic Tool Discovery at Scale</a></li>
-<li class="toc-level-3"><a href="#2-finops-chargeback-ledger-825">2. FinOps Chargeback Ledger</a></li>
 <li class="toc-level-1"><a href="#case-study-7-financial-compliance-and-regulatory-audit-agent-834">Case Study 7: Financial Compliance and Regulatory Audit Agent</a></li>
 <li class="toc-level-2"><a href="#requirements-836">Requirements</a></li>
-<li class="toc-level-3"><a href="#functional-838">Functional</a></li>
-<li class="toc-level-3"><a href="#non-functional-843">Non-Functional</a></li>
 <li class="toc-level-2"><a href="#architecture-848">Architecture</a></li>
 <li class="toc-level-2"><a href="#component-deep-dive-879">Component Deep Dive</a></li>
-<li class="toc-level-3"><a href="#1-worm-storage-deterministic-execution-881">1. WORM Storage &amp; Deterministic Execution</a></li>
-<li class="toc-level-3"><a href="#2-adversarial-maker-checker-agent-pair-885">2. Adversarial Maker-Checker Agent Pair</a></li>
 <li class="toc-level-1"><a href="#8-the-staff-level-agentic-system-design-interview-framework-892">8. The Staff-Level Agentic System Design Interview Framework</a></li>
-<li class="toc-level-3"><a href="#time-allocation-guide-45-minute-session-940">Time Allocation Guide (45-Minute Session)</a></li>
 </ul></nav>
 
         </aside>
     </main>
 
-    <!-- KaTeX Scripts for Mathematical Rendering -->
+    <!-- KaTeX Scripts (deferred, lazy per-element rendering) -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-    <!-- Prism Syntax Highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <!-- Prism Syntax Highlighting (deferred + manual lazy highlighting) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Render Math with KaTeX
-            if (typeof renderMathInElement !== 'undefined') {
-                renderMathInElement(document.body, {
-                    delimiters: [
-                        {left: '', right: '', display: true},
-                        {left: '$', right: '$', display: false},
-                        {left: '\\(', right: '\\)', display: false},
-                        {left: '\\[', right: '\\]', display: true}
-                    ],
-                    throwOnError: false,
-                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+            const katexOpts = {
+                delimiters: [
+                    {left: '', right: '', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            };
+
+            function renderMathEl(el) {
+                if (el.dataset.mathDone || typeof renderMathInElement === 'undefined') return;
+                el.dataset.mathDone = '1';
+                renderMathInElement(el, katexOpts);
+            }
+
+            function highlightCodeEl(el) {
+                if (el.dataset.prismDone || typeof Prism === 'undefined') return;
+                if (el.classList.contains('language-text')) return;
+                el.dataset.prismDone = '1';
+                Prism.highlightElement(el);
+            }
+
+            const mathEls = document.querySelectorAll('.math-block, .math-display, .math-inline');
+            const codeEls = document.querySelectorAll('pre code[class*="language-"]');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) return;
+                        const el = entry.target;
+                        if (el.tagName === 'CODE') {
+                            highlightCodeEl(el);
+                        } else {
+                            renderMathEl(el);
+                        }
+                        obs.unobserve(el);
+                    });
+                }, { rootMargin: '500px 0px' });
+
+                mathEls.forEach(el => observer.observe(el));
+                codeEls.forEach(el => {
+                    if (!el.classList.contains('language-text')) observer.observe(el);
                 });
+            } else {
+                mathEls.forEach(renderMathEl);
+                codeEls.forEach(highlightCodeEl);
             }
         });
 
